@@ -415,16 +415,18 @@
                                 <input type="text" id="input-proyecto-nombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Dashboard de Ventas">
                             </div>
 
-                            <!-- Cliente -->
+                            <!-- Cliente (Dropdown dinámico desde Contactos) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
-                                <input type="text" id="input-proyecto-cliente" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Tech Solutions">
+                                <select id="input-proyecto-cliente" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Selecciona un cliente...</option>
+                                </select>
                             </div>
 
-                            <!-- Email Cliente -->
+                            <!-- Email Cliente (auto-completado) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email Cliente</label>
-                                <input type="email" id="input-proyecto-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="cliente@empresa.co">
+                                <input type="email" id="input-proyecto-email" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Se llena automáticamente">
                             </div>
 
                             <!-- Tipo Proyecto -->
@@ -492,10 +494,12 @@
                                 <input type="number" id="input-proyecto-progreso" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="50" min="0" max="100" value="0">
                             </div>
 
-                            <!-- Promotor -->
+                            <!-- Promotor (Dropdown dinámico desde Promotores) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Promotor</label>
-                                <input type="text" id="input-proyecto-promotor" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Nombre del promotor">
+                                <select id="input-proyecto-promotor" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Sin promotor</option>
+                                </select>
                             </div>
 
                             <!-- Notas -->
@@ -553,16 +557,18 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Nueva Factura</h3>
 
                         <form id="form-facturacion" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Proyecto -->
+                            <!-- Proyecto (Dropdown dinámico desde Proyectos) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto *</label>
-                                <input type="text" id="input-factura-proyecto" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Dashboard de Ventas">
+                                <select id="input-factura-proyecto" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Selecciona un proyecto...</option>
+                                </select>
                             </div>
 
-                            <!-- Cliente -->
+                            <!-- Cliente (auto-completado desde Proyecto) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-                                <input type="text" id="input-factura-cliente" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Auto-populate desde Proyecto">
+                                <input type="text" id="input-factura-cliente" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Se llena automáticamente">
                             </div>
 
                             <!-- Monto -->
@@ -927,6 +933,14 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
                                 <input type="text" id="input-gasto-proveedor" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Google Inc.">
+                            </div>
+
+                            <!-- Proyecto (Dropdown dinámico desde Proyectos) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto (Opcional)</label>
+                                <select id="input-gasto-proyecto" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Sin proyecto asociado</option>
+                                </select>
                             </div>
 
                             <div>
@@ -2585,6 +2599,146 @@
             }
         }
 
+        // ====================
+        // DROPDOWN POPULATION FUNCTIONS
+        // ====================
+
+        /**
+         * Populate Clientes dropdown in Proyectos from Contactos
+         */
+        async function populateClientesDropdown() {
+            try {
+                const data = await sheetsAPI.readSheet(CONFIG.SHEETS.CONTACTOS, 'A2:O');
+                const dropdown = document.getElementById('input-proyecto-cliente');
+
+                // Clear existing options except first one
+                dropdown.innerHTML = '<option value="">Selecciona un cliente...</option>';
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        const [id, nombre, email, telefono, empresa] = row;
+                        if (nombre) {
+                            const option = document.createElement('option');
+                            option.value = nombre;
+                            option.setAttribute('data-email', email || '');
+                            option.textContent = `${nombre}${empresa ? ` (${empresa})` : ''}`;
+                            dropdown.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error loading clientes:', error);
+            }
+        }
+
+        /**
+         * Populate Promotores dropdown in Proyectos from Promotores
+         */
+        async function populatePromotoresDropdown() {
+            try {
+                const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROMOTORES, 'A2:Q');
+                const dropdown = document.getElementById('input-proyecto-promotor');
+
+                // Clear existing options except first one
+                dropdown.innerHTML = '<option value="">Sin promotor</option>';
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        const [id, nombre, email, telefono, estado] = row;
+                        if (nombre && estado === 'Activo') {
+                            const option = document.createElement('option');
+                            option.value = nombre;
+                            option.textContent = nombre;
+                            dropdown.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error loading promotores:', error);
+            }
+        }
+
+        /**
+         * Populate Proyectos dropdown in Facturación from Proyectos
+         */
+        async function populateProyectosDropdownFacturacion() {
+            try {
+                const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS, 'A2:O');
+                const dropdown = document.getElementById('input-factura-proyecto');
+
+                // Clear existing options except first one
+                dropdown.innerHTML = '<option value="">Selecciona un proyecto...</option>';
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        const [id, nombre, cliente, emailCliente] = row;
+                        if (nombre) {
+                            const option = document.createElement('option');
+                            option.value = nombre;
+                            option.setAttribute('data-cliente', cliente || '');
+                            option.textContent = `${nombre}${cliente ? ` - ${cliente}` : ''}`;
+                            dropdown.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error loading proyectos:', error);
+            }
+        }
+
+        /**
+         * Populate Proyectos dropdown in Gastos from Proyectos
+         */
+        async function populateProyectosDropdownGastos() {
+            try {
+                const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS, 'A2:O');
+                const dropdown = document.getElementById('input-gasto-proyecto');
+
+                // Clear existing options except first one
+                dropdown.innerHTML = '<option value="">Sin proyecto asociado</option>';
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        const [id, nombre, cliente] = row;
+                        if (nombre) {
+                            const option = document.createElement('option');
+                            option.value = nombre;
+                            option.textContent = `${nombre}${cliente ? ` - ${cliente}` : ''}`;
+                            dropdown.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error loading proyectos:', error);
+            }
+        }
+
+        /**
+         * Handle Cliente selection in Proyectos (auto-fill email)
+         */
+        function handleClienteSelection() {
+            const dropdown = document.getElementById('input-proyecto-cliente');
+            const emailInput = document.getElementById('input-proyecto-email');
+
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            const email = selectedOption.getAttribute('data-email') || '';
+
+            emailInput.value = email;
+        }
+
+        /**
+         * Handle Proyecto selection in Facturación (auto-fill cliente)
+         */
+        function handleProyectoSelectionFacturacion() {
+            const dropdown = document.getElementById('input-factura-proyecto');
+            const clienteInput = document.getElementById('input-factura-cliente');
+
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            const cliente = selectedOption.getAttribute('data-cliente') || '';
+
+            clienteInput.value = cliente;
+        }
+
         // Initialize navigation
         function initNavigation() {
             // Navigation
@@ -2621,9 +2775,16 @@
             document.getElementById('form-proyectos').addEventListener('submit', handleProyectosSubmit);
             document.getElementById('btn-refresh-proyectos').addEventListener('click', loadProyectosView);
 
+            // Auto-fill email when cliente is selected
+            document.getElementById('input-proyecto-cliente').addEventListener('change', handleClienteSelection);
+
             // Load Proyectos view when navigating to it
             document.querySelector('[data-view="proyectos"]').addEventListener('click', () => {
-                setTimeout(() => loadProyectosView(), 100);
+                setTimeout(async () => {
+                    await loadProyectosView();
+                    await populateClientesDropdown();
+                    await populatePromotoresDropdown();
+                }, 100);
             });
 
             // Facturación view event listeners
@@ -2634,9 +2795,15 @@
             document.getElementById('input-factura-monto').addEventListener('input', calculateMontoTotal);
             document.getElementById('input-factura-iva').addEventListener('change', calculateMontoTotal);
 
+            // Auto-fill cliente when proyecto is selected
+            document.getElementById('input-factura-proyecto').addEventListener('change', handleProyectoSelectionFacturacion);
+
             // Load Facturación view when navigating to it
             document.querySelector('[data-view="facturacion"]').addEventListener('click', () => {
-                setTimeout(() => loadFacturacionView(), 100);
+                setTimeout(async () => {
+                    await loadFacturacionView();
+                    await populateProyectosDropdownFacturacion();
+                }, 100);
             });
 
             // Contactos view event listeners
@@ -2663,7 +2830,10 @@
 
             // Load Gastos view when navigating to it
             document.querySelector('[data-view="gastos"]').addEventListener('click', () => {
-                setTimeout(() => loadGastosView(), 100);
+                setTimeout(async () => {
+                    await loadGastosView();
+                    await populateProyectosDropdownGastos();
+                }, 100);
             });
         }
     </script>
