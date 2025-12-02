@@ -458,6 +458,11 @@
         let tokenClient;
         let accessToken = null;
 
+        // Chart instances
+        let chartPipeline = null;
+        let chartProyectos = null;
+        let chartFacturacion = null;
+
         // ====================
         // DATA LAYER: Google Sheets API
         // ====================
@@ -853,6 +858,20 @@
 
         // Initialize charts with real data
         function initCharts(pipelineData = [], proyectosData = [], facturacionData = []) {
+            // Destroy existing charts if they exist
+            if (chartPipeline) {
+                chartPipeline.destroy();
+                chartPipeline = null;
+            }
+            if (chartProyectos) {
+                chartProyectos.destroy();
+                chartProyectos = null;
+            }
+            if (chartFacturacion) {
+                chartFacturacion.destroy();
+                chartFacturacion = null;
+            }
+
             // ====================
             // Chart 1: Pipeline por Etapa
             // ====================
@@ -866,7 +885,7 @@
             });
 
             const ctx1 = document.getElementById('chart-pipeline').getContext('2d');
-            new Chart(ctx1, {
+            chartPipeline = new Chart(ctx1, {
                 type: 'bar',
                 data: {
                     labels: ['Contacto', 'Propuesta', 'Negociación', 'Cierre'],
@@ -906,7 +925,7 @@
             });
 
             const ctx2 = document.getElementById('chart-proyectos').getContext('2d');
-            new Chart(ctx2, {
+            chartProyectos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
                     labels: estados,
@@ -956,7 +975,7 @@
             }
 
             const ctx3 = document.getElementById('chart-facturacion').getContext('2d');
-            new Chart(ctx3, {
+            chartFacturacion = new Chart(ctx3, {
                 type: 'line',
                 data: {
                     labels: last12Months.map(m => m.label),
