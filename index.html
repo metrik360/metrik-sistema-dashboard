@@ -303,7 +303,16 @@
             API_KEY: '', // No needed for OAuth 2.0
             SHEET_ID: '16uKHN5v6DhGCMjuyUaC84yIw9Fx-DKjayP2NRINrAJc',
             SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email',
-            DISCOVERY_DOCS: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
+            DISCOVERY_DOCS: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
+            SHEETS: {
+                PIPELINE: 'Pipeline',
+                PROYECTOS: 'Proyectos',
+                FACTURACION: 'Facturación',
+                CONTACTOS: 'Contactos',
+                PROMOTORES: 'Promotores',
+                GASTOS: 'Gastos'
+            }
         };
 
         // Global variables
@@ -311,6 +320,175 @@
         let gisInited = false;
         let tokenClient;
         let accessToken = null;
+
+        // ====================
+        // DATA LAYER: Google Sheets API
+        // ====================
+
+        /**
+         * Google Sheets API wrapper with caching
+         */
+        class GoogleSheetsAPI {
+            constructor() {
+                this.cache = new Map();
+            }
+
+            /**
+             * Read data from a sheet
+             * @param {string} sheetName - Name of the sheet (e.g., 'Pipeline')
+             * @param {string} range - Range to read (e.g., 'A2:Z' to read all data rows)
+             * @returns {Promise<Array>} Array of rows
+             */
+            async readSheet(sheetName, range = 'A2:Z') {
+                const cacheKey = `${sheetName}!${range}`;
+
+                // Check cache
+                if (this.cache.has(cacheKey)) {
+                    const cached = this.cache.get(cacheKey);
+                    if (Date.now() - cached.timestamp < CONFIG.CACHE_DURATION) {
+                        console.log(`📦 Cache hit: ${cacheKey}`);
+                        return cached.data;
+                    }
+                }
+
+                try {
+                    console.log(`🔄 Fetching: ${sheetName}!${range}`);
+
+                    const response = await gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: CONFIG.SHEET_ID,
+                        range: `${sheetName}!${range}`,
+                    });
+
+                    const data = response.result.values || [];
+
+                    // Cache the result
+                    this.cache.set(cacheKey, {
+                        data: data,
+                        timestamp: Date.now()
+                    });
+
+                    console.log(`✅ Fetched ${data.length} rows from ${sheetName}`);
+                    return data;
+                } catch (error) {
+                    console.error(`❌ Error reading ${sheetName}:`, error);
+                    throw error;
+                }
+            }
+
+            /**
+             * Write data to a sheet (append rows)
+             * @param {string} sheetName - Name of the sheet
+             * @param {Array<Array>} values - 2D array of values to write
+             * @returns {Promise<Object>} Response object
+             */
+            async writeSheet(sheetName, values) {
+                try {
+                    console.log(`✍️ Writing ${values.length} rows to ${sheetName}`);
+
+                    const response = await gapi.client.sheets.spreadsheets.values.append({
+                        spreadsheetId: CONFIG.SHEET_ID,
+                        range: `${sheetName}!A2`,
+                        valueInputOption: 'USER_ENTERED',
+                        insertDataOption: 'INSERT_ROWS',
+                        resource: {
+                            values: values
+                        }
+                    });
+
+                    // Invalidate cache for this sheet
+                    this.invalidateCache(sheetName);
+
+                    console.log(`✅ Written to ${sheetName}`);
+                    return response.result;
+                } catch (error) {
+                    console.error(`❌ Error writing to ${sheetName}:`, error);
+                    throw error;
+                }
+            }
+
+            /**
+             * Update existing data in a sheet
+             * @param {string} sheetName - Name of the sheet
+             * @param {string} range - Range to update (e.g., 'A2:E2')
+             * @param {Array<Array>} values - 2D array of values to update
+             * @returns {Promise<Object>} Response object
+             */
+            async updateSheet(sheetName, range, values) {
+                try {
+                    console.log(`🔄 Updating ${sheetName}!${range}`);
+
+                    const response = await gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: CONFIG.SHEET_ID,
+                        range: `${sheetName}!${range}`,
+                        valueInputOption: 'USER_ENTERED',
+                        resource: {
+                            values: values
+                        }
+                    });
+
+                    // Invalidate cache for this sheet
+                    this.invalidateCache(sheetName);
+
+                    console.log(`✅ Updated ${sheetName}`);
+                    return response.result;
+                } catch (error) {
+                    console.error(`❌ Error updating ${sheetName}:`, error);
+                    throw error;
+                }
+            }
+
+            /**
+             * Delete rows from a sheet (by clearing content)
+             * @param {string} sheetName - Name of the sheet
+             * @param {string} range - Range to clear (e.g., 'A2:Z2')
+             * @returns {Promise<Object>} Response object
+             */
+            async deleteSheet(sheetName, range) {
+                try {
+                    console.log(`🗑️ Deleting ${sheetName}!${range}`);
+
+                    const response = await gapi.client.sheets.spreadsheets.values.clear({
+                        spreadsheetId: CONFIG.SHEET_ID,
+                        range: `${sheetName}!${range}`
+                    });
+
+                    // Invalidate cache for this sheet
+                    this.invalidateCache(sheetName);
+
+                    console.log(`✅ Deleted from ${sheetName}`);
+                    return response.result;
+                } catch (error) {
+                    console.error(`❌ Error deleting from ${sheetName}:`, error);
+                    throw error;
+                }
+            }
+
+            /**
+             * Invalidate cache for a specific sheet
+             * @param {string} sheetName - Name of the sheet
+             */
+            invalidateCache(sheetName) {
+                const keysToDelete = [];
+                for (const key of this.cache.keys()) {
+                    if (key.startsWith(sheetName)) {
+                        keysToDelete.push(key);
+                    }
+                }
+                keysToDelete.forEach(key => this.cache.delete(key));
+                console.log(`🗑️ Cache invalidated for ${sheetName}`);
+            }
+
+            /**
+             * Clear all cache
+             */
+            clearCache() {
+                this.cache.clear();
+                console.log('🗑️ All cache cleared');
+            }
+        }
+
+        // Create global instance
+        const sheetsAPI = new GoogleSheetsAPI();
 
         // Initialize on load
         window.onload = function() {
@@ -396,23 +574,157 @@
         // Load dashboard data
         async function loadDashboardData() {
             try {
-                // TODO: Read data from Google Sheets
-                // For now, show placeholder data
-                document.getElementById('kpi-leads').textContent = '24';
-                document.getElementById('kpi-pipeline').textContent = '$45M';
-                document.getElementById('kpi-proyectos').textContent = '8';
-                document.getElementById('kpi-facturacion').textContent = '$12M';
+                console.log('📊 Loading dashboard data...');
 
-                // Initialize charts
-                initCharts();
+                // Read data from all sheets in parallel
+                const [pipelineData, proyectosData, facturacionData] = await Promise.all([
+                    sheetsAPI.readSheet(CONFIG.SHEETS.PIPELINE),
+                    sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS),
+                    sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION)
+                ]);
+
+                // ====================
+                // KPI 1: Leads Activos
+                // ====================
+                // Count leads with estado != "Perdido" and != "Ganado"
+                const leadsActivos = pipelineData.filter(row => {
+                    const estado = row[4]; // Column E: Estado
+                    return estado && estado !== 'Perdido' && estado !== 'Ganado';
+                }).length;
+
+                document.getElementById('kpi-leads').textContent = leadsActivos;
+
+                // ====================
+                // KPI 2: Pipeline Value
+                // ====================
+                // Sum of "Valor estimado" for active leads
+                const pipelineValue = pipelineData
+                    .filter(row => {
+                        const estado = row[4]; // Column E: Estado
+                        return estado && estado !== 'Perdido' && estado !== 'Ganado';
+                    })
+                    .reduce((sum, row) => {
+                        const valor = parseFloat(row[5]) || 0; // Column F: Valor estimado
+                        return sum + valor;
+                    }, 0);
+
+                document.getElementById('kpi-pipeline').textContent = formatCurrency(pipelineValue);
+
+                // ====================
+                // KPI 3: Proyectos Activos
+                // ====================
+                // Count proyectos with estado = "Activo"
+                const proyectosActivos = proyectosData.filter(row => {
+                    const estado = row[4]; // Column E: Estado
+                    return estado === 'Activo';
+                }).length;
+
+                document.getElementById('kpi-proyectos').textContent = proyectosActivos;
+
+                // ====================
+                // KPI 4: Facturación Mes Actual
+                // ====================
+                // Sum of "Monto" for current month
+                const currentMonth = new Date().getMonth() + 1; // 1-12
+                const currentYear = new Date().getFullYear();
+
+                const facturacionMes = facturacionData
+                    .filter(row => {
+                        const fechaEmision = row[1]; // Column B: Fecha emisión
+                        if (!fechaEmision) return false;
+
+                        // Parse date (assuming format: DD/MM/YYYY or YYYY-MM-DD)
+                        const date = parseDate(fechaEmision);
+                        if (!date) return false;
+
+                        return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                    })
+                    .reduce((sum, row) => {
+                        const monto = parseFloat(row[4]) || 0; // Column E: Monto
+                        return sum + monto;
+                    }, 0);
+
+                document.getElementById('kpi-facturacion').textContent = formatCurrency(facturacionMes);
+
+                // Initialize charts with real data
+                initCharts(pipelineData, proyectosData, facturacionData);
+
+                console.log('✅ Dashboard data loaded successfully');
             } catch (error) {
-                console.error('Error loading dashboard data:', error);
+                console.error('❌ Error loading dashboard data:', error);
+
+                // Show error state
+                document.getElementById('kpi-leads').textContent = 'Error';
+                document.getElementById('kpi-pipeline').textContent = 'Error';
+                document.getElementById('kpi-proyectos').textContent = 'Error';
+                document.getElementById('kpi-facturacion').textContent = 'Error';
+
+                alert('Error al cargar datos del dashboard. Por favor, recarga la página.');
             }
         }
 
-        // Initialize charts
-        function initCharts() {
+        // ====================
+        // UTILITY FUNCTIONS
+        // ====================
+
+        /**
+         * Format number as currency (COP)
+         */
+        function formatCurrency(value) {
+            if (value >= 1000000) {
+                return `$${(value / 1000000).toFixed(1)}M`;
+            } else if (value >= 1000) {
+                return `$${(value / 1000).toFixed(1)}K`;
+            } else {
+                return `$${value.toFixed(0)}`;
+            }
+        }
+
+        /**
+         * Parse date from string (supports DD/MM/YYYY and YYYY-MM-DD)
+         */
+        function parseDate(dateString) {
+            if (!dateString) return null;
+
+            // Try DD/MM/YYYY format
+            let parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // 0-indexed
+                const year = parseInt(parts[2]);
+                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                    return new Date(year, month, day);
+                }
+            }
+
+            // Try YYYY-MM-DD format
+            parts = dateString.split('-');
+            if (parts.length === 3) {
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // 0-indexed
+                const day = parseInt(parts[2]);
+                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                    return new Date(year, month, day);
+                }
+            }
+
+            return null;
+        }
+
+        // Initialize charts with real data
+        function initCharts(pipelineData = [], proyectosData = [], facturacionData = []) {
+            // ====================
             // Chart 1: Pipeline por Etapa
+            // ====================
+            const etapas = ['Contacto Inicial', 'Propuesta Enviada', 'Negociación', 'Cierre'];
+            const pipelineByEtapa = etapas.map(etapa => {
+                return pipelineData.filter(row => {
+                    const etapaRow = row[3]; // Column D: Etapa
+                    const estado = row[4]; // Column E: Estado
+                    return etapaRow === etapa && estado !== 'Perdido' && estado !== 'Ganado';
+                }).length;
+            });
+
             const ctx1 = document.getElementById('chart-pipeline').getContext('2d');
             new Chart(ctx1, {
                 type: 'bar',
@@ -420,7 +732,7 @@
                     labels: ['Contacto', 'Propuesta', 'Negociación', 'Cierre'],
                     datasets: [{
                         label: 'Cantidad de Leads',
-                        data: [8, 12, 6, 4],
+                        data: pipelineByEtapa,
                         backgroundColor: '#10B981',
                     }]
                 },
@@ -433,20 +745,33 @@
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
                         }
                     }
                 }
             });
 
+            // ====================
             // Chart 2: Proyectos por Estado
+            // ====================
+            const estados = ['Activo', 'Pausado', 'Completado', 'Cancelado'];
+            const proyectosByEstado = estados.map(estado => {
+                return proyectosData.filter(row => {
+                    const estadoRow = row[4]; // Column E: Estado
+                    return estadoRow === estado;
+                }).length;
+            });
+
             const ctx2 = document.getElementById('chart-proyectos').getContext('2d');
             new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Activo', 'Pausado', 'Completado', 'Cancelado'],
+                    labels: estados,
                     datasets: [{
-                        data: [8, 2, 15, 3],
+                        data: proyectosByEstado,
                         backgroundColor: ['#10B981', '#F59E0B', '#6B7280', '#EF4444'],
                     }]
                 },
@@ -455,15 +780,49 @@
                 }
             });
 
+            // ====================
             // Chart 3: Facturación últimos 12 meses
+            // ====================
+            const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+
+            // Calculate last 12 months data
+            const last12Months = [];
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(currentYear, currentDate.getMonth() - i, 1);
+                const month = date.getMonth() + 1; // 1-12
+                const year = date.getFullYear();
+
+                const monthTotal = facturacionData
+                    .filter(row => {
+                        const fechaEmision = row[1]; // Column B: Fecha emisión
+                        if (!fechaEmision) return false;
+
+                        const parsedDate = parseDate(fechaEmision);
+                        if (!parsedDate) return false;
+
+                        return parsedDate.getMonth() + 1 === month && parsedDate.getFullYear() === year;
+                    })
+                    .reduce((sum, row) => {
+                        const monto = parseFloat(row[4]) || 0; // Column E: Monto
+                        return sum + monto;
+                    }, 0);
+
+                last12Months.push({
+                    label: monthNames[date.getMonth()],
+                    value: monthTotal / 1000000 // Convert to millions
+                });
+            }
+
             const ctx3 = document.getElementById('chart-facturacion').getContext('2d');
             new Chart(ctx3, {
                 type: 'line',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    labels: last12Months.map(m => m.label),
                     datasets: [{
-                        label: 'Facturación (COP)',
-                        data: [8, 10, 12, 15, 18, 20, 22, 25, 28, 30, 35, 40],
+                        label: 'Facturación (Millones COP)',
+                        data: last12Months.map(m => m.value),
                         borderColor: '#10B981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         fill: true,
@@ -475,11 +834,23 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `$${context.parsed.y.toFixed(1)}M COP`;
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return `$${value}M`;
+                                }
+                            }
                         }
                     }
                 }
