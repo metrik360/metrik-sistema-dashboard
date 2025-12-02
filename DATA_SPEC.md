@@ -1,0 +1,382 @@
+# DATA SPECIFICATION - Sistema MéTRIK
+
+**Proyecto:** Sistema de Gestión MéTRIK
+**Documento:** Especificación de Estructura de Datos
+**Versión:** 1.0
+**Fecha:** 2 Diciembre 2025
+
+---
+
+## 📋 OVERVIEW
+
+Este documento especifica la estructura detallada de las 6 hojas de Google Sheets que conforman la base de datos del sistema MéTRIK.
+
+**Google Sheet ID:** `[PENDING - Mauricio lo proporcionará]`
+
+---
+
+## 🗂️ HOJA 1: PIPELINE (CRM Comercial)
+
+**Propósito:** Gestión del embudo de ventas y leads comerciales
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `PIP-YYYY-####` | Identificador único del lead |
+| B | **Lead** | Texto | Sí | Min 3 caracteres | - | Nombre de la persona de contacto |
+| C | **Empresa** | Texto | Sí | Min 2 caracteres | - | Nombre de la empresa |
+| D | **Email** | Email | Sí | Formato email válido | - | Email de contacto |
+| E | **Teléfono** | Texto | No | Formato: +57 ### ### #### | - | Teléfono de contacto |
+| F | **Etapa** | Dropdown | Sí | - | Contacto, Propuesta, Negociación, Cierre | Etapa actual en el pipeline |
+| G | **Valor** | Número | Sí | > 0 | - | Valor potencial del proyecto (COP) |
+| H | **Probabilidad** | Número | Sí | 0-100 | - | % de probabilidad de cierre |
+| I | **Fecha Contacto** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha del primer contacto |
+| J | **Fecha Estimada Cierre** | Fecha | No | >= Fecha Contacto | - | Fecha esperada de cierre |
+| K | **Estado** | Dropdown | Sí | - | Activo, Ganado, Perdido, Pausado | Estado actual del lead |
+| L | **Fuente** | Dropdown | No | - | Web, Referido, LinkedIn, Evento, Otro | Origen del lead |
+| M | **Notas** | Texto largo | No | - | - | Observaciones adicionales |
+| N | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación (auto) |
+
+### Reglas de Negocio
+
+1. **Pipeline Value = Valor × (Probabilidad / 100)**
+2. **Probabilidad por etapa (sugerida):**
+   - Contacto: 25%
+   - Propuesta: 50%
+   - Negociación: 75%
+   - Cierre: 90%
+3. **Estado "Ganado"** → Debe crear registro automático en Proyectos
+4. **Leads Activos** = Estado != "Ganado" && Estado != "Perdido"
+
+### Ejemplos de Datos
+
+```
+PIP-2025-0001 | Juan Pérez | Tech Solutions | juan@tech.co | +57 300 123 4567 | Propuesta | 15000000 | 50 | 2025-11-15 | 2025-12-30 | Activo | LinkedIn | Interesado en dashboard de ventas | 2025-11-20 10:30
+```
+
+---
+
+## 🗂️ HOJA 2: PROYECTOS (Gestión Operativa)
+
+**Propósito:** Control de proyectos en ejecución y completados
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `PRJ-YYYY-####` | Identificador único del proyecto |
+| B | **Nombre** | Texto | Sí | Min 5 caracteres | - | Nombre del proyecto |
+| C | **Cliente** | Dropdown | Sí | Debe existir en Contactos | - | Nombre del cliente |
+| D | **Email Cliente** | Email | Auto | Trae de Contactos | - | Email del cliente (auto-populate) |
+| E | **Tipo Proyecto** | Dropdown | Sí | - | Dashboard, CRM, Landing, Custom | Tipo de entregable |
+| F | **Estado** | Dropdown | Sí | - | Activo, Pausado, Completado, Cancelado | Estado actual |
+| G | **Fase** | Dropdown | Sí | - | Discovery, Design, Desarrollo, QA, Deploy, Cerrado | Fase actual del proyecto |
+| H | **Fecha Inicio** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha de inicio del proyecto |
+| I | **Fecha Entrega Estimada** | Fecha | Sí | >= Fecha Inicio | - | Fecha comprometida de entrega |
+| J | **Fecha Entrega Real** | Fecha | No | >= Fecha Inicio | - | Fecha real de entrega |
+| K | **Valor** | Número | Sí | > 0 | - | Valor del proyecto (COP) |
+| L | **Progreso** | Número | Sí | 0-100 | - | % de avance del proyecto |
+| M | **Repositorio** | URL | No | Formato URL válido | - | Link al repo GitHub |
+| N | **Deploy URL** | URL | No | Formato URL válido | - | URL del proyecto en producción |
+| O | **Notas** | Texto largo | No | - | - | Observaciones |
+| P | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+
+### Reglas de Negocio
+
+1. **Progreso por fase (estimado):**
+   - Discovery: 10%
+   - Design: 30%
+   - Desarrollo: 70%
+   - QA: 85%
+   - Deploy: 95%
+   - Cerrado: 100%
+
+2. **Estado vs Fase:**
+   - Completado → Fase debe ser "Cerrado" y Progreso = 100%
+   - Cancelado → Progreso se congela
+
+3. **Días transcurridos** = Hoy - Fecha Inicio
+4. **Días restantes** = Fecha Entrega Estimada - Hoy
+5. **Alerta si:** Días restantes < 2 y Progreso < 80%
+
+### Ejemplos de Datos
+
+```
+PRJ-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | juan@tech.co | Dashboard | Activo | Desarrollo | 2025-11-20 | 2025-12-05 | - | 15000000 | 60 | github.com/metrik/tech-dashboard | - | En desarrollo según cronograma | 2025-11-28 14:20
+```
+
+---
+
+## 🗂️ HOJA 3: FACTURACIÓN (Control Financiero)
+
+**Propósito:** Gestión de facturas emitidas e ingresos
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `FAC-YYYY-####` | Número de factura |
+| B | **Proyecto** | Dropdown | Sí | Debe existir en Proyectos | - | Proyecto asociado |
+| C | **Cliente** | Texto | Auto | Trae de Proyectos | - | Cliente (auto-populate) |
+| D | **Monto** | Número | Sí | > 0 | - | Monto a facturar (COP) |
+| E | **IVA** | Número | No | 0 o 19 | - | % de IVA aplicado |
+| F | **Monto Total** | Número | Auto | Monto + (Monto × IVA/100) | - | Total con IVA |
+| G | **Fecha Emisión** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha de emisión |
+| H | **Fecha Vencimiento** | Fecha | Sí | >= Fecha Emisión | - | Fecha límite de pago |
+| I | **Fecha Pago** | Fecha | No | - | - | Fecha en que se recibió el pago |
+| J | **Estado** | Dropdown | Sí | - | Pendiente, Pagada, Vencida, Cancelada | Estado de la factura |
+| K | **Método Pago** | Dropdown | No | - | Transferencia, Efectivo, Tarjeta, Otro | Forma de pago |
+| L | **Referencia Pago** | Texto | No | - | - | Número de transacción/referencia |
+| M | **Notas** | Texto largo | No | - | - | Observaciones |
+| N | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+
+### Reglas de Negocio
+
+1. **Monto Total = Monto + (Monto × IVA / 100)**
+2. **Estado automático:**
+   - Vencida: Si Fecha Vencimiento < Hoy && Estado = "Pendiente"
+   - Pagada: Solo si Fecha Pago está llena
+
+3. **Días vencimiento** = Hoy - Fecha Vencimiento (si > 0 y Pendiente → Vencida)
+4. **Facturación mes actual** = SUM(Monto Total) WHERE Fecha Pago = mes actual
+5. **Alerta si:** Estado = "Vencida" y Días vencimiento > 15
+
+### Ejemplos de Datos
+
+```
+FAC-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | 15000000 | 19 | 17850000 | 2025-12-01 | 2025-12-31 | - | Pendiente | - | - | Primera factura del proyecto | 2025-12-01 09:00
+```
+
+---
+
+## 🗂️ HOJA 4: CONTACTOS (Base de Datos)
+
+**Propósito:** Registro de todos los contactos y clientes
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `CON-YYYY-####` | Identificador único |
+| B | **Nombre** | Texto | Sí | Min 3 caracteres | - | Nombre completo |
+| C | **Email** | Email | Sí | Formato email válido, único | - | Email principal |
+| D | **Teléfono** | Texto | No | Formato: +57 ### ### #### | - | Teléfono |
+| E | **Empresa** | Texto | Sí | Min 2 caracteres | - | Empresa donde trabaja |
+| F | **Cargo** | Texto | No | - | - | Puesto/cargo |
+| G | **Tipo** | Dropdown | Sí | - | Cliente, Lead, Promotor, Proveedor, Otro | Tipo de contacto |
+| H | **Fuente** | Dropdown | No | - | Web, Referido, LinkedIn, Evento, Otro | Cómo llegó |
+| I | **LinkedIn** | URL | No | Formato URL | - | Perfil de LinkedIn |
+| J | **Ciudad** | Texto | No | - | - | Ciudad de residencia |
+| K | **País** | Texto | No | - | - | País |
+| L | **Tags** | Texto | No | Separados por comas | - | Etiquetas (ej: "tecnología, fintech") |
+| M | **Notas** | Texto largo | No | - | - | Observaciones |
+| N | **Fecha Creación** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Fecha de registro |
+| O | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+
+### Reglas de Negocio
+
+1. **Email único** - No puede haber dos contactos con mismo email
+2. **Cuando se crea Lead en Pipeline** → Crear contacto automático si no existe
+3. **Cuando se crea Proyecto** → Cliente debe existir en Contactos
+4. **Tipo "Cliente"** = Ha tenido al menos 1 proyecto completado
+5. **Tags para búsqueda** - Implementar autocomplete
+
+### Ejemplos de Datos
+
+```
+CON-2025-0001 | Juan Pérez | juan@tech.co | +57 300 123 4567 | Tech Solutions | CTO | Cliente | LinkedIn | linkedin.com/in/juanperez | Bogotá | Colombia | tecnología, software, saas | Contacto clave en Tech Solutions | 2025-11-15 10:00 | 2025-11-20 14:30
+```
+
+---
+
+## 🗂️ HOJA 5: PROMOTORES (Red de Referidos)
+
+**Propósito:** Gestión de la red de promotores y comisiones
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `PROM-YYYY-####` | Identificador único |
+| B | **Nombre** | Texto | Sí | Min 3 caracteres | - | Nombre del promotor |
+| C | **Email** | Email | Sí | Formato email válido, único | - | Email del promotor |
+| D | **Teléfono** | Texto | No | Formato: +57 ### ### #### | - | Teléfono |
+| E | **Tipo** | Dropdown | Sí | - | Activo, Inactivo, Suspendido | Estado del promotor |
+| F | **% Comisión** | Número | Sí | 0-30 | - | Porcentaje de comisión acordado |
+| G | **Referidos Totales** | Número | Auto | Count de leads | - | Cantidad de leads referidos |
+| H | **Proyectos Ganados** | Número | Auto | Count de proyectos cerrados | - | Leads que se convirtieron |
+| I | **Tasa Conversión** | Número | Auto | (Ganados/Totales) × 100 | - | % de efectividad |
+| J | **Comisión Generada** | Número | Auto | SUM de comisiones | - | Total de comisiones (COP) |
+| K | **Comisión Pagada** | Número | Sí | <= Comisión Generada | - | Total ya pagado (COP) |
+| L | **Comisión Pendiente** | Número | Auto | Generada - Pagada | - | Saldo pendiente (COP) |
+| M | **Banco** | Texto | No | - | - | Banco para pagos |
+| N | **Cuenta** | Texto | No | - | - | Número de cuenta |
+| O | **Notas** | Texto largo | No | - | - | Observaciones |
+| P | **Fecha Creación** | Fecha | Auto | Formato: YYYY-MM-DD | - | Fecha de registro |
+| Q | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+
+### Reglas de Negocio
+
+1. **Comisión Generada** = SUM(Valor Proyecto × % Comisión) de proyectos cerrados
+2. **Comisión Pendiente** = Comisión Generada - Comisión Pagada
+3. **Tasa Conversión** = (Proyectos Ganados / Referidos Totales) × 100
+4. **Alerta si:** Comisión Pendiente > $2,000,000 COP
+5. **Top Promotor** = Mayor Comisión Generada
+
+### Ejemplos de Datos
+
+```
+PROM-2025-0001 | María Gómez | maria@example.com | +57 310 987 6543 | Activo | 10 | 5 | 3 | 60 | 4500000 | 2000000 | 2500000 | Bancolombia | 1234567890 | Promotora desde noviembre | 2025-11-01 | 2025-11-28 16:00
+```
+
+---
+
+## 🗂️ HOJA 6: GASTOS (Control de Egresos)
+
+**Propósito:** Registro de gastos operativos y administrativos
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `GAS-YYYY-####` | Identificador único |
+| B | **Fecha** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha del gasto |
+| C | **Concepto** | Texto | Sí | Min 5 caracteres | - | Descripción del gasto |
+| D | **Categoría** | Dropdown | Sí | - | Marketing, Software, Oficina, Transporte, Comisiones, Otro | Tipo de gasto |
+| E | **Monto** | Número | Sí | > 0 | - | Monto del gasto (COP) |
+| F | **Método Pago** | Dropdown | Sí | - | Tarjeta, Transferencia, Efectivo, Otro | Forma de pago |
+| G | **Proveedor** | Texto | No | - | - | Empresa/persona que recibe el pago |
+| H | **Proyecto Asociado** | Dropdown | No | Debe existir en Proyectos | - | Si aplica a un proyecto específico |
+| I | **Estado** | Dropdown | Sí | - | Pagado, Pendiente, Reembolsado | Estado del gasto |
+| J | **Factura/Recibo** | URL | No | Formato URL | - | Link a documento (Drive, etc.) |
+| K | **Es Recurrente** | Checkbox | No | Sí/No | - | Si es gasto mensual |
+| L | **Notas** | Texto largo | No | - | - | Observaciones |
+| M | **Fecha Registro** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Fecha de registro en sistema |
+
+### Reglas de Negocio
+
+1. **Gastos del mes** = SUM(Monto) WHERE Fecha = mes actual
+2. **Gastos por categoría** = GROUP BY Categoría
+3. **Margen** = (Ingresos mes - Gastos mes) / Ingresos mes × 100
+4. **Alerta si:** Gastos mes > 70% de Ingresos mes
+5. **Gastos recurrentes** - Recordatorio mensual automático
+
+### Ejemplos de Datos
+
+```
+GAS-2025-0001 | 2025-11-15 | Suscripción Vercel Pro | Software | 240000 | Tarjeta | Vercel Inc | - | Pagado | drive.google.com/file/xxx | Sí | Hosting para proyectos | 2025-11-15 08:30
+```
+
+---
+
+## 🔗 RELACIONES ENTRE HOJAS
+
+### Diagrama de Flujo de Datos
+
+```
+PIPELINE (Lead ganado)
+    ↓
+PROYECTOS (Se crea proyecto)
+    ↓
+FACTURACIÓN (Se factura proyecto)
+    ↓
+[Se registra pago]
+
+CONTACTOS
+    ↑ ↓
+PIPELINE / PROYECTOS / PROMOTORES
+
+PROMOTORES → PIPELINE (Fuente = Referido)
+    ↓
+[Si lead cierra] → Comisión Generada ++
+
+GASTOS → PROYECTOS (opcional, para costeo)
+```
+
+### Integraciones Automáticas
+
+1. **Lead ganado en Pipeline** → Crear Proyecto automático
+   - Copiar: Cliente, Email, Valor
+   - Estado inicial: "Activo"
+   - Fase inicial: "Discovery"
+
+2. **Nuevo Lead en Pipeline** → Verificar/Crear Contacto
+   - Si Email existe → Vincular
+   - Si no existe → Crear nuevo contacto
+
+3. **Proyecto en Facturación** → Validar que existe
+   - Dropdown solo muestra proyectos activos/completados
+   - Auto-completa Cliente desde Proyectos
+
+4. **Promotor refiere Lead** → Actualizar métricas
+   - Referidos Totales ++
+   - Si Lead cierra → Proyectos Ganados ++ y Comisión Generada += Valor × %
+
+5. **Cliente en Proyectos** → Autocompletar desde Contactos
+   - Traer Email automáticamente
+   - Validar que existe en base de datos
+
+---
+
+## 🔧 CONSIDERACIONES TÉCNICAS
+
+### Formatos de Datos
+
+**Fechas:**
+- Almacenar: `YYYY-MM-DD HH:MM:SS`
+- Mostrar: `DD/MM/YYYY` o formato local
+
+**Números:**
+- Almacenar: Números puros (ej: 15000000)
+- Mostrar: Formato moneda `$15.000.000 COP`
+
+**IDs Auto-generados:**
+```javascript
+function generateID(prefix, year, count) {
+  return `${prefix}-${year}-${String(count).padStart(4, '0')}`;
+}
+// Ejemplo: PIP-2025-0001
+```
+
+### Validaciones Frontend
+
+```javascript
+// Validar email
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Validar teléfono Colombia
+const phoneRegex = /^\+57 \d{3} \d{3} \d{4}$/;
+
+// Validar URL
+const urlRegex = /^https?:\/\/.+/;
+
+// Validar rango 0-100
+const inRange = (val) => val >= 0 && val <= 100;
+```
+
+### Índices y Performance
+
+Para optimizar búsquedas en Google Sheets:
+- Crear "Named Ranges" para cada hoja
+- Usar VLOOKUP/INDEX-MATCH para relaciones
+- Cachear datos leídos por 5 minutos
+- Batch updates cuando sea posible
+
+---
+
+## 📝 NOTAS FINALES
+
+1. **Google Sheet ID:** Mauricio debe proporcionar el ID del Sheet una vez creado
+2. **Permisos:** El Client ID OAuth debe tener acceso al Sheet
+3. **Backup:** Configurar exportación automática semanal
+4. **Auditoría:** Campos "Fecha Actualización" para trazabilidad
+5. **Escalabilidad:** Si alguna hoja supera 10,000 filas, considerar archivado
+
+---
+
+**Próximo documento:** DESIGN_SPEC.md (wireframes y componentes UI)
+
+**Versión:** 1.0
+**Estado:** En revisión
+**Última actualización:** 2 Diciembre 2025
