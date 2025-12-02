@@ -2,7 +2,7 @@
 const CONFIG = {
     // OAuth 2.0 Configuration
     CLIENT_ID: '482658322972-3nst66clokld9b2rcjarg8i5v5ngo540.apps.googleusercontent.com',
-    SCOPES: 'https://www.googleapis.com/auth/spreadsheets',
+    SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email',
     DISCOVERY_DOCS: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
 
     // Google Sheets Configuration
