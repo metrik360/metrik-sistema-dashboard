@@ -259,8 +259,140 @@
 
                 <!-- Pipeline View -->
                 <div id="view-pipeline" class="view-content hidden">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Pipeline (CRM)</h2>
-                    <p class="text-gray-600">Vista en construcción...</p>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-3xl font-bold text-gray-900">Pipeline (CRM)</h2>
+                        <button id="btn-refresh-pipeline" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all">
+                            Actualizar
+                        </button>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Nuevo Lead</h3>
+
+                        <form id="form-pipeline" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Lead Name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Lead *</label>
+                                <input type="text" id="input-lead" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Juan Pérez">
+                            </div>
+
+                            <!-- Empresa -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa *</label>
+                                <input type="text" id="input-empresa" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Tech Solutions">
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                <input type="email" id="input-email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="juan@tech.co">
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                                <input type="tel" id="input-telefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="+57 300 123 4567">
+                            </div>
+
+                            <!-- Etapa -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Etapa *</label>
+                                <select id="input-etapa" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="Contacto">Contacto</option>
+                                    <option value="Propuesta">Propuesta</option>
+                                    <option value="Negociación">Negociación</option>
+                                    <option value="Cierre">Cierre</option>
+                                </select>
+                            </div>
+
+                            <!-- Valor -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Valor (COP) *</label>
+                                <input type="number" id="input-valor" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="15000000" min="0">
+                            </div>
+
+                            <!-- Probabilidad -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Probabilidad (%) *</label>
+                                <input type="number" id="input-probabilidad" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="50" min="0" max="100">
+                            </div>
+
+                            <!-- Fecha Contacto -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Contacto *</label>
+                                <input type="date" id="input-fecha-contacto" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+
+                            <!-- Fecha Estimada Cierre -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Est. Cierre</label>
+                                <input type="date" id="input-fecha-cierre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+
+                            <!-- Estado -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                                <select id="input-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Ganado">Ganado</option>
+                                    <option value="Perdido">Perdido</option>
+                                    <option value="Pausado">Pausado</option>
+                                </select>
+                            </div>
+
+                            <!-- Fuente -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fuente</label>
+                                <select id="input-fuente" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Web">Web</option>
+                                    <option value="Referido">Referido</option>
+                                    <option value="LinkedIn">LinkedIn</option>
+                                    <option value="Evento">Evento</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <!-- Notas -->
+                            <div class="md:col-span-2 lg:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                                <textarea id="input-notas" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Observaciones adicionales..."></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
+                                    Guardar Lead
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Table Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Leads Registrados</h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lead</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Etapa</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prob.</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-pipeline-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Rows will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Proyectos View -->
@@ -294,6 +426,11 @@
                 </div>
             </main>
         </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <p id="toast-message"></p>
     </div>
 
     <script>
@@ -860,6 +997,216 @@
             });
         }
 
+        // ====================
+        // TOAST NOTIFICATION SYSTEM
+        // ====================
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+
+            toastMessage.textContent = message;
+
+            // Set color based on type
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform opacity-100 translate-y-0 transition-all duration-300 z-50';
+            } else if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg transform opacity-100 translate-y-0 transition-all duration-300 z-50';
+            } else {
+                toast.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-lg transform opacity-100 translate-y-0 transition-all duration-300 z-50';
+            }
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50';
+            }, 3000);
+        }
+
+        // ====================
+        // PIPELINE VIEW FUNCTIONS
+        // ====================
+
+        /**
+         * Load and render Pipeline data
+         */
+        async function loadPipelineView() {
+            try {
+                console.log('📊 Loading Pipeline view...');
+
+                const pipelineData = await sheetsAPI.readSheet(CONFIG.SHEETS.PIPELINE);
+                renderPipelineTable(pipelineData);
+
+                console.log('✅ Pipeline view loaded');
+            } catch (error) {
+                console.error('❌ Error loading Pipeline:', error);
+                showToast('Error al cargar Pipeline', 'error');
+            }
+        }
+
+        /**
+         * Render Pipeline table
+         */
+        function renderPipelineTable(data) {
+            const tbody = document.getElementById('table-pipeline-body');
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">No hay leads registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map((row, index) => {
+                const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas] = row;
+
+                // Generate badge colors
+                const etapaBadge = getBadge(etapa, 'blue');
+                const estadoBadge = getBadge(estado, getEstadoColor(estado));
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${lead || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${empresa || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${email || '-'}</td>
+                        <td class="px-4 py-3 text-sm">${etapaBadge}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${probabilidad}%</td>
+                        <td class="px-4 py-3 text-sm">${estadoBadge}</td>
+                        <td class="px-4 py-3 text-sm text-right">
+                            <button onclick="deletePipelineLead(${index + 2})" class="text-red-600 hover:text-red-800 font-medium">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Get badge HTML
+         */
+        function getBadge(text, color) {
+            const colors = {
+                'blue': 'bg-blue-100 text-blue-800',
+                'green': 'bg-green-100 text-green-800',
+                'yellow': 'bg-yellow-100 text-yellow-800',
+                'red': 'bg-red-100 text-red-800',
+                'gray': 'bg-gray-100 text-gray-800'
+            };
+
+            const colorClass = colors[color] || colors.gray;
+
+            return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${colorClass}">${text}</span>`;
+        }
+
+        /**
+         * Get estado color
+         */
+        function getEstadoColor(estado) {
+            switch (estado) {
+                case 'Activo': return 'blue';
+                case 'Ganado': return 'green';
+                case 'Perdido': return 'red';
+                case 'Pausado': return 'yellow';
+                default: return 'gray';
+            }
+        }
+
+        /**
+         * Generate Pipeline ID
+         */
+        function generatePipelineId() {
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+            return `PIP-${year}-${random}`;
+        }
+
+        /**
+         * Handle Pipeline form submission
+         */
+        async function handlePipelineSubmit(event) {
+            event.preventDefault();
+
+            try {
+                // Get form values
+                const id = generatePipelineId();
+                const lead = document.getElementById('input-lead').value;
+                const empresa = document.getElementById('input-empresa').value;
+                const email = document.getElementById('input-email').value;
+                const telefono = document.getElementById('input-telefono').value;
+                const etapa = document.getElementById('input-etapa').value;
+                const valor = document.getElementById('input-valor').value;
+                const probabilidad = document.getElementById('input-probabilidad').value;
+                const fechaContacto = document.getElementById('input-fecha-contacto').value;
+                const fechaCierre = document.getElementById('input-fecha-cierre').value;
+                const estado = document.getElementById('input-estado').value;
+                const fuente = document.getElementById('input-fuente').value;
+                const notas = document.getElementById('input-notas').value;
+                const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                // Create row data
+                const rowData = [[
+                    id,
+                    lead,
+                    empresa,
+                    email,
+                    telefono,
+                    etapa,
+                    valor,
+                    probabilidad,
+                    fechaContacto,
+                    fechaCierre,
+                    estado,
+                    fuente,
+                    notas,
+                    fechaActualizacion
+                ]];
+
+                // Write to Google Sheets
+                await sheetsAPI.writeSheet(CONFIG.SHEETS.PIPELINE, rowData);
+
+                // Show success message
+                showToast('Lead guardado exitosamente', 'success');
+
+                // Reset form
+                document.getElementById('form-pipeline').reset();
+
+                // Reload table
+                await loadPipelineView();
+
+                // Reload dashboard (to update KPIs)
+                loadDashboardData();
+
+            } catch (error) {
+                console.error('❌ Error saving lead:', error);
+                showToast('Error al guardar lead', 'error');
+            }
+        }
+
+        /**
+         * Delete Pipeline lead
+         */
+        async function deletePipelineLead(rowNumber) {
+            if (!confirm('¿Estás seguro de eliminar este lead?')) {
+                return;
+            }
+
+            try {
+                // Delete row (clear content)
+                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PIPELINE, `A${rowNumber}:N${rowNumber}`);
+
+                showToast('Lead eliminado exitosamente', 'success');
+
+                // Reload table
+                await loadPipelineView();
+
+                // Reload dashboard
+                loadDashboardData();
+
+            } catch (error) {
+                console.error('❌ Error deleting lead:', error);
+                showToast('Error al eliminar lead', 'error');
+            }
+        }
+
         // Initialize navigation
         function initNavigation() {
             // Navigation
@@ -881,6 +1228,15 @@
             // Mobile menu toggle
             document.getElementById('menu-toggle').addEventListener('click', () => {
                 document.getElementById('sidebar').classList.toggle('hidden');
+            });
+
+            // Pipeline view event listeners
+            document.getElementById('form-pipeline').addEventListener('submit', handlePipelineSubmit);
+            document.getElementById('btn-refresh-pipeline').addEventListener('click', loadPipelineView);
+
+            // Load Pipeline view when navigating to it
+            document.querySelector('[data-view="pipeline"]').addEventListener('click', () => {
+                setTimeout(() => loadPipelineView(), 100);
             });
         }
     </script>
