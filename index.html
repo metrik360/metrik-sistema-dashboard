@@ -588,7 +588,7 @@
                 // ====================
                 // Count leads with estado != "Perdido" and != "Ganado"
                 const leadsActivos = pipelineData.filter(row => {
-                    const estado = row[4]; // Column E: Estado
+                    const estado = row[10]; // Column K: Estado
                     return estado && estado !== 'Perdido' && estado !== 'Ganado';
                 }).length;
 
@@ -597,15 +597,18 @@
                 // ====================
                 // KPI 2: Pipeline Value
                 // ====================
-                // Sum of "Valor estimado" for active leads
+                // Sum of "Pipeline Value" for active leads
+                // Formula: Valor × (Probabilidad / 100)
                 const pipelineValue = pipelineData
                     .filter(row => {
-                        const estado = row[4]; // Column E: Estado
+                        const estado = row[10]; // Column K: Estado
                         return estado && estado !== 'Perdido' && estado !== 'Ganado';
                     })
                     .reduce((sum, row) => {
-                        const valor = parseFloat(row[5]) || 0; // Column F: Valor estimado
-                        return sum + valor;
+                        const valor = parseFloat(row[6]) || 0; // Column G: Valor
+                        const probabilidad = parseFloat(row[7]) || 0; // Column H: Probabilidad
+                        const pipelineVal = valor * (probabilidad / 100);
+                        return sum + pipelineVal;
                     }, 0);
 
                 document.getElementById('kpi-pipeline').textContent = formatCurrency(pipelineValue);
@@ -716,11 +719,11 @@
             // ====================
             // Chart 1: Pipeline por Etapa
             // ====================
-            const etapas = ['Contacto Inicial', 'Propuesta Enviada', 'Negociación', 'Cierre'];
+            const etapas = ['Contacto', 'Propuesta', 'Negociación', 'Cierre'];
             const pipelineByEtapa = etapas.map(etapa => {
                 return pipelineData.filter(row => {
-                    const etapaRow = row[3]; // Column D: Etapa
-                    const estado = row[4]; // Column E: Estado
+                    const etapaRow = row[5]; // Column F: Etapa
+                    const estado = row[10]; // Column K: Estado
                     return etapaRow === etapa && estado !== 'Perdido' && estado !== 'Ganado';
                 }).length;
             });
