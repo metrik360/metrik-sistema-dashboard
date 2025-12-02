@@ -145,7 +145,7 @@
 
         <div class="flex">
             <!-- Sidebar -->
-            <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-16 hidden lg:block">
+            <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-16">
                 <nav class="p-4 sidebar-nav">
                     <a href="#" data-view="dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 active">
                         <span class="text-xl">📊</span>
@@ -382,6 +382,9 @@
                 console.error('Error getting user info:', error);
             }
 
+            // Initialize navigation
+            initNavigation();
+
             // Load dashboard data
             loadDashboardData();
         }
@@ -479,26 +482,29 @@
             });
         }
 
-        // Navigation
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = e.currentTarget.dataset.view;
+        // Initialize navigation
+        function initNavigation() {
+            // Navigation
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const view = e.currentTarget.dataset.view;
 
-                // Update active state
-                document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
-                e.currentTarget.classList.add('active');
+                    // Update active state
+                    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
 
-                // Show view
-                document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
-                document.getElementById(`view-${view}`).classList.remove('hidden');
+                    // Show view
+                    document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+                    document.getElementById(`view-${view}`).classList.remove('hidden');
+                });
             });
-        });
 
-        // Mobile menu toggle
-        document.getElementById('menu-toggle').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('hidden');
-        });
+            // Mobile menu toggle
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('hidden');
+            });
+        }
     </script>
 
     <!-- Google Identity Services -->
