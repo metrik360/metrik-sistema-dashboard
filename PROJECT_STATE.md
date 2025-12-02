@@ -1,8 +1,8 @@
 # PROJECT STATE - Sistema MéTRIK
 
 **Proyecto:** Sistema de Gestión MéTRIK - Dashboard + CRM Interno
-**Estado:** 🟢 En progreso - Fase 4 (Pipeline CRUD)
-**Última actualización:** 2 Diciembre 2025 (noche)
+**Estado:** 🟢 En progreso - Fase 5 (Integraciones)
+**Última actualización:** 2 Diciembre 2025 (noche - actualización final)
 
 ---
 
@@ -17,7 +17,7 @@
 | **Deploy Target** | GitHub Pages → metrik.com.co |
 | **Fecha Inicio** | 2 Diciembre 2025 |
 | **Fecha Entrega Estimada** | 9 Diciembre 2025 (7 días) |
-| **Progreso General** | 55% (Fases 1-4 completadas) |
+| **Progreso General** | 70% (Fases 1-5 completadas) |
 
 ---
 
@@ -121,11 +121,11 @@
 
 ---
 
-### 🟡 DÍA 4-5: CRUD VIEWS (EN PROGRESO - 17% completado)
+### ✅ DÍA 4-5: CRUD VIEWS (COMPLETADO - 100%)
 
 **Objetivo:** Implementar las 6 vistas CRUD completas
 
-**Tareas por vista:**
+**Tareas completadas:**
 - [x] **Vista Pipeline (CRM) - COMPLETADA** ✅
   - Formulario captura con 11 campos
   - Tabla con 8 columnas y badges de estado
@@ -135,26 +135,57 @@
   - Toast notifications (éxito/error)
   - Refresh automático de dashboard después de CRUD
 
-- [ ] Vista Proyectos (siguiente)
-- [ ] Vista Facturación
-- [ ] Vista Contactos
-- [ ] Vista Promotores
-- [ ] Vista Gastos
+- [x] **Vista Proyectos - COMPLETADA** ✅
+  - Formulario con 12 campos (Nombre, Cliente, Email, Tipo, Estado, Fase, Fechas, Valor, Progreso, Promotor, Notas)
+  - Tabla con 8 columnas y badges de estado
+  - Generación automática de IDs (PRJ-YYYY-####)
+  - CRUD completo funcionando
+
+- [x] **Vista Facturación - COMPLETADA** ✅
+  - Formulario con 11 campos incluyendo auto-cálculo de Monto Total
+  - Auto-cálculo: Monto Total = Monto + (Monto × IVA / 100)
+  - Tabla con 8 columnas y badges de estado
+  - Generación automática de IDs (FAC-YYYY-####)
+  - CRUD completo funcionando
+
+- [x] **Vista Contactos - COMPLETADA** ✅
+  - Formulario con 9 campos (Nombre, Email, Teléfono, Empresa, Cargo, Tipo, Fuente, Ciudad, País, Notas)
+  - Tabla con 6 columnas
+  - Generación automática de IDs (CON-YYYY-####)
+  - CRUD completo funcionando
+
+- [x] **Vista Promotores - COMPLETADA** ✅
+  - Formulario con 7 campos (Nombre, Email, Teléfono, Estado, % Comisión, Banco, Cuenta, Notas)
+  - Tabla con 6 columnas y badges de estado
+  - Generación automática de IDs (PROM-YYYY-####)
+  - Inicialización automática de métricas
+  - CRUD completo funcionando
+
+- [x] **Vista Gastos - COMPLETADA** ✅
+  - Formulario con 7 campos (Fecha, Concepto, Categoría, Monto, Método Pago, Proveedor, Estado, Notas)
+  - Tabla con 6 columnas y badges de estado
+  - Generación automática de IDs (GAS-YYYY-####)
+  - Refresh automático de dashboard después de CRUD
+  - CRUD completo funcionando
 
 **Funcionalidades implementadas:**
 - [x] Badges de estado con colores
 - [x] Toast notifications
 - [x] Sistema de refresh automático
-- [ ] Búsqueda/filtrado (pendiente)
-- [ ] Ordenamiento por columnas (pendiente)
-- [ ] Paginación (pendiente)
+- [x] Formato de moneda
+- [x] Auto-cálculo de totales
+- [ ] Búsqueda/filtrado (próxima fase)
+- [ ] Ordenamiento por columnas (próxima fase)
+- [ ] Paginación (próxima fase)
 
 **Entregables completados:**
-- 1/6 vistas CRUD completas (Pipeline)
-- Formularios con validaciones
+- 6/6 vistas CRUD completas (100%)
+- Formularios con validaciones HTML5
 - Tablas interactivas con delete
+- Generación automática de IDs para todas las entidades
 
 **Fecha inicio:** 2 Diciembre 2025 (noche)
+**Fecha completado:** 2 Diciembre 2025 (noche - actualización final)
 
 ---
 
@@ -302,12 +333,12 @@
 | Setup & Auth | 100% | ✅ Completado |
 | Data Layer | 100% | ✅ Completado |
 | Dashboard View | 100% | ✅ Completado |
-| CRUD Views | 17% | 🟡 En progreso (1/6 vistas) |
+| CRUD Views | 100% | ✅ Completado (6/6 vistas) |
 | Integraciones | 0% | ⏳ Pendiente |
 | Polish & Testing | 0% | ⏳ Pendiente |
 | Deploy & Docs | 0% | ⏳ Pendiente |
 
-**Progreso Total:** 55% (4/8 fases completadas, 1 en progreso)
+**Progreso Total:** 70% (5/8 fases completadas)
 
 ### Estimación de Esfuerzo
 
@@ -317,15 +348,73 @@
 | Setup & Auth | 3h | 1.5h | -50% 🟢 |
 | Data Layer | 6h | 2h | -67% 🟢 |
 | Dashboard View | 8h | 3h | -63% 🟢 |
-| CRUD Views | 12h | 2h (parcial) | En progreso |
+| CRUD Views | 12h | 4h | -67% 🟢 |
 | Integraciones | 4h | - | - |
 | Polish & Testing | 6h | - | - |
 | Deploy & Docs | 3h | - | - |
-| **Total** | **46h** | **10.5h** | -77% 🟢 (adelantado) |
+| **Total** | **46h** | **12.5h** | -73% 🟢 (adelantado) |
 
 ---
 
 ## 📝 LOG DE CAMBIOS
+
+### 2 Diciembre 2025 - 23:45
+
+**Actividad:** Fase 5 completada - 6/6 vistas CRUD funcionando 100%
+
+**Cambios realizados:**
+
+- **Vista Proyectos (2/6 - COMPLETADA):**
+  - Formulario con 12 campos validados
+  - Tabla interactiva con 8 columnas
+  - Badges de estado (Activo/Pausado/Completado/Cancelado)
+  - Generación automática de IDs (PRJ-YYYY-####)
+  - CRUD completo funcionando
+
+- **Vista Facturación (3/6 - COMPLETADA):**
+  - Formulario con 11 campos
+  - Auto-cálculo: Monto Total = Monto + (Monto × IVA / 100)
+  - Tabla interactiva con 8 columnas
+  - Badges de estado (Pagada/Pendiente/Vencida/Cancelada)
+  - Generación automática de IDs (FAC-YYYY-####)
+  - Event listeners para auto-cálculo en tiempo real
+
+- **Vista Contactos (4/6 - COMPLETADA):**
+  - Formulario con 9 campos (Nombre, Email, Teléfono, Empresa, Cargo, Tipo, Fuente, Ciudad, País, Notas)
+  - Tabla con 6 columnas
+  - Generación automática de IDs (CON-YYYY-####)
+  - Toast notifications
+
+- **Vista Promotores (5/6 - COMPLETADA):**
+  - Formulario con 7 campos (Nombre, Email, Teléfono, Estado, % Comisión, Banco, Cuenta, Notas)
+  - Tabla con 6 columnas y badges de estado (Activo/Inactivo/Suspendido)
+  - Generación automática de IDs (PROM-YYYY-####)
+  - Inicialización automática de métricas (Referidos, Proyectos Ganados, Tasa Conversión, Comisiones)
+
+- **Vista Gastos (6/6 - COMPLETADA):**
+  - Formulario con 7 campos (Fecha, Concepto, Categoría, Monto, Método Pago, Proveedor, Estado, Notas)
+  - Tabla con 6 columnas y badges de estado (Pagado/Pendiente/Rechazado)
+  - Generación automática de IDs (GAS-YYYY-####)
+  - Formato de moneda
+  - Refresh automático de dashboard después de CRUD
+
+**Commits:**
+- 5787a46: Feat: Vistas Contactos, Promotores y Gastos CRUD completas (4/6, 5/6, 6/6)
+
+**Estado del proyecto:**
+- ✅ 5/8 fases completadas (70%)
+- ✅ 6/6 vistas CRUD completas y funcionando
+- ✅ Dashboard con KPIs y gráficas en tiempo real
+- ✅ Sistema de autenticación OAuth 2.0
+- ✅ Conexión completa con Google Sheets API
+
+**Próximos pasos:**
+1. Implementar integraciones entre vistas (dropdowns dinámicos)
+2. Agregar funcionalidades avanzadas (búsqueda, filtrado, paginación)
+3. Testing y refinamiento
+4. Deploy a producción
+
+---
 
 ### 2 Diciembre 2025 - 23:30
 
@@ -406,29 +495,36 @@
 
 **Fecha:** 3 Diciembre 2025
 
-**Objetivo:** Continuar con CRUD Views (Vistas 2-6)
+**Objetivo:** Implementar integraciones entre vistas y funcionalidades avanzadas
 
 **Agenda:**
-1. Implementar Vista Proyectos (CRUD)
-   - Formulario: ID, Cliente, Nombre, Tipo, Valor, Estado, Fecha Inicio, Fecha Fin, Promotor, Notas
-   - Tabla interactiva con badges
-   - Dropdown dinámico de Clientes (desde Contactos)
-   - Dropdown dinámico de Promotores (desde Promotores)
+1. **Integraciones entre vistas:**
+   - Dropdown "Cliente" en Proyectos → Trae de Contactos
+   - Dropdown "Proyecto" en Facturación → Trae de Proyectos
+   - Dropdown "Promotor" en Proyectos → Trae de Promotores
+   - Dropdown "Proyecto" en Gastos → Trae de Proyectos
+   - Autocompletar emails existentes en formularios
 
-2. Implementar Vista Facturación (CRUD)
-   - Formulario: Proyecto, Fecha Emisión, Fecha Vencimiento, Estado Pago, Monto, Notas
-   - Dropdown dinámico de Proyectos
+2. **Funcionalidades avanzadas (opcional):**
+   - Búsqueda/filtrado en tablas
+   - Ordenamiento por columnas
+   - Paginación para tablas grandes
 
-3. Si hay tiempo, comenzar Vista Contactos
+3. **Automatizaciones:**
+   - Lead "Ganado" → Crear proyecto automático
+   - Proyecto completado → Actualizar métricas Promotor
+   - Calcular comisiones de Promotores automáticamente
 
 **Prioridad:**
-- Proyectos es la vista más crítica después de Pipeline
-- Facturación depende de Proyectos (dropdown)
+- Integraciones son críticas para flujo de trabajo completo
+- Funcionalidades avanzadas mejoran UX
 
 **Estado actual:**
 - ✅ Dashboard funcionando 100%
-- ✅ Pipeline CRUD funcionando 100%
-- ⏳ 5 vistas CRUD pendientes
+- ✅ 6/6 vistas CRUD funcionando 100%
+- ✅ Sistema OAuth y Google Sheets API funcionando
+- ⏳ Integraciones pendientes
+- ⏳ Testing y deploy pendientes
 
 ---
 
@@ -440,8 +536,8 @@
 
 ---
 
-**Estado actual:** 🟢 Muy adelantado - 55% completado (4/8 fases)
-**Próximo hito:** Completar las 5 vistas CRUD restantes
+**Estado actual:** 🟢 Muy adelantado - 70% completado (5/8 fases)
+**Próximo hito:** Implementar integraciones entre vistas
 **ETA Entrega:** 9 Diciembre 2025 (muy adelantado del cronograma)
 
 ---
