@@ -450,6 +450,7 @@
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lead</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Servicio</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Etapa</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prob.</th>
@@ -2009,22 +2010,24 @@
             const tbody = document.getElementById('table-pipeline-body');
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">No hay leads registrados</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">No hay leads registrados</td></tr>';
                 return;
             }
 
             tbody.innerHTML = data.map((row, index) => {
-                const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas] = row;
+                const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = row;
 
                 // Generate badge colors
                 const etapaBadge = getBadge(etapa, 'blue');
                 const estadoBadge = getBadge(estado, getEstadoColor(estado));
+                const servicioBadge = servicio ? getBadge(servicio, 'green') : '<span class="text-gray-400 text-xs">Sin servicio</span>';
 
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${lead || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${empresa || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${email || '-'}</td>
+                        <td class="px-4 py-3 text-sm">${servicioBadge}</td>
                         <td class="px-4 py-3 text-sm">${etapaBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${probabilidad}%</td>
@@ -2107,9 +2110,11 @@
                 const estado = document.getElementById('input-estado').value;
                 const fuente = document.getElementById('input-fuente').value;
                 const notas = document.getElementById('input-notas').value;
+                const servicioSelect = document.getElementById('input-servicio').value;
+                const servicio = servicioSelect ? JSON.parse(servicioSelect).nombre : '';
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-                // Create row data
+                // Create row data (15 columns A-O)
                 const rowData = [[
                     id,
                     lead,
@@ -2124,19 +2129,21 @@
                     estado,
                     fuente,
                     notas,
+                    servicio,
                     fechaActualizacion
                 ]];
 
                 if (isEditing) {
                     // Update existing row
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:N${editRow}`, rowData);
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:O${editRow}`, rowData);
                     showToast('Lead actualizado exitosamente', 'success');
 
                     // Check if estado changed to "Ganado" → Create project automatically
                     if (estado === 'Ganado') {
-                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nValor: $${formatCurrency(parseFloat(valor))}`);
+                        const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
+                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
-                            await convertLeadToProject(lead, empresa, email, valor, id);
+                            await convertLeadToProject(lead, empresa, email, valor, id, servicioData);
                         }
                     }
                 } else {
@@ -2146,9 +2153,10 @@
 
                     // Check if new lead is already "Ganado" → Create project automatically
                     if (estado === 'Ganado') {
-                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nValor: $${formatCurrency(parseFloat(valor))}`);
+                        const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
+                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
-                            await convertLeadToProject(lead, empresa, email, valor, id);
+                            await convertLeadToProject(lead, empresa, email, valor, id, servicioData);
                         }
                     }
                 }
@@ -2174,16 +2182,22 @@
         /**
          * Convert Lead to Project automatically
          */
-        async function convertLeadToProject(leadNombre, cliente, emailCliente, valor, leadId) {
+        async function convertLeadToProject(leadNombre, cliente, emailCliente, valor, leadId, servicioData = null) {
             try {
                 console.log(`🔄 Converting lead ${leadId} to project...`);
 
                 // Generate Project ID
                 const projectId = generateProyectoId();
                 const today = new Date().toISOString().slice(0, 10);
+
+                // Calculate delivery date from servicio duration or default 30 days
+                const duracionDias = servicioData ? parseInt(servicioData.duracion) || 30 : 30;
                 const estimatedDelivery = new Date();
-                estimatedDelivery.setDate(estimatedDelivery.getDate() + 30); // 30 days from now
+                estimatedDelivery.setDate(estimatedDelivery.getDate() + duracionDias);
                 const fechaEntregaEst = estimatedDelivery.toISOString().slice(0, 10);
+
+                // Get tipo proyecto from servicio categoria or default Custom
+                const tipoProyecto = servicioData ? servicioData.categoria : 'Custom';
 
                 // Create project data
                 const projectData = [[
@@ -2191,7 +2205,7 @@
                     `Proyecto ${leadNombre}`,          // B: Nombre
                     cliente,                            // C: Cliente
                     emailCliente,                       // D: Email Cliente
-                    'Custom',                           // E: Tipo Proyecto
+                    tipoProyecto,                       // E: Tipo Proyecto (from Servicio)
                     'Activo',                           // F: Estado
                     'Discovery',                        // G: Fase
                     today,                              // H: Fecha Inicio
@@ -2200,7 +2214,7 @@
                     valor,                              // K: Valor
                     '10',                               // L: Progreso (10% = Discovery)
                     '',                                 // M: Promotor
-                    `Proyecto creado automáticamente desde lead ${leadId}`, // N: Notas
+                    `Proyecto creado automáticamente desde lead ${leadId}${servicioData ? ` - Servicio: ${servicioData.nombre}` : ''}`, // N: Notas
                     new Date().toISOString().slice(0, 19).replace('T', ' ') // O: Fecha Actualización
                 ]];
 
@@ -2403,7 +2417,7 @@
          * Edit Pipeline lead
          */
         function editPipelineLead(rowNumber, rowData) {
-            const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas] = rowData;
+            const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = rowData;
 
             // Scroll to form
             document.getElementById('form-pipeline').scrollIntoView({ behavior: 'smooth' });
@@ -2422,6 +2436,17 @@
             document.getElementById('input-fuente').value = fuente || '';
             document.getElementById('input-notas').value = notas || '';
 
+            // Pre-select servicio if exists
+            if (servicio) {
+                const servicioDropdown = document.getElementById('input-servicio');
+                for (let option of servicioDropdown.options) {
+                    if (option.value && JSON.parse(option.value).nombre === servicio) {
+                        servicioDropdown.value = option.value;
+                        break;
+                    }
+                }
+            }
+
             // Change button text and add data attribute
             const submitBtn = document.querySelector('#form-pipeline button[type="submit"]');
             submitBtn.textContent = 'Actualizar Lead';
@@ -2439,7 +2464,7 @@
 
             try {
                 // Delete row (clear content)
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PIPELINE, `A${rowNumber}:N${rowNumber}`);
+                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PIPELINE, `A${rowNumber}:O${rowNumber}`);
 
                 showToast('Lead eliminado exitosamente', 'success');
 

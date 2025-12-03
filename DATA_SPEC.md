@@ -45,7 +45,8 @@ Este documento especifica la estructura detallada de las 7 hojas de Google Sheet
 | K | **Estado** | Dropdown | Sí | - | Activo, Ganado, Perdido, Pausado | Estado actual del lead |
 | L | **Fuente** | Dropdown | No | - | Web, Referido, LinkedIn, Evento, Otro | Origen del lead |
 | M | **Notas** | Texto largo | No | - | - | Observaciones adicionales |
-| N | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación (auto) |
+| N | **Servicio** | Dropdown | No | Debe existir en Servicios | - | Servicio solicitado (auto-completa Valor) |
+| O | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación (auto) |
 
 ### Reglas de Negocio
 
