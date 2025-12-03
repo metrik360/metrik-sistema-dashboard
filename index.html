@@ -1858,9 +1858,10 @@
         function gapiLoadClient() {
             gapi.load('client', async () => {
                 await gapi.client.init({
-                    apiKey: CONFIG.API_KEY,
                     discoveryDocs: CONFIG.DISCOVERY_DOCS,
                 });
+                // Explicitly load the Sheets API
+                await gapi.client.load('sheets', 'v4');
                 gapiInited = true;
                 maybeEnableButtons();
             });
