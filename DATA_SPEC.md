@@ -299,7 +299,7 @@ PROM-2025-0001 | María Gómez | maria@example.com | +57 310 987 6543 | Activo |
 |---|-------|------|-----------|--------------|-------------------|-------------|
 | A | **ID** | Texto | Sí | Único, auto-generado | `SRV-YYYY-####` | Identificador único del servicio |
 | B | **Nombre Servicio** | Texto | Sí | Min 5 caracteres | - | Nombre del servicio ofrecido |
-| C | **Categoría** | Dropdown | Sí | - | Dashboard, CRM, Landing, Website, App Móvil, Consultoría, Paquete, Otro | Tipo de servicio |
+| C | **Categoría** | Dropdown | Sí | - | Adquisición, Escalada, Retención | Tipo de servicio según etapa del cliente |
 | D | **Descripción Corta** | Texto | Sí | Max 200 caracteres | - | Resumen del servicio |
 | E | **Descripción Detallada** | Texto largo | No | - | - | Descripción completa del alcance |
 | F | **Precio Base** | Número | Sí | >= 0 | - | Precio estándar del servicio (COP) |
