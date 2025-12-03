@@ -184,7 +184,7 @@
                 <div id="view-dashboard" class="view-content">
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">Dashboard</h2>
 
-                    <!-- KPIs Grid -->
+                    <!-- KPIs Grid - Main -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <!-- KPI Card 1 -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
@@ -230,6 +230,60 @@
                                     <p class="text-sm text-gray-600">Facturación Mes</p>
                                     <h3 class="text-3xl font-bold text-gray-900" id="kpi-facturacion">-</h3>
                                     <p class="text-xs text-green-600 mt-1">Mes actual</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPIs Grid - Flujo de Caja -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">💰 Flujo de Caja</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Facturado Este Mes -->
+                            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl">💵</div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Facturado Este Mes</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-facturado-mes">-</h3>
+                                        <p class="text-xs text-green-600 mt-1">Facturas pagadas</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Por Cobrar -->
+                            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-sm border border-yellow-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl">📊</div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Por Cobrar</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-por-cobrar">-</h3>
+                                        <p class="text-xs text-yellow-600 mt-1">Facturas pendientes</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Proyectado 30 Días -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl">🔮</div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Proyectado 30 Días</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-proyectado-30">-</h3>
+                                        <p class="text-xs text-blue-600 mt-1">Vencimientos próximos</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Anticipos sin Saldo -->
+                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl">⚠️</div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Anticipos sin Saldo</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-anticipos-sin-saldo">-</h3>
+                                        <p class="text-xs text-purple-600 mt-1">Proyectos incompletos</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1392,6 +1446,91 @@
 
                 document.getElementById('kpi-facturacion').textContent = formatCurrency(facturacionMes);
 
+                // ====================
+                // CASH FLOW KPIs
+                // ====================
+
+                // KPI 5: Facturado Este Mes (Facturas Pagadas)
+                const facturadoMes = facturacionData
+                    .filter(row => {
+                        const estado = row[9]; // Column J: Estado
+                        const fechaPago = row[8]; // Column I: Fecha Pago
+                        if (estado !== 'Pagada' || !fechaPago) return false;
+
+                        const date = parseDate(fechaPago);
+                        if (!date) return false;
+
+                        return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
+                    })
+                    .reduce((sum, row) => {
+                        const montoTotal = parseFloat(row[5]) || 0; // Column F: Monto Total
+                        return sum + montoTotal;
+                    }, 0);
+
+                document.getElementById('kpi-facturado-mes').textContent = formatCurrency(facturadoMes);
+
+                // KPI 6: Por Cobrar (Facturas Pendientes)
+                const porCobrar = facturacionData
+                    .filter(row => {
+                        const estado = row[9]; // Column J: Estado
+                        return estado === 'Pendiente';
+                    })
+                    .reduce((sum, row) => {
+                        const montoTotal = parseFloat(row[5]) || 0; // Column F: Monto Total
+                        return sum + montoTotal;
+                    }, 0);
+
+                document.getElementById('kpi-por-cobrar').textContent = formatCurrency(porCobrar);
+
+                // KPI 7: Proyectado Próximos 30 Días
+                const hoy = new Date();
+                const en30Dias = new Date();
+                en30Dias.setDate(hoy.getDate() + 30);
+
+                const proyectado30 = facturacionData
+                    .filter(row => {
+                        const estado = row[9]; // Column J: Estado
+                        const fechaVencimiento = row[7]; // Column H: Fecha Vencimiento
+                        if (estado !== 'Pendiente' || !fechaVencimiento) return false;
+
+                        const date = parseDate(fechaVencimiento);
+                        if (!date) return false;
+
+                        return date >= hoy && date <= en30Dias;
+                    })
+                    .reduce((sum, row) => {
+                        const montoTotal = parseFloat(row[5]) || 0; // Column F: Monto Total
+                        return sum + montoTotal;
+                    }, 0);
+
+                document.getElementById('kpi-proyectado-30').textContent = formatCurrency(proyectado30);
+
+                // KPI 8: Anticipos sin Saldo
+                // Get unique project names from Facturación
+                const proyectosConAnticipo = new Set();
+                const proyectosConSaldo = new Set();
+
+                facturacionData.forEach(row => {
+                    const proyecto = row[1]; // Column B: Proyecto
+                    const tipo = row[13]; // Column N: Tipo Factura
+
+                    if (tipo === 'Anticipo 50%') {
+                        proyectosConAnticipo.add(proyecto);
+                    } else if (tipo === 'Saldo 50%') {
+                        proyectosConSaldo.add(proyecto);
+                    }
+                });
+
+                // Count projects with anticipo but no saldo
+                let anticiposSinSaldo = 0;
+                proyectosConAnticipo.forEach(proyecto => {
+                    if (!proyectosConSaldo.has(proyecto)) {
+                        anticiposSinSaldo++;
+                    }
+                });
+
+                document.getElementById('kpi-anticipos-sin-saldo').textContent = anticiposSinSaldo;
+
                 // Initialize charts with real data
                 initCharts(pipelineData, proyectosData, facturacionData);
 
@@ -1404,6 +1543,10 @@
                 document.getElementById('kpi-pipeline').textContent = 'Error';
                 document.getElementById('kpi-proyectos').textContent = 'Error';
                 document.getElementById('kpi-facturacion').textContent = 'Error';
+                document.getElementById('kpi-facturado-mes').textContent = 'Error';
+                document.getElementById('kpi-por-cobrar').textContent = 'Error';
+                document.getElementById('kpi-proyectado-30').textContent = 'Error';
+                document.getElementById('kpi-anticipos-sin-saldo').textContent = 'Error';
 
                 alert('Error al cargar datos del dashboard. Por favor, recarga la página.');
             }
@@ -1917,6 +2060,19 @@
             try {
                 console.log(`💰 Generating anticipo invoice for project ${projectId}...`);
 
+                // Validation: Check if anticipo already exists
+                const allFacturas = await sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION);
+                const anticipoExistente = allFacturas.find(row => {
+                    const facProyecto = row[1]; // Column B: Proyecto
+                    const facTipo = row[13]; // Column N: Tipo Factura
+                    return facProyecto === projectName && facTipo === 'Anticipo 50%';
+                });
+
+                if (anticipoExistente) {
+                    showToast(`⚠️ El proyecto "${projectName}" ya tiene una factura de anticipo (${anticipoExistente[0]})`, 'error');
+                    return null;
+                }
+
                 const facturaId = generateFacturaId();
                 const today = new Date().toISOString().slice(0, 10);
                 const vencimiento = new Date();
@@ -1959,6 +2115,116 @@
                 console.error('❌ Error generating anticipo invoice:', error);
                 showToast('Error al generar factura de anticipo', 'error');
                 throw error;
+            }
+        }
+
+        /**
+         * Generate Saldo Invoice (50%) for a project
+         */
+        async function generateSaldoInvoice(projectId, projectName, cliente, valorTotal) {
+            try {
+                console.log(`💰 Generating saldo invoice for project ${projectId}...`);
+
+                // Validation: Check if saldo already exists
+                const allFacturas = await sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION);
+                const saldoExistente = allFacturas.find(row => {
+                    const facProyecto = row[1]; // Column B: Proyecto
+                    const facTipo = row[13]; // Column N: Tipo Factura
+                    return facProyecto === projectName && facTipo === 'Saldo 50%';
+                });
+
+                if (saldoExistente) {
+                    showToast(`⚠️ El proyecto "${projectName}" ya tiene una factura de saldo (${saldoExistente[0]})`, 'error');
+                    return null;
+                }
+
+                // Validation: Check if anticipo exists first
+                const anticipoExistente = allFacturas.find(row => {
+                    const facProyecto = row[1]; // Column B: Proyecto
+                    const facTipo = row[13]; // Column N: Tipo Factura
+                    return facProyecto === projectName && facTipo === 'Anticipo 50%';
+                });
+
+                if (!anticipoExistente) {
+                    showToast(`⚠️ El proyecto "${projectName}" no tiene factura de anticipo. Genera primero el anticipo (50%).`, 'error');
+                    return null;
+                }
+
+                const facturaId = generateFacturaId();
+                const today = new Date().toISOString().slice(0, 10);
+                const vencimiento = new Date();
+                vencimiento.setDate(vencimiento.getDate() + 15); // 15 days to pay
+                const fechaVencimiento = vencimiento.toISOString().slice(0, 10);
+
+                // Calculate 50% saldo
+                const monto = parseFloat(valorTotal) * 0.5;
+                const iva = 19; // 19% IVA
+                const montoTotal = monto + (monto * iva / 100);
+
+                // Create invoice data
+                const invoiceData = [[
+                    facturaId,                          // A: ID
+                    projectName,                        // B: Proyecto
+                    cliente,                            // C: Cliente
+                    monto.toString(),                   // D: Monto
+                    iva.toString(),                     // E: IVA
+                    montoTotal.toString(),              // F: Monto Total
+                    today,                              // G: Fecha Emisión
+                    fechaVencimiento,                   // H: Fecha Vencimiento
+                    '',                                 // I: Fecha Pago
+                    'Pendiente',                        // J: Estado
+                    '',                                 // K: Método Pago
+                    '',                                 // L: Referencia
+                    'Factura de saldo (50%) generada automáticamente al completar proyecto', // M: Notas
+                    'Saldo 50%',                        // N: Tipo Factura
+                    '50',                               // O: % Proyecto
+                    new Date().toISOString().slice(0, 19).replace('T', ' ') // P: Fecha Actualización
+                ]];
+
+                // Save invoice to Google Sheets
+                await sheetsAPI.writeSheet(CONFIG.SHEETS.FACTURACION, invoiceData);
+
+                showToast(`✅ Factura saldo ${facturaId} creada: ${formatCurrency(montoTotal)}`, 'success');
+                console.log(`✅ Saldo invoice ${facturaId} created for project ${projectId}`);
+
+                return facturaId;
+            } catch (error) {
+                console.error('❌ Error generating saldo invoice:', error);
+                showToast('Error al generar factura de saldo', 'error');
+                throw error;
+            }
+        }
+
+        /**
+         * Generate Anticipo from Project table button
+         */
+        async function generateAnticipoFromProject(projectRow) {
+            const [id, nombre, cliente, emailCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor] = projectRow;
+
+            const confirm = window.confirm(`¿Generar factura de ANTICIPO (50%)?\n\nProyecto: ${nombre}\nCliente: ${cliente}\nMonto: ${formatCurrency(parseFloat(valor) * 0.5)}\nIVA 19% incluido`);
+
+            if (confirm) {
+                await generateAnticipoInvoice(id, nombre, cliente, valor);
+                await loadProyectosView(); // Refresh table
+            }
+        }
+
+        /**
+         * Generate Saldo from Project table button
+         */
+        async function generateSaldoFromProject(projectRow) {
+            const [id, nombre, cliente, emailCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso] = projectRow;
+
+            if (parseFloat(progreso) < 90) {
+                showToast('⚠️ El proyecto debe tener al menos 90% de progreso para facturar el saldo', 'error');
+                return;
+            }
+
+            const confirm = window.confirm(`¿Generar factura de SALDO (50%)?\n\nProyecto: ${nombre}\nCliente: ${cliente}\nMonto: ${formatCurrency(parseFloat(valor) * 0.5)}\nIVA 19% incluido\n\n✅ Progreso: ${progreso}%`);
+
+            if (confirm) {
+                await generateSaldoInvoice(id, nombre, cliente, valor);
+                await loadProyectosView(); // Refresh table
             }
         }
 
@@ -2081,6 +2347,15 @@
                 const estadoBadge = getBadge(estado, getProyectoEstadoColor(estado));
                 const faseBadge = getBadge(fase, 'blue');
 
+                // Show invoice buttons based on project progress
+                const progresoNum = parseFloat(progreso) || 0;
+                const anticipoBtn = `<button onclick='generateAnticipoFromProject(${JSON.stringify(row)})' class="text-green-600 hover:text-green-800 font-medium text-xs" title="Generar factura anticipo 50%">
+                    💰 Anticipo
+                </button>`;
+                const saldoBtn = progresoNum >= 90 ? `<button onclick='generateSaldoFromProject(${JSON.stringify(row)})' class="text-purple-600 hover:text-purple-800 font-medium text-xs" title="Generar factura saldo 50%">
+                    💵 Saldo
+                </button>` : '';
+
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${nombre || '-'}</td>
@@ -2090,12 +2365,14 @@
                         <td class="px-4 py-3 text-sm">${faseBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${progreso}%</td>
-                        <td class="px-4 py-3 text-sm text-right space-x-2">
-                            <button onclick='editProyecto(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 font-medium">
-                                ✏️ Editar
+                        <td class="px-4 py-3 text-sm text-right space-x-1">
+                            ${anticipoBtn}
+                            ${saldoBtn}
+                            <button onclick='editProyecto(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 font-medium text-xs">
+                                ✏️
                             </button>
-                            <button onclick="deleteProyecto(${index + 2})" class="text-red-600 hover:text-red-800 font-medium">
-                                🗑️ Eliminar
+                            <button onclick="deleteProyecto(${index + 2})" class="text-red-600 hover:text-red-800 font-medium text-xs">
+                                🗑️
                             </button>
                         </td>
                     </tr>
@@ -2419,6 +2696,31 @@
                 const referencia = document.getElementById('input-factura-referencia').value;
                 const notas = document.getElementById('input-factura-notas').value;
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                // ====================
+                // VALIDATION: Check total % invoiced doesn't exceed 100%
+                // ====================
+                const allFacturas = await sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION);
+                let totalPorcentajeFacturado = 0;
+
+                allFacturas.forEach(row => {
+                    const facProyecto = row[1]; // Column B: Proyecto
+                    const facId = row[0]; // Column A: ID
+                    const facPorcentaje = parseFloat(row[14]) || 0; // Column O: % Proyecto
+
+                    // Sum percentages for same project, excluding current invoice if editing
+                    if (facProyecto === proyecto && facId !== id) {
+                        totalPorcentajeFacturado += facPorcentaje;
+                    }
+                });
+
+                const nuevoPorcentaje = parseFloat(porcentajeProyecto) || 0;
+                const totalFinal = totalPorcentajeFacturado + nuevoPorcentaje;
+
+                if (totalFinal > 100) {
+                    showToast(`⚠️ Error: El proyecto "${proyecto}" ya tiene ${totalPorcentajeFacturado}% facturado. No puedes agregar ${nuevoPorcentaje}% más (total: ${totalFinal}%). Máximo permitido: 100%`, 'error');
+                    return;
+                }
 
                 // Create row data (15 columns A-P)
                 const rowData = [[

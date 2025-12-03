@@ -129,7 +129,9 @@ PRJ-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | juan@tech.co 
 | K | **Método Pago** | Dropdown | No | - | Transferencia, Efectivo, Tarjeta, Otro | Forma de pago |
 | L | **Referencia Pago** | Texto | No | - | - | Número de transacción/referencia |
 | M | **Notas** | Texto largo | No | - | - | Observaciones |
-| N | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+| N | **Tipo Factura** | Dropdown | Sí | - | Anticipo 50%, Saldo 50%, Única 100%, Personalizada | Tipo de factura para flujo de caja |
+| O | **% Proyecto** | Número | Sí | 0-100 | - | Porcentaje del proyecto que representa esta factura |
+| P | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
 
 ### Reglas de Negocio
 
@@ -142,10 +144,55 @@ PRJ-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | juan@tech.co 
 4. **Facturación mes actual** = SUM(Monto Total) WHERE Fecha Pago = mes actual
 5. **Alerta si:** Estado = "Vencida" y Días vencimiento > 15
 
+### Flujo de Facturación 50-50 (Anticipo/Saldo)
+
+6. **Workflow Automático Lead → Proyecto → Facturación:**
+   - Cuando un Lead se marca como "Ganado" en Pipeline:
+     - Sistema pregunta si crear proyecto automáticamente
+     - Se crea proyecto con datos del lead (Cliente, Email, Valor)
+     - Proyecto inicia en fase "Discovery" con 10% progreso
+     - Sistema pregunta si generar factura de anticipo (50%)
+     - Se crea factura tipo "Anticipo 50%" por el 50% del valor
+
+7. **Generación de Factura de Anticipo:**
+   - Tipo Factura: "Anticipo 50%"
+   - Monto: Valor Proyecto × 0.5
+   - % Proyecto: 50
+   - Vencimiento: Fecha Emisión + 15 días
+   - Estado: Pendiente
+   - Validación: No puede haber duplicado de anticipo para mismo proyecto
+
+8. **Generación de Factura de Saldo:**
+   - Disponible solo cuando Progreso Proyecto >= 90%
+   - Tipo Factura: "Saldo 50%"
+   - Monto: Valor Proyecto × 0.5
+   - % Proyecto: 50
+   - Vencimiento: Fecha Emisión + 15 días
+   - Estado: Pendiente
+   - Validaciones:
+     - Debe existir factura de anticipo primero
+     - No puede haber duplicado de saldo para mismo proyecto
+     - Progreso debe ser >= 90%
+
+9. **Validación de % Total Facturado:**
+   - SUM(% Proyecto) por proyecto no puede exceder 100%
+   - Al crear/editar factura, sistema valida total acumulado
+   - Si supera 100%, muestra error y bloquea guardado
+
+10. **KPIs de Flujo de Caja:**
+    - **Facturado Este Mes:** SUM(Monto Total) WHERE Estado = "Pagada" AND Fecha Pago = mes actual
+    - **Por Cobrar:** SUM(Monto Total) WHERE Estado = "Pendiente"
+    - **Proyectado 30 Días:** SUM(Monto Total) WHERE Estado = "Pendiente" AND Fecha Vencimiento entre Hoy y +30 días
+    - **Anticipos sin Saldo:** COUNT(Proyectos) con factura "Anticipo 50%" pero sin "Saldo 50%"
+
 ### Ejemplos de Datos
 
 ```
-FAC-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | 15000000 | 19 | 17850000 | 2025-12-01 | 2025-12-31 | - | Pendiente | - | - | Primera factura del proyecto | 2025-12-01 09:00
+# Factura Anticipo (50%)
+FAC-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | 7500000 | 19 | 8925000 | 2025-12-01 | 2025-12-16 | - | Pendiente | - | - | Factura de anticipo (50%) generada automáticamente | Anticipo 50% | 50 | 2025-12-01 09:00
+
+# Factura Saldo (50%)
+FAC-2025-0002 | Dashboard Ventas Tech Solutions | Tech Solutions | 7500000 | 19 | 8925000 | 2025-12-20 | 2026-01-04 | - | Pendiente | - | - | Factura de saldo (50%) generada al completar proyecto | Saldo 50% | 50 | 2025-12-20 14:30
 ```
 
 ---
@@ -296,24 +343,47 @@ GASTOS → PROYECTOS (opcional, para costeo)
 
 ### Integraciones Automáticas
 
-1. **Lead ganado en Pipeline** → Crear Proyecto automático
-   - Copiar: Cliente, Email, Valor
-   - Estado inicial: "Activo"
-   - Fase inicial: "Discovery"
+1. **Lead ganado en Pipeline** → Crear Proyecto automático + Factura Anticipo
+   - Cuando estado cambia a "Ganado":
+     - Sistema pregunta si crear proyecto
+     - Se crea proyecto con: Cliente, Email, Valor
+     - Estado inicial: "Activo"
+     - Fase inicial: "Discovery" (10% progreso)
+     - Fecha Inicio: Hoy
+     - Fecha Entrega Estimada: Hoy + 30 días
+   - Sistema pregunta si generar factura anticipo:
+     - Se crea factura tipo "Anticipo 50%"
+     - Monto: 50% del valor del proyecto + IVA 19%
+     - Vencimiento: Hoy + 15 días
 
-2. **Nuevo Lead en Pipeline** → Verificar/Crear Contacto
+2. **Proyecto >= 90% progreso** → Habilitar Factura Saldo
+   - Botón "💵 Saldo" aparece en tabla Proyectos
+   - Al hacer clic:
+     - Valida que exista factura de anticipo
+     - Valida que no exista factura de saldo previa
+     - Crea factura tipo "Saldo 50%"
+     - Monto: 50% del valor del proyecto + IVA 19%
+     - Vencimiento: Hoy + 15 días
+
+3. **Nuevo Lead en Pipeline** → Verificar/Crear Contacto
    - Si Email existe → Vincular
    - Si no existe → Crear nuevo contacto
 
-3. **Proyecto en Facturación** → Validar que existe
+4. **Proyecto en Facturación** → Validar que existe
    - Dropdown solo muestra proyectos activos/completados
    - Auto-completa Cliente desde Proyectos
 
-4. **Promotor refiere Lead** → Actualizar métricas
+5. **Validación de % Facturado** → Bloqueo automático
+   - Al crear/editar factura manualmente:
+     - Sistema calcula total % facturado del proyecto
+     - Si nuevo % + existente > 100% → Muestra error y bloquea guardado
+     - Muestra mensaje: "El proyecto ya tiene X% facturado, no puedes agregar Y% más"
+
+6. **Promotor refiere Lead** → Actualizar métricas
    - Referidos Totales ++
    - Si Lead cierra → Proyectos Ganados ++ y Comisión Generada += Valor × %
 
-5. **Cliente en Proyectos** → Autocompletar desde Contactos
+7. **Cliente en Proyectos** → Autocompletar desde Contactos
    - Traer Email automáticamente
    - Validar que existe en base de datos
 
