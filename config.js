@@ -15,6 +15,7 @@ const CONFIG = {
         FACTURACION: 'Facturación',
         CONTACTOS: 'Contactos',
         PROMOTORES: 'Promotores',
+        SERVICIOS: 'Servicios',
         GASTOS: 'Gastos'
     },
 

@@ -171,6 +171,10 @@
                         <span class="text-xl">🤝</span>
                         <span>Promotores</span>
                     </a>
+                    <a href="#" data-view="servicios" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
+                        <span class="text-xl">📦</span>
+                        <span>Servicios</span>
+                    </a>
                     <a href="#" data-view="gastos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
                         <span class="text-xl">💸</span>
                         <span>Gastos</span>
@@ -357,6 +361,15 @@
                                     <option value="Propuesta">Propuesta</option>
                                     <option value="Negociación">Negociación</option>
                                     <option value="Cierre">Cierre</option>
+                                </select>
+                            </div>
+
+                            <!-- Servicio (Dropdown from Servicios) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Servicio</label>
+                                <select id="input-servicio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar servicio...</option>
+                                    <!-- Populated from Servicios sheet -->
                                 </select>
                             </div>
 
@@ -961,6 +974,164 @@
                                 </thead>
                                 <tbody id="table-promotores-body" class="bg-white divide-y divide-gray-200">
                                     <!-- Rows will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Servicios View -->
+                <div id="view-servicios" class="view-content hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-3xl font-bold text-gray-900">Servicios (Portafolio)</h2>
+                        <button id="btn-refresh-servicios" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all">
+                            Actualizar
+                        </button>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Nuevo Servicio</h3>
+
+                        <form id="form-servicios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Nombre Servicio -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Servicio *</label>
+                                <input type="text" id="input-servicio-nombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Dashboard Interactivo Google Sheets">
+                            </div>
+
+                            <!-- Categoría -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                                <select id="input-servicio-categoria" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Dashboard">Dashboard</option>
+                                    <option value="CRM">CRM</option>
+                                    <option value="Landing">Landing Page</option>
+                                    <option value="Website">Website</option>
+                                    <option value="App Móvil">App Móvil</option>
+                                    <option value="Consultoría">Consultoría</option>
+                                    <option value="Paquete">Paquete</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <!-- Descripción Corta -->
+                            <div class="md:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Descripción Corta *</label>
+                                <input type="text" id="input-servicio-descripcion-corta" required maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Dashboard web conectado a Google Sheets con gráficas en tiempo real">
+                            </div>
+
+                            <!-- Precio Base -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Base (COP) *</label>
+                                <input type="number" id="input-servicio-precio-base" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="15000000" min="0">
+                            </div>
+
+                            <!-- Precio Mínimo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Mínimo (COP)</label>
+                                <input type="number" id="input-servicio-precio-min" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="12000000" min="0">
+                            </div>
+
+                            <!-- Precio Máximo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Máximo (COP)</label>
+                                <input type="number" id="input-servicio-precio-max" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="20000000" min="0">
+                            </div>
+
+                            <!-- Duración Estimada -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Duración Estimada (días) *</label>
+                                <input type="number" id="input-servicio-duracion" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="30" min="1">
+                            </div>
+
+                            <!-- Estado -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                                <select id="input-servicio-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Beta">Beta</option>
+                                    <option value="Próximamente">Próximamente</option>
+                                    <option value="Descontinuado">Descontinuado</option>
+                                </select>
+                            </div>
+
+                            <!-- Incluye Soporte -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Incluye Soporte</label>
+                                <select id="input-servicio-incluye-soporte" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="No">No</option>
+                                    <option value="Sí">Sí</option>
+                                </select>
+                            </div>
+
+                            <!-- Meses Soporte -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Meses de Soporte</label>
+                                <input type="number" id="input-servicio-meses-soporte" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="3" min="0" max="12" value="0">
+                            </div>
+
+                            <!-- Stack Tecnológico -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Stack Tecnológico</label>
+                                <input type="text" id="input-servicio-stack" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="HTML, CSS, JavaScript, Google Sheets API v4">
+                            </div>
+
+                            <!-- Descripción Detallada -->
+                            <div class="md:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Descripción Detallada</label>
+                                <textarea id="input-servicio-descripcion-detallada" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Sistema completo de visualización de datos con autenticación OAuth 2.0, KPIs dinámicos..."></textarea>
+                            </div>
+
+                            <!-- Entregables -->
+                            <div class="md:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Entregables (uno por línea)</label>
+                                <textarea id="input-servicio-entregables" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="- Código fuente completo&#10;- Deploy en Vercel/Netlify&#10;- Documentación técnica"></textarea>
+                            </div>
+
+                            <!-- Requisitos Cliente -->
+                            <div class="md:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Requisitos del Cliente</label>
+                                <textarea id="input-servicio-requisitos" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="- Acceso a Google Sheet&#10;- Credenciales OAuth&#10;- Logo y colores de marca"></textarea>
+                            </div>
+
+                            <!-- Notas Internas -->
+                            <div class="md:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Notas Internas</label>
+                                <textarea id="input-servicio-notas" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Alta demanda, personalizable..."></textarea>
+                            </div>
+
+                            <div class="md:col-span-3 flex justify-end">
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
+                                    Guardar Servicio
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Table Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Catálogo de Servicios</h3>
+                            <input type="text" id="search-servicios" placeholder="🔍 Buscar servicio..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servicio</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Base</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duración</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Soporte</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="servicios-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Populated by JavaScript -->
                                 </tbody>
                             </table>
                         </div>
@@ -2284,6 +2455,45 @@
             }
         }
 
+        /**
+         * Populate Servicios dropdown in Pipeline
+         */
+        async function populateServiciosDropdownPipeline() {
+            try {
+                const serviciosData = await sheetsAPI.readSheet(CONFIG.SHEETS.SERVICIOS);
+                const dropdown = document.getElementById('input-servicio');
+
+                // Clear existing options (except first)
+                dropdown.innerHTML = '<option value="">Seleccionar servicio...</option>';
+
+                // Add only active services
+                serviciosData.forEach(row => {
+                    const [id, nombre, categoria, descripCorta, descripDetallada, precioBase, precioMin, precioMax, duracion, entregables, stack, requisitos, estado] = row;
+
+                    if (estado === 'Activo' || estado === 'Beta') {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify({
+                            id, nombre, categoria, precioBase, precioMin, precioMax, duracion
+                        });
+                        option.textContent = `${nombre} - ${formatCurrency(parseFloat(precioBase) || 0)}`;
+                        dropdown.appendChild(option);
+                    }
+                });
+
+                // Add event listener to auto-fill valor
+                dropdown.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        const servicio = JSON.parse(e.target.value);
+                        document.getElementById('input-valor').value = servicio.precioBase;
+                    }
+                });
+
+                console.log('✅ Servicios dropdown populated in Pipeline');
+            } catch (error) {
+                console.error('❌ Error populating servicios dropdown:', error);
+            }
+        }
+
         // ====================
         // PROYECTOS VIEW FUNCTIONS
         // ====================
@@ -3282,6 +3492,230 @@
         }
 
         // ====================
+        // SERVICIOS VIEW FUNCTIONS
+        // ====================
+
+        // Store data for search/filter
+        let allServiciosData = [];
+
+        /**
+         * Generate Servicio ID
+         */
+        function generateServicioId() {
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `SRV-${year}-${random}`;
+        }
+
+        /**
+         * Load Servicios View
+         */
+        async function loadServiciosView() {
+            try {
+                const data = await sheetsAPI.readSheet(CONFIG.SHEETS.SERVICIOS);
+                allServiciosData = data || [];
+                renderServiciosTable(allServiciosData);
+            } catch (error) {
+                console.error('❌ Error loading servicios:', error);
+                showToast('Error al cargar servicios', 'error');
+            }
+        }
+
+        /**
+         * Filter Servicios table by search term
+         */
+        function filterServiciosTable(searchTerm) {
+            if (!searchTerm.trim()) {
+                renderServiciosTable(allServiciosData);
+                return;
+            }
+
+            const term = searchTerm.toLowerCase();
+            const filtered = allServiciosData.filter(row => {
+                const [id, nombre, categoria, descripCorta] = row;
+                return (nombre || '').toLowerCase().includes(term) ||
+                       (categoria || '').toLowerCase().includes(term) ||
+                       (descripCorta || '').toLowerCase().includes(term);
+            });
+
+            renderServiciosTable(filtered);
+        }
+
+        /**
+         * Render Servicios Table
+         */
+        function renderServiciosTable(data) {
+            const tbody = document.getElementById('servicios-table-body');
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                            No hay servicios registrados aún
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map((row, index) => {
+                const [id, nombre, categoria, descripCorta, descripDetallada, precioBase, precioMin, precioMax, duracion, entregables, stack, requisitos, estado, incluyeSoporte, mesesSoporte, notasInternas] = row;
+
+                const estadoBadge = getBadge(estado, estado === 'Activo' ? 'green' : estado === 'Beta' ? 'yellow' : estado === 'Próximamente' ? 'blue' : 'gray');
+                const soporteIcon = incluyeSoporte === 'Sí' ? `✅ ${mesesSoporte || 0}m` : '❌';
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${nombre || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${getBadge(categoria, 'blue')}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(precioBase) || 0)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${duracion || '-'} días</td>
+                        <td class="px-4 py-3 text-sm">${estadoBadge}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${soporteIcon}</td>
+                        <td class="px-4 py-3 text-sm text-right space-x-1">
+                            <button onclick='editServicio(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 font-medium text-xs">
+                                ✏️
+                            </button>
+                            <button onclick="deleteServicio(${index + 2})" class="text-red-600 hover:text-red-800 font-medium text-xs">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Handle Servicios form submission
+         */
+        async function handleServiciosSubmit(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
+            try {
+                // Get form values
+                const id = isEditing ? editId : generateServicioId();
+                const nombre = document.getElementById('input-servicio-nombre').value;
+                const categoria = document.getElementById('input-servicio-categoria').value;
+                const descripCorta = document.getElementById('input-servicio-descripcion-corta').value;
+                const descripDetallada = document.getElementById('input-servicio-descripcion-detallada').value;
+                const precioBase = document.getElementById('input-servicio-precio-base').value;
+                const precioMin = document.getElementById('input-servicio-precio-min').value;
+                const precioMax = document.getElementById('input-servicio-precio-max').value;
+                const duracion = document.getElementById('input-servicio-duracion').value;
+                const entregables = document.getElementById('input-servicio-entregables').value;
+                const stack = document.getElementById('input-servicio-stack').value;
+                const requisitos = document.getElementById('input-servicio-requisitos').value;
+                const estado = document.getElementById('input-servicio-estado').value;
+                const incluyeSoporte = document.getElementById('input-servicio-incluye-soporte').value;
+                const mesesSoporte = document.getElementById('input-servicio-meses-soporte').value;
+                const notasInternas = document.getElementById('input-servicio-notas').value;
+                const fechaCreacion = isEditing ? '' : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                // Create row data (18 columns A-R)
+                const rowData = [[
+                    id,
+                    nombre,
+                    categoria,
+                    descripCorta,
+                    descripDetallada,
+                    precioBase,
+                    precioMin,
+                    precioMax,
+                    duracion,
+                    entregables,
+                    stack,
+                    requisitos,
+                    estado,
+                    incluyeSoporte,
+                    mesesSoporte,
+                    notasInternas,
+                    fechaCreacion || fechaActualizacion, // Q: Fecha Creación
+                    fechaActualizacion // R: Fecha Actualización
+                ]];
+
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.SERVICIOS, `A${editRow}:R${editRow}`, rowData);
+                    showToast('Servicio actualizado exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.SERVICIOS, rowData);
+                    showToast('Servicio guardado exitosamente', 'success');
+                }
+
+                // Reset form
+                document.getElementById('form-servicios').reset();
+                submitBtn.textContent = 'Guardar Servicio';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
+
+                // Reload table
+                await loadServiciosView();
+
+            } catch (error) {
+                console.error('❌ Error saving servicio:', error);
+                showToast('Error al guardar servicio', 'error');
+            }
+        }
+
+        /**
+         * Edit Servicio
+         */
+        function editServicio(rowNumber, rowData) {
+            const [id, nombre, categoria, descripCorta, descripDetallada, precioBase, precioMin, precioMax, duracion, entregables, stack, requisitos, estado, incluyeSoporte, mesesSoporte, notasInternas] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-servicios').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-servicio-nombre').value = nombre || '';
+            document.getElementById('input-servicio-categoria').value = categoria || '';
+            document.getElementById('input-servicio-descripcion-corta').value = descripCorta || '';
+            document.getElementById('input-servicio-descripcion-detallada').value = descripDetallada || '';
+            document.getElementById('input-servicio-precio-base').value = precioBase || '';
+            document.getElementById('input-servicio-precio-min').value = precioMin || '';
+            document.getElementById('input-servicio-precio-max').value = precioMax || '';
+            document.getElementById('input-servicio-duracion').value = duracion || '';
+            document.getElementById('input-servicio-entregables').value = entregables || '';
+            document.getElementById('input-servicio-stack').value = stack || '';
+            document.getElementById('input-servicio-requisitos').value = requisitos || '';
+            document.getElementById('input-servicio-estado').value = estado || 'Activo';
+            document.getElementById('input-servicio-incluye-soporte').value = incluyeSoporte || 'No';
+            document.getElementById('input-servicio-meses-soporte').value = mesesSoporte || '0';
+            document.getElementById('input-servicio-notas').value = notasInternas || '';
+
+            // Change button text and add data attribute
+            const submitBtn = document.querySelector('#form-servicios button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Servicio';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
+        }
+
+        /**
+         * Delete Servicio
+         */
+        async function deleteServicio(rowNumber) {
+            if (!confirm('¿Estás seguro de eliminar este servicio?')) {
+                return;
+            }
+
+            try {
+                await sheetsAPI.deleteSheet(CONFIG.SHEETS.SERVICIOS, `A${rowNumber}:R${rowNumber}`);
+                showToast('Servicio eliminado exitosamente', 'success');
+                await loadServiciosView();
+            } catch (error) {
+                console.error('❌ Error deleting servicio:', error);
+                showToast('Error al eliminar servicio', 'error');
+            }
+        }
+
+        // ====================
         // GASTOS VIEW FUNCTIONS
         // ====================
 
@@ -3747,7 +4181,10 @@
 
             // Load Pipeline view when navigating to it
             document.querySelector('[data-view="pipeline"]').addEventListener('click', () => {
-                setTimeout(() => loadPipelineView(), 100);
+                setTimeout(async () => {
+                    await loadPipelineView();
+                    await populateServiciosDropdownPipeline();
+                }, 100);
             });
 
             // Proyectos view event listeners
@@ -3821,6 +4258,20 @@
             // Load Promotores view when navigating to it
             document.querySelector('[data-view="promotores"]').addEventListener('click', () => {
                 setTimeout(() => loadPromotoresView(), 100);
+            });
+
+            // Servicios view event listeners
+            document.getElementById('form-servicios').addEventListener('submit', handleServiciosSubmit);
+            document.getElementById('btn-refresh-servicios').addEventListener('click', loadServiciosView);
+
+            // Search filter for Servicios
+            document.getElementById('search-servicios').addEventListener('input', (e) => {
+                filterServiciosTable(e.target.value);
+            });
+
+            // Load Servicios view when navigating to it
+            document.querySelector('[data-view="servicios"]').addEventListener('click', () => {
+                setTimeout(() => loadServiciosView(), 100);
             });
 
             // Gastos view event listeners

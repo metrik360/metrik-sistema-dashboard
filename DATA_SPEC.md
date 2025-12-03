@@ -9,7 +9,16 @@
 
 ## 📋 OVERVIEW
 
-Este documento especifica la estructura detallada de las 6 hojas de Google Sheets que conforman la base de datos del sistema MéTRIK.
+Este documento especifica la estructura detallada de las 7 hojas de Google Sheets que conforman la base de datos del sistema MéTRIK.
+
+**Hojas:**
+1. Pipeline (CRM Comercial)
+2. Proyectos (Gestión Operativa)
+3. Facturación (Control Financiero)
+4. Contactos (Base de Datos)
+5. Promotores (Red de Referidos)
+6. Servicios (Portafolio / Catálogo) ⭐ NUEVO
+7. Gastos (Control de Egresos)
 
 **Google Sheet ID:** `[PENDING - Mauricio lo proporcionará]`
 
@@ -279,7 +288,93 @@ PROM-2025-0001 | María Gómez | maria@example.com | +57 310 987 6543 | Activo |
 
 ---
 
-## 🗂️ HOJA 6: GASTOS (Control de Egresos)
+## 🗂️ HOJA 6: SERVICIOS (Portafolio / Catálogo)
+
+**Propósito:** Catálogo de servicios ofrecidos por MéTRIK con precios y características
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `SRV-YYYY-####` | Identificador único del servicio |
+| B | **Nombre Servicio** | Texto | Sí | Min 5 caracteres | - | Nombre del servicio ofrecido |
+| C | **Categoría** | Dropdown | Sí | - | Dashboard, CRM, Landing, Website, App Móvil, Consultoría, Paquete, Otro | Tipo de servicio |
+| D | **Descripción Corta** | Texto | Sí | Max 200 caracteres | - | Resumen del servicio |
+| E | **Descripción Detallada** | Texto largo | No | - | - | Descripción completa del alcance |
+| F | **Precio Base** | Número | Sí | >= 0 | - | Precio estándar del servicio (COP) |
+| G | **Precio Mínimo** | Número | No | >= 0, <= Precio Base | - | Precio mínimo negociable (COP) |
+| H | **Precio Máximo** | Número | No | >= Precio Base | - | Precio máximo por personalizaciones (COP) |
+| I | **Duración Estimada** | Número | Sí | > 0 | - | Días estimados de entrega |
+| J | **Entregables** | Texto largo | No | - | - | Lista de entregables (separados por línea) |
+| K | **Stack Tecnológico** | Texto | No | Separados por comas | - | Tecnologías usadas (ej: HTML, JS, Google Sheets API) |
+| L | **Requisitos Cliente** | Texto largo | No | - | - | Lo que el cliente debe proporcionar |
+| M | **Estado** | Dropdown | Sí | - | Activo, Descontinuado, Beta, Próximamente | Disponibilidad del servicio |
+| N | **Incluye Soporte** | Checkbox | No | Sí/No | - | Si incluye mantenimiento post-entrega |
+| O | **Meses Soporte** | Número | No | 0-12 | - | Meses de soporte incluidos |
+| P | **Notas Internas** | Texto largo | No | - | - | Notas para equipo MéTRIK |
+| Q | **Fecha Creación** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Fecha de creación del servicio |
+| R | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+
+### Reglas de Negocio
+
+1. **Rango de Precios:**
+   - Precio Mínimo <= Precio Base <= Precio Máximo
+   - Si no hay rango, usar solo Precio Base
+
+2. **Duración Total = Duración Estimada + Buffer 20%**
+   - Para compromiso con cliente: Duración × 1.2
+
+3. **Estado del Servicio:**
+   - **Activo**: Disponible para vender
+   - **Beta**: Disponible pero en fase de prueba (advertir al cliente)
+   - **Próximamente**: Visible pero no vendible aún
+   - **Descontinuado**: No mostrar en dropdowns de Pipeline/Proyectos
+
+4. **Vinculación con Pipeline:**
+   - Al crear Lead, dropdown "Servicio" carga servicios con Estado = "Activo"
+   - Al seleccionar servicio, campo "Valor" se auto-completa con Precio Base
+   - Usuario puede ajustar valor entre Precio Mínimo y Precio Máximo
+
+5. **Vinculación con Proyectos:**
+   - Al crear Proyecto desde Lead, se copia el Servicio seleccionado
+   - Duración Estimada se usa para calcular Fecha Entrega Estimada
+
+6. **Métricas de Servicios:**
+   - **Servicio más vendido** = COUNT(Proyectos) GROUP BY Servicio
+   - **Ingreso por servicio** = SUM(Valor Proyecto) GROUP BY Servicio
+   - **Margen promedio** = AVG((Valor - Precio Mínimo) / Valor) × 100
+
+### Ejemplos de Datos
+
+```
+SRV-2025-0001 | Dashboard Interactivo Google Sheets | Dashboard | Dashboard web conectado a Google Sheets con gráficas en tiempo real | Sistema completo de visualización de datos con autenticación OAuth 2.0, KPIs dinámicos, gráficas interactivas y diseño responsive | 15000000 | 12000000 | 20000000 | 30 | - Código fuente completo\n- Deploy en Vercel/Netlify\n- Documentación técnica\n- 2 sesiones de capacitación | HTML, CSS, JavaScript, Google Sheets API v4, Chart.js, OAuth 2.0 | - Acceso a Google Sheet\n- Credenciales OAuth\n- Logo y colores de marca | Activo | Sí | 3 | Alta demanda, personalizable | 2025-11-01 09:00 | 2025-12-02 10:30
+
+SRV-2025-0002 | CRM Completo | CRM | Sistema de gestión de clientes y ventas con pipeline | CRM completo con gestión de leads, pipeline de ventas, seguimiento de proyectos, facturación y reportes | 25000000 | 20000000 | 35000000 | 45 | - Sistema web completo\n- Base de datos\n- Panel de administración\n- Módulo de reportes\n- Capacitación 4 horas | React, Node.js, PostgreSQL, API REST | - Procesos de negocio actuales\n- Logo y marca\n- Hosting para BD | Activo | Sí | 6 | Proyecto complejo, requiere Discovery | 2025-11-01 09:00 | 2025-12-02 10:30
+
+SRV-2025-0003 | Landing Page Conversión | Landing | Página de aterrizaje optimizada para conversión | Landing page profesional con diseño UX/UI optimizado, formularios de contacto, integración con CRM/Email y analytics | 5000000 | 4000000 | 8000000 | 10 | - Diseño responsive\n- Formulario integrado\n- Google Analytics\n- Deploy | HTML, CSS, JavaScript, Tailwind CSS | - Textos y contenido\n- Imágenes y logo\n- Objetivo de conversión | Activo | No | 0 | Entrega rápida | 2025-11-01 09:00 | 2025-12-02 10:30
+
+SRV-2025-0004 | Consultoría Técnica | Consultoría | Asesoría técnica para proyectos web y automatización | Sesiones de consultoría para definición de arquitectura, stack tecnológico, automatizaciones y mejores prácticas | 2000000 | 1500000 | 5000000 | 5 | - Documento de recomendaciones\n- Diagrama de arquitectura\n- Roadmap técnico | - | - Descripción del proyecto\n- Objetivos de negocio | Activo | No | 0 | Por sesiones de 2 horas | 2025-11-15 14:00 | 2025-12-02 10:30
+```
+
+### Integración con Otras Hojas
+
+**Pipeline → Servicios:**
+- Campo "Servicio" en Pipeline es dropdown que carga de esta hoja
+- Al seleccionar servicio, auto-completa campo "Valor" con Precio Base
+- Usuario puede ajustar valor dentro del rango permitido
+
+**Proyectos → Servicios:**
+- Al crear proyecto desde lead ganado, copia el servicio seleccionado
+- Campo "Tipo Proyecto" se llena con Categoría del servicio
+- Duración Estimada se usa para calcular fecha de entrega
+
+**Facturación → Servicios:**
+- Al facturar, se puede ver qué servicio se vendió
+- Permite análisis de rentabilidad por tipo de servicio
+
+---
+
+## 🗂️ HOJA 7: GASTOS (Control de Egresos)
 
 **Propósito:** Registro de gastos operativos y administrativos
 
