@@ -1876,43 +1876,19 @@
             maybeEnableButtons();
         }
 
-        async function maybeEnableButtons() {
+        function maybeEnableButtons() {
             if (gapiInited && gisInited) {
                 // Check if there's an active session
                 if (sessionManager.isAuthenticated()) {
-                    // User has a saved session, but we need to get a fresh Google token
-                    // Request access token silently (no prompt if already authorized)
-                    tokenClient.requestAccessToken({ prompt: '' });
-
-                    // Wait for token to be set
-                    await new Promise((resolve) => {
-                        const checkToken = setInterval(() => {
-                            if (accessToken) {
-                                clearInterval(checkToken);
-                                resolve();
-                            }
-                        }, 100);
-                        // Timeout after 10 seconds
-                        setTimeout(() => {
-                            clearInterval(checkToken);
-                            if (!accessToken) {
-                                // Token failed, clear session and show login
-                                sessionManager.clearSession();
-                                document.getElementById('loading-screen').classList.add('hidden');
-                                document.getElementById('login-screen').classList.remove('hidden');
-                            }
-                            resolve();
-                        }, 10000);
-                    });
-
-                    if (accessToken) {
-                        onAuthSuccess();
-                    }
-                } else {
-                    // Show login screen
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('login-screen').classList.remove('hidden');
+                    // Clear saved session - user must re-authenticate to get fresh token
+                    // This ensures we always have a valid Google OAuth token
+                    console.log('📋 Session found, clearing to require fresh authentication');
+                    sessionManager.clearSession();
                 }
+
+                // Show login screen
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
             }
         }
 
