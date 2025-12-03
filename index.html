@@ -1829,7 +1829,7 @@
             const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas] = rowData;
 
             // Scroll to form
-            document.getElementById('form-nuevo-lead').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-pipeline').scrollIntoView({ behavior: 'smooth' });
 
             // Pre-fill form
             document.getElementById('input-lead').value = lead || '';
@@ -2068,7 +2068,7 @@
             const [id, nombre, cliente, emailCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, promotor, notas] = rowData;
 
             // Scroll to form
-            document.getElementById('form-nuevo-proyecto').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-proyectos').scrollIntoView({ behavior: 'smooth' });
 
             // Pre-fill form
             document.getElementById('input-proyecto-nombre').value = nombre || '';
@@ -2317,7 +2317,7 @@
             const [id, proyecto, cliente, monto, iva, montoTotal, fechaEmision, fechaVencimiento, fechaPago, estado, metodoPago, referencia, notas] = rowData;
 
             // Scroll to form
-            document.getElementById('form-nueva-factura').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-facturacion').scrollIntoView({ behavior: 'smooth' });
 
             // Pre-fill form
             document.getElementById('input-factura-proyecto').value = proyecto || '';
@@ -2533,7 +2533,7 @@
             const [id, nombre, email, telefono, empresa, cargo, tipo, fuente, linkedin, ciudad, pais, tags, notas, fechaCreacion] = rowData;
 
             // Scroll to form
-            document.getElementById('form-nuevo-contacto').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-contactos').scrollIntoView({ behavior: 'smooth' });
 
             // Pre-fill form
             document.getElementById('input-contacto-nombre').value = nombre || '';
@@ -2769,7 +2769,7 @@
             const [id, nombre, email, telefono, estado, comision, referidosActivos, proyectosGanados, tasaConversion, comisionTotal, comisionPagada, comisionPendiente, banco, cuenta, notas, fechaCreacion] = rowData;
 
             // Scroll to form
-            document.getElementById('form-nuevo-promotor').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-promotores').scrollIntoView({ behavior: 'smooth' });
 
             // Pre-fill form
             document.getElementById('input-promotor-nombre').value = nombre || '';
@@ -2997,7 +2997,7 @@
             const [id, fecha, concepto, categoria, monto, metodoPago, proveedor, proyecto, estado, facturaRecibo, esRecurrente, notas, fechaCreacion] = rowData;
 
             // Scroll to form
-            document.getElementById('form-nuevo-gasto').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-gastos').scrollIntoView({ behavior: 'smooth' });
 
             // Pre-fill form
             document.getElementById('input-gasto-fecha').value = fecha || '';
