@@ -531,6 +531,162 @@ Para optimizar búsquedas en Google Sheets:
 
 ---
 
+## 🗂️ HOJA 8: USUARIOS (Control de Acceso)
+
+**Propósito:** Gestión de usuarios del sistema con autenticación multi-nivel y control de permisos
+
+### Estructura de Columnas
+
+| # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
+|---|-------|------|-----------|--------------|-------------------|-------------|
+| A | **ID** | Texto | Sí | Único, auto-generado | `USR-YYYY-####` | Identificador único del usuario |
+| B | **Nombre Completo** | Texto | Sí | Min 3 caracteres | - | Nombre del usuario |
+| C | **Email** | Email | Sí | Único, formato email válido | - | Email (username para login) |
+| D | **PIN** | Texto | Sí | 4 dígitos numéricos | `0000-9999` | PIN de acceso (4 dígitos) |
+| E | **Rol** | Dropdown | Sí | - | Super Admin, Admin Local, Supervisor, Usuario | Nivel de acceso |
+| F | **Estado** | Dropdown | Sí | - | Activo, Inactivo | Estado del usuario |
+| G | **Empresa ID** | Texto | No | - | `EMP-YYYY-####` | ID de empresa (multi-tenant) |
+| H | **Permisos** | Texto largo | No | JSON válido | - | JSON con permisos específicos |
+| I | **Creado Por** | Email | Sí | Auto | - | Email del usuario que lo creó |
+| J | **Fecha Creación** | Fecha | Sí | Auto | `YYYY-MM-DD HH:MM:SS` | Fecha de creación |
+| K | **Última Actividad** | Fecha | No | Auto | `YYYY-MM-DD HH:MM:SS` | Último login exitoso |
+
+### Roles y Jerarquía
+
+**1. Super Admin (Google OAuth)**
+- Usuario único: Email de Google del administrador de MéTRIK
+- No se almacena en hoja USUARIOS (hardcodeado en config)
+- Acceso total al sistema
+- ÚNICO que puede crear usuarios con rol "Admin Local"
+- Puede gestionar usuarios de todas las empresas
+- Login: Google OAuth 2.0
+
+**2. Admin Local (Email + PIN)**
+- Creado por Super Admin
+- Acceso total a datos de su empresa
+- Puede crear/editar/eliminar usuarios con rol "Supervisor" o "Usuario" de su empresa
+- NO puede crear otros "Admin Local"
+- Login: Email + PIN de 4 dígitos
+
+**3. Supervisor (Email + PIN)**
+- Creado por Admin Local
+- Acceso amplio a datos de su empresa
+- NO puede gestionar usuarios
+- Puede ver/editar la mayoría de módulos
+- Login: Email + PIN de 4 dígitos
+
+**4. Usuario (Email + PIN)**
+- Creado por Admin Local o Supervisor
+- Acceso limitado según permisos
+- Solo puede gestionar sus propios registros
+- NO puede gestionar usuarios
+- Login: Email + PIN de 4 dígitos
+
+### Permisos por Rol
+
+| Módulo | Super Admin | Admin Local | Supervisor | Usuario |
+|--------|-------------|-------------|------------|---------|
+| Dashboard | ✅ Completo | ✅ Completo | ✅ Completo | ✅ Limitado |
+| Pipeline | ✅ Todos | ✅ Todos empresa | ✅ Todos empresa | ✅ Solo propios |
+| Proyectos | ✅ Todos | ✅ Todos empresa | ✅ Ver/Editar empresa | ✅ Solo lectura |
+| Facturación | ✅ Todos | ✅ Todos empresa | ✅ Solo lectura | ❌ Sin acceso |
+| Contactos | ✅ Todos | ✅ Todos empresa | ✅ Ver/Editar empresa | ✅ Ver empresa |
+| Promotores | ✅ Todos | ✅ Todos empresa | ✅ Ver empresa | ❌ Sin acceso |
+| Servicios | ✅ Todos | ✅ Ver/Editar empresa | ✅ Solo lectura | ✅ Solo lectura |
+| Gastos | ✅ Todos | ✅ Todos empresa | ✅ Ver empresa | ❌ Sin acceso |
+| **Usuarios** | ✅ Crear Admin Local | ✅ Crear Supervisor/Usuario | ❌ Sin acceso | ❌ Sin acceso |
+
+### Estructura de Permisos JSON (Columna H)
+
+```json
+{
+  "dashboard": {"read": true, "write": false},
+  "pipeline": {"read": true, "write": true, "delete": false},
+  "proyectos": {"read": true, "write": false, "delete": false},
+  "facturacion": {"read": false, "write": false, "delete": false},
+  "contactos": {"read": true, "write": true, "delete": false},
+  "promotores": {"read": false, "write": false, "delete": false},
+  "servicios": {"read": true, "write": false, "delete": false},
+  "gastos": {"read": false, "write": false, "delete": false},
+  "usuarios": {"read": false, "write": false, "delete": false}
+}
+```
+
+### Reglas de Negocio
+
+1. **Creación de Usuarios:**
+   - Super Admin puede crear: Admin Local
+   - Admin Local puede crear: Supervisor, Usuario
+   - Supervisor NO puede crear usuarios
+   - Usuario NO puede crear usuarios
+
+2. **Validación de PIN:**
+   - Debe ser exactamente 4 dígitos numéricos
+   - Se almacena en texto plano (sistema interno, no sensible)
+   - No puede ser 0000, 1111, 2222, etc. (repetitivos)
+   - Sugerido: Generado automáticamente o manual con validación
+
+3. **Empresa ID:**
+   - Obligatorio para Admin Local, Supervisor, Usuario
+   - NULL para Super Admin (acceso multi-empresa)
+   - Formato: `EMP-YYYY-####`
+   - Se asigna al crear primer Admin Local de una empresa
+
+4. **Email único:**
+   - Un email solo puede existir una vez en el sistema
+   - Validación al crear/editar usuario
+
+5. **Estado Inactivo:**
+   - Usuario Inactivo NO puede hacer login
+   - Mantiene datos históricos (creado por, registros)
+   - Admin puede reactivar cambiando a "Activo"
+
+6. **Última Actividad:**
+   - Se actualiza cada vez que el usuario hace login exitoso
+   - Útil para auditoría y control de accesos
+
+### Flujo de Autenticación
+
+```
+1. Usuario abre sistema → Detectar sesión
+   ├─ Sesión activa → Cargar dashboard según rol
+   └─ Sin sesión → Pantalla de login
+
+2. Pantalla de Login
+   ├─ Opción A: [Login con Google] → Super Admin
+   │   ├─ Verifica email en lista hardcodeada
+   │   ├─ Si válido → Sesión Super Admin
+   │   └─ Si no válido → Mensaje "No autorizado"
+   │
+   └─ Opción B: [Email + PIN] → Otros usuarios
+       ├─ Busca email en hoja USUARIOS
+       ├─ Valida PIN
+       ├─ Valida Estado = "Activo"
+       ├─ Si válido → Sesión según Rol
+       └─ Si no válido → Mensaje "Credenciales incorrectas"
+
+3. Sesión activa
+   ├─ Guardar en localStorage: {email, rol, empresaId, permisos, timestamp}
+   ├─ Actualizar "Última Actividad" en USUARIOS
+   └─ Cargar dashboard con UI según permisos
+
+4. Control de acceso en cada vista
+   ├─ Verificar permisos antes de mostrar vista
+   ├─ Ocultar botones según permisos (crear, editar, eliminar)
+   └─ Filtrar datos según empresa (si aplica)
+```
+
+### Ejemplos de Datos
+
+```
+USR-2025-0001 | Mauricio Moreno | mauricio@metrik.com | - | Super Admin | Activo | - | {} | SYSTEM | 2025-01-01 10:00:00 | 2025-12-03 09:30:00
+USR-2025-0002 | Juan Pérez | juan@empresa.com | 1234 | Admin Local | Activo | EMP-2025-0001 | {} | mauricio@metrik.com | 2025-11-15 14:20:00 | 2025-12-02 18:45:00
+USR-2025-0003 | María López | maria@empresa.com | 5678 | Supervisor | Activo | EMP-2025-0001 | {} | juan@empresa.com | 2025-11-20 09:10:00 | 2025-12-03 08:15:00
+USR-2025-0004 | Carlos Gómez | carlos@empresa.com | 9012 | Usuario | Activo | EMP-2025-0001 | {"pipeline":{"read":true,"write":true}} | juan@empresa.com | 2025-11-25 11:30:00 | 2025-12-01 16:20:00
+```
+
+---
+
 ## 📝 NOTAS FINALES
 
 1. **Google Sheet ID:** Mauricio debe proporcionar el ID del Sheet una vez creado

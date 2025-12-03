@@ -16,14 +16,32 @@ const CONFIG = {
         CONTACTOS: 'Contactos',
         PROMOTORES: 'Promotores',
         SERVICIOS: 'Servicios',
-        GASTOS: 'Gastos'
+        GASTOS: 'Gastos',
+        USUARIOS: 'Usuarios'
     },
 
     // Cache Configuration (in milliseconds)
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 
+    // Authentication & Authorization
+    SUPER_ADMIN_EMAILS: [
+        'bmmorenog@gmail.com',           // Email actual
+        'mauricio.moreno@metrik.com.co'  // Email Google Workspace (futuro)
+    ],
+
+    // Roles
+    ROLES: {
+        SUPER_ADMIN: 'Super Admin',
+        ADMIN_LOCAL: 'Admin Local',
+        SUPERVISOR: 'Supervisor',
+        USUARIO: 'Usuario'
+    },
+
+    // Session Configuration
+    SESSION_DURATION: 8 * 60 * 60 * 1000, // 8 hours
+
     // App Configuration
     APP_NAME: 'Sistema MéTRIK',
     VERSION: '1.0.0',
-    LAST_UPDATED: '2025-12-02'
+    LAST_UPDATED: '2025-12-03'
 };
