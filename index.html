@@ -106,9 +106,10 @@
                 <p class="text-gray-600">Sistema de Gestión Interno</p>
             </div>
 
+            <!-- Google Login (Super Admin) -->
             <button
-                id="login-button"
-                class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3"
+                id="login-google-button"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 mb-6"
                 style="box-shadow: var(--shadow-green);"
             >
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -117,8 +118,51 @@
                 Iniciar sesión con Google
             </button>
 
-            <p class="text-sm text-gray-500 text-center mt-6">
-                Usa tu cuenta de Google para acceder al sistema
+            <!-- Divider -->
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-4 bg-white text-gray-500">O</span>
+                </div>
+            </div>
+
+            <!-- Email + PIN Login -->
+            <form id="login-form-pin" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        required
+                        placeholder="usuario@empresa.com"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">PIN (4 dígitos)</label>
+                    <input
+                        type="password"
+                        id="login-pin"
+                        required
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        placeholder="••••"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-center text-2xl tracking-widest"
+                    />
+                </div>
+                <button
+                    type="submit"
+                    class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+                >
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <p class="text-xs text-gray-500 text-center mt-6">
+                Super Admin: Iniciar con Google<br/>
+                Usuarios: Iniciar con Email + PIN
             </p>
         </div>
     </div>
@@ -181,6 +225,10 @@
                     <a href="#" data-view="gastos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
                         <span class="text-xl">💸</span>
                         <span>Gastos</span>
+                    </a>
+                    <a href="#" data-view="usuarios" id="nav-usuarios" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 hidden">
+                        <span class="text-xl">👥</span>
+                        <span>Usuarios</span>
                     </a>
                 </nav>
             </aside>
@@ -1249,6 +1297,103 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Usuarios View -->
+                <div id="view-usuarios" class="view-content hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-3xl font-bold text-gray-900">Gestión de Usuarios</h2>
+                        <button id="btn-refresh-usuarios" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all">
+                            Actualizar
+                        </button>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Nuevo Usuario</h3>
+
+                        <form id="form-usuarios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Nombre Completo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo *</label>
+                                <input type="text" id="input-usuario-nombre" required minlength="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Juan Pérez">
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                <input type="email" id="input-usuario-email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="juan@empresa.com">
+                            </div>
+
+                            <!-- PIN -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">PIN (4 dígitos) *</label>
+                                <input type="text" id="input-usuario-pin" required pattern="[0-9]{4}" maxlength="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-center text-xl tracking-widest" placeholder="1234">
+                                <p class="text-xs text-gray-500 mt-1">Debe ser 4 dígitos numéricos</p>
+                            </div>
+
+                            <!-- Rol -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
+                                <select id="input-usuario-rol" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <!-- Opciones se llenarán dinámicamente según rol actual -->
+                                </select>
+                            </div>
+
+                            <!-- Estado -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                                <select id="input-usuario-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <!-- Empresa ID -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa ID</label>
+                                <input type="text" id="input-usuario-empresa" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="EMP-2025-0001" readonly>
+                                <p class="text-xs text-gray-500 mt-1">Se asigna automáticamente</p>
+                            </div>
+
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3">
+                                <button type="button" id="btn-cancel-usuario" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-all">
+                                    Cancelar
+                                </button>
+                                <button type="submit" id="btn-submit-usuario" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
+                                    Crear Usuario
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Table Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Usuarios Registrados</h3>
+                            <input type="text" id="search-usuarios" placeholder="🔍 Buscar por nombre o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa ID</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Última Actividad</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usuarios-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -1269,6 +1414,245 @@
         let chartPipeline = null;
         let chartProyectos = null;
         let chartFacturacion = null;
+
+        // ====================
+        // AUTHENTICATION & SESSION MANAGEMENT
+        // ====================
+
+        /**
+         * Session Manager - Handles user authentication and permissions
+         */
+        class SessionManager {
+            constructor() {
+                this.SESSION_KEY = 'metrik_session';
+                this.currentSession = this.loadSession();
+            }
+
+            loadSession() {
+                try {
+                    const sessionData = localStorage.getItem(this.SESSION_KEY);
+                    if (!sessionData) return null;
+
+                    const session = JSON.parse(sessionData);
+
+                    // Check if session is expired
+                    if (Date.now() - session.timestamp > CONFIG.SESSION_DURATION) {
+                        this.clearSession();
+                        return null;
+                    }
+
+                    return session;
+                } catch (error) {
+                    console.error('Error loading session:', error);
+                    return null;
+                }
+            }
+
+            saveSession(userData) {
+                const session = {
+                    email: userData.email,
+                    nombre: userData.nombre,
+                    rol: userData.rol,
+                    empresaId: userData.empresaId || null,
+                    permisos: userData.permisos || {},
+                    timestamp: Date.now()
+                };
+
+                localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+                this.currentSession = session;
+            }
+
+            clearSession() {
+                localStorage.removeItem(this.SESSION_KEY);
+                this.currentSession = null;
+            }
+
+            isAuthenticated() {
+                return this.currentSession !== null;
+            }
+
+            getSession() {
+                return this.currentSession;
+            }
+
+            isSuperAdmin() {
+                return this.currentSession && this.currentSession.rol === CONFIG.ROLES.SUPER_ADMIN;
+            }
+
+            isAdminLocal() {
+                return this.currentSession && this.currentSession.rol === CONFIG.ROLES.ADMIN_LOCAL;
+            }
+
+            canManageUsers() {
+                return this.isSuperAdmin() || this.isAdminLocal();
+            }
+
+            canCreateAdminLocal() {
+                return this.isSuperAdmin();
+            }
+        }
+
+        // Initialize Session Manager
+        const sessionManager = new SessionManager();
+
+        /**
+         * Authentication Functions
+         */
+        async function authenticateWithGoogle() {
+            try {
+                // Request access token
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+
+                // Wait for token to be set
+                await new Promise((resolve) => {
+                    const checkToken = setInterval(() => {
+                        if (accessToken) {
+                            clearInterval(checkToken);
+                            resolve();
+                        }
+                    }, 100);
+                });
+
+                // Get user info
+                const userInfo = await getUserInfo();
+
+                // Check if user is Super Admin
+                if (!CONFIG.SUPER_ADMIN_EMAILS.includes(userInfo.email)) {
+                    showToast('No autorizado. Solo Super Admins pueden usar Google OAuth.', 'error');
+                    return false;
+                }
+
+                // Create session
+                sessionManager.saveSession({
+                    email: userInfo.email,
+                    nombre: userInfo.name || userInfo.email.split('@')[0],
+                    rol: CONFIG.ROLES.SUPER_ADMIN,
+                    empresaId: null,
+                    permisos: {}
+                });
+
+                return true;
+            } catch (error) {
+                console.error('❌ Error in Google authentication:', error);
+                showToast('Error al autenticar con Google', 'error');
+                return false;
+            }
+        }
+
+        async function authenticateWithEmailPIN(email, pin) {
+            try {
+                // Read usuarios from sheet
+                const usuariosData = await sheetsAPI.readSheet(CONFIG.SHEETS.USUARIOS, 'A2:K');
+
+                if (!usuariosData || usuariosData.length === 0) {
+                    showToast('No hay usuarios registrados', 'error');
+                    return false;
+                }
+
+                // Find user by email
+                const userRow = usuariosData.find(row => row[2] === email); // Column C: Email
+
+                if (!userRow) {
+                    showToast('Email no encontrado', 'error');
+                    return false;
+                }
+
+                const [id, nombre, userEmail, userPIN, rol, estado, empresaId, permisos] = userRow;
+
+                // Validate PIN
+                if (userPIN !== pin) {
+                    showToast('PIN incorrecto', 'error');
+                    return false;
+                }
+
+                // Validate status
+                if (estado !== 'Activo') {
+                    showToast('Usuario inactivo. Contacta al administrador.', 'error');
+                    return false;
+                }
+
+                // Update last activity
+                const rowIndex = usuariosData.indexOf(userRow) + 2; // +2 because of header and 0-index
+                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                await sheetsAPI.updateSheet(CONFIG.SHEETS.USUARIOS, `K${rowIndex}`, [[now]]);
+
+                // Parse permisos if exists
+                let permisosObj = {};
+                try {
+                    if (permisos) {
+                        permisosObj = JSON.parse(permisos);
+                    }
+                } catch (e) {
+                    console.warn('Could not parse permisos JSON:', e);
+                }
+
+                // Create session
+                sessionManager.saveSession({
+                    email: userEmail,
+                    nombre: nombre,
+                    rol: rol,
+                    empresaId: empresaId || null,
+                    permisos: permisosObj
+                });
+
+                return true;
+            } catch (error) {
+                console.error('❌ Error in Email+PIN authentication:', error);
+                showToast('Error al autenticar', 'error');
+                return false;
+            }
+        }
+
+        async function getUserInfo() {
+            try {
+                const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Error getting user info:', error);
+                throw error;
+            }
+        }
+
+        function logout() {
+            sessionManager.clearSession();
+
+            // Revoke Google token if exists
+            if (accessToken) {
+                google.accounts.oauth2.revoke(accessToken, () => {
+                    console.log('Token revoked');
+                });
+                accessToken = null;
+            }
+
+            // Reload page to show login screen
+            window.location.reload();
+        }
+
+        /**
+         * UI Control based on roles
+         */
+        function setupUIForRole() {
+            const session = sessionManager.getSession();
+            if (!session) return;
+
+            // Update header with user info
+            document.getElementById('user-email').textContent = `${session.nombre} (${session.rol})`;
+
+            // Show/hide Usuarios menu item
+            const navUsuarios = document.getElementById('nav-usuarios');
+            if (sessionManager.canManageUsers()) {
+                navUsuarios.classList.remove('hidden');
+            } else {
+                navUsuarios.classList.add('hidden');
+            }
+
+            // Additional UI controls can be added here based on permissions
+            // For example: hiding buttons, disabling features, etc.
+        }
 
         // ====================
         // DATA LAYER: Google Sheets API
