@@ -1696,9 +1696,12 @@
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${probabilidad}%</td>
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
-                        <td class="px-4 py-3 text-sm text-right">
+                        <td class="px-4 py-3 text-sm text-right space-x-2">
+                            <button onclick="editPipelineLead(${index + 2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800 font-medium">
+                                ✏️ Editar
+                            </button>
                             <button onclick="deletePipelineLead(${index + 2})" class="text-red-600 hover:text-red-800 font-medium">
-                                Eliminar
+                                🗑️ Eliminar
                             </button>
                         </td>
                     </tr>
@@ -1751,9 +1754,14 @@
         async function handlePipelineSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
             try {
                 // Get form values
-                const id = generatePipelineId();
+                const id = isEditing ? editId : generatePipelineId();
                 const lead = document.getElementById('input-lead').value;
                 const empresa = document.getElementById('input-empresa').value;
                 const email = document.getElementById('input-email').value;
@@ -1786,14 +1794,21 @@
                     fechaActualizacion
                 ]];
 
-                // Write to Google Sheets
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.PIPELINE, rowData);
-
-                // Show success message
-                showToast('Lead guardado exitosamente', 'success');
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:N${editRow}`, rowData);
+                    showToast('Lead actualizado exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.PIPELINE, rowData);
+                    showToast('Lead guardado exitosamente', 'success');
+                }
 
                 // Reset form
                 document.getElementById('form-pipeline').reset();
+                submitBtn.textContent = 'Guardar Lead';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
 
                 // Reload table
                 await loadPipelineView();
@@ -1805,6 +1820,36 @@
                 console.error('❌ Error saving lead:', error);
                 showToast('Error al guardar lead', 'error');
             }
+        }
+
+        /**
+         * Edit Pipeline lead
+         */
+        function editPipelineLead(rowNumber, rowData) {
+            const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-nuevo-lead').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-lead').value = lead || '';
+            document.getElementById('input-empresa').value = empresa || '';
+            document.getElementById('input-email').value = email || '';
+            document.getElementById('input-telefono').value = telefono || '';
+            document.getElementById('input-etapa').value = etapa || '';
+            document.getElementById('input-valor').value = valor || '';
+            document.getElementById('input-probabilidad').value = probabilidad || '';
+            document.getElementById('input-fecha-contacto').value = fechaContacto || '';
+            document.getElementById('input-fecha-cierre').value = fechaCierre || '';
+            document.getElementById('input-estado').value = estado || '';
+            document.getElementById('input-fuente').value = fuente || '';
+            document.getElementById('input-notas').value = notas || '';
+
+            // Change button text and add data attribute
+            const submitBtn = document.querySelector('#form-nuevo-lead button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Lead';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
         }
 
         /**
@@ -1905,9 +1950,12 @@
                         <td class="px-4 py-3 text-sm">${faseBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${progreso}%</td>
-                        <td class="px-4 py-3 text-sm text-right">
+                        <td class="px-4 py-3 text-sm text-right space-x-2">
+                            <button onclick="editProyecto(${index + 2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800 font-medium">
+                                ✏️ Editar
+                            </button>
                             <button onclick="deleteProyecto(${index + 2})" class="text-red-600 hover:text-red-800 font-medium">
-                                Eliminar
+                                🗑️ Eliminar
                             </button>
                         </td>
                     </tr>
@@ -1943,9 +1991,14 @@
         async function handleProyectosSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
             try {
                 // Get form values
-                const id = generateProyectoId();
+                const id = isEditing ? editId : generateProyectoId();
                 const nombre = document.getElementById('input-proyecto-nombre').value;
                 const cliente = document.getElementById('input-proyecto-cliente').value;
                 const emailCliente = document.getElementById('input-proyecto-email').value;
@@ -1980,14 +2033,21 @@
                     fechaActualizacion
                 ]];
 
-                // Write to Google Sheets
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.PROYECTOS, rowData);
-
-                // Show success message
-                showToast('Proyecto guardado exitosamente', 'success');
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROYECTOS, `A${editRow}:O${editRow}`, rowData);
+                    showToast('Proyecto actualizado exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.PROYECTOS, rowData);
+                    showToast('Proyecto guardado exitosamente', 'success');
+                }
 
                 // Reset form
                 document.getElementById('form-proyectos').reset();
+                submitBtn.textContent = 'Guardar Proyecto';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
 
                 // Reload table
                 await loadProyectosView();
@@ -1999,6 +2059,37 @@
                 console.error('❌ Error saving proyecto:', error);
                 showToast('Error al guardar proyecto', 'error');
             }
+        }
+
+        /**
+         * Edit Proyecto
+         */
+        function editProyecto(rowNumber, rowData) {
+            const [id, nombre, cliente, emailCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, promotor, notas] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-nuevo-proyecto').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-proyecto-nombre').value = nombre || '';
+            document.getElementById('input-proyecto-cliente').value = cliente || '';
+            document.getElementById('input-proyecto-email').value = emailCliente || '';
+            document.getElementById('input-proyecto-tipo').value = tipoProyecto || '';
+            document.getElementById('input-proyecto-estado').value = estado || '';
+            document.getElementById('input-proyecto-fase').value = fase || '';
+            document.getElementById('input-proyecto-fecha-inicio').value = fechaInicio || '';
+            document.getElementById('input-proyecto-fecha-entrega-est').value = fechaEntregaEst || '';
+            document.getElementById('input-proyecto-fecha-entrega-real').value = fechaEntregaReal || '';
+            document.getElementById('input-proyecto-valor').value = valor || '';
+            document.getElementById('input-proyecto-progreso').value = progreso || '';
+            document.getElementById('input-proyecto-promotor').value = promotor || '';
+            document.getElementById('input-proyecto-notas').value = notas || '';
+
+            // Change button text and add data attribute
+            const submitBtn = document.querySelector('#form-proyectos button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Proyecto';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
         }
 
         /**
@@ -2098,9 +2189,12 @@
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${fechaEmision || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${fechaVencimiento || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-right">
+                        <td class="px-4 py-3 text-sm text-right space-x-2">
+                            <button onclick="editFactura(${index + 2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800 font-medium">
+                                ✏️ Editar
+                            </button>
                             <button onclick="deleteFactura(${index + 2})" class="text-red-600 hover:text-red-800 font-medium">
-                                Eliminar
+                                🗑️ Eliminar
                             </button>
                         </td>
                     </tr>
@@ -2147,9 +2241,14 @@
         async function handleFacturacionSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
             try {
                 // Get form values
-                const id = generateFacturaId();
+                const id = isEditing ? editId : generateFacturaId();
                 const proyecto = document.getElementById('input-factura-proyecto').value;
                 const cliente = document.getElementById('input-factura-cliente').value;
                 const monto = document.getElementById('input-factura-monto').value;
@@ -2182,15 +2281,22 @@
                     fechaActualizacion
                 ]];
 
-                // Write to Google Sheets
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.FACTURACION, rowData);
-
-                // Show success message
-                showToast('Factura guardada exitosamente', 'success');
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.FACTURACION, `A${editRow}:N${editRow}`, rowData);
+                    showToast('Factura actualizada exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.FACTURACION, rowData);
+                    showToast('Factura guardada exitosamente', 'success');
+                }
 
                 // Reset form
                 document.getElementById('form-facturacion').reset();
                 document.getElementById('input-factura-total').value = '';
+                submitBtn.textContent = 'Guardar Factura';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
 
                 // Reload table
                 await loadFacturacionView();
@@ -2202,6 +2308,36 @@
                 console.error('❌ Error saving factura:', error);
                 showToast('Error al guardar factura', 'error');
             }
+        }
+
+        /**
+         * Edit Factura
+         */
+        function editFactura(rowNumber, rowData) {
+            const [id, proyecto, cliente, monto, iva, montoTotal, fechaEmision, fechaVencimiento, fechaPago, estado, metodoPago, referencia, notas] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-nueva-factura').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-factura-proyecto').value = proyecto || '';
+            document.getElementById('input-factura-cliente').value = cliente || '';
+            document.getElementById('input-factura-monto').value = monto || '';
+            document.getElementById('input-factura-iva').value = iva || '';
+            document.getElementById('input-factura-total').value = montoTotal || '';
+            document.getElementById('input-factura-fecha-emision').value = fechaEmision || '';
+            document.getElementById('input-factura-fecha-vencimiento').value = fechaVencimiento || '';
+            document.getElementById('input-factura-fecha-pago').value = fechaPago || '';
+            document.getElementById('input-factura-estado').value = estado || '';
+            document.getElementById('input-factura-metodo').value = metodoPago || '';
+            document.getElementById('input-factura-referencia').value = referencia || '';
+            document.getElementById('input-factura-notas').value = notas || '';
+
+            // Change button text and add data attribute
+            const submitBtn = document.querySelector('#form-facturacion button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Factura';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
         }
 
         /**
@@ -2295,9 +2431,12 @@
                         <td class="py-3 px-4 border-b border-gray-700">
                             <span class="px-3 py-1 rounded-full text-sm bg-gray-700 text-gray-300">${tipo || ''}</span>
                         </td>
-                        <td class="py-3 px-4 border-b border-gray-700">
+                        <td class="py-3 px-4 border-b border-gray-700 space-x-2">
+                            <button onclick="editContacto(${index + 2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-400 hover:text-blue-300">
+                                ✏️ Editar
+                            </button>
                             <button onclick="deleteContacto(${index + 2})" class="text-red-400 hover:text-red-300">
-                                Eliminar
+                                🗑️ Eliminar
                             </button>
                         </td>
                     </tr>
@@ -2320,9 +2459,14 @@
         async function handleContactosSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
             try {
                 // Get form values
-                const id = generateContactoId();
+                const id = isEditing ? editId : generateContactoId();
                 const nombre = document.getElementById('input-contacto-nombre').value;
                 const email = document.getElementById('input-contacto-email').value;
                 const telefono = document.getElementById('input-contacto-telefono').value;
@@ -2335,8 +2479,8 @@
                 const pais = document.getElementById('input-contacto-pais').value;
                 const tags = document.getElementById('input-contacto-tags').value;
                 const notas = document.getElementById('input-contacto-notas').value;
-                const fechaCreacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                const fechaActualizacion = fechaCreacion;
+                const fechaCreacion = isEditing ? editRow.fechaCreacion : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
                 // Create row data (15 columns A-O)
                 const rowData = [[
@@ -2357,13 +2501,21 @@
                     fechaActualizacion
                 ]];
 
-                // Write to Google Sheets
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.CONTACTOS, rowData);
-
-                showToast('Contacto guardado exitosamente', 'success');
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.CONTACTOS, `A${editRow}:O${editRow}`, rowData);
+                    showToast('Contacto actualizado exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.CONTACTOS, rowData);
+                    showToast('Contacto guardado exitosamente', 'success');
+                }
 
                 // Reset form
                 document.getElementById('form-contactos').reset();
+                submitBtn.textContent = 'Guardar Contacto';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
 
                 // Reload table
                 await loadContactosView();
@@ -2372,6 +2524,37 @@
                 console.error('❌ Error saving contacto:', error);
                 showToast('Error al guardar contacto', 'error');
             }
+        }
+
+        /**
+         * Edit Contacto
+         */
+        function editContacto(rowNumber, rowData) {
+            const [id, nombre, email, telefono, empresa, cargo, tipo, fuente, linkedin, ciudad, pais, tags, notas, fechaCreacion] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-nuevo-contacto').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-contacto-nombre').value = nombre || '';
+            document.getElementById('input-contacto-email').value = email || '';
+            document.getElementById('input-contacto-telefono').value = telefono || '';
+            document.getElementById('input-contacto-empresa').value = empresa || '';
+            document.getElementById('input-contacto-cargo').value = cargo || '';
+            document.getElementById('input-contacto-tipo').value = tipo || '';
+            document.getElementById('input-contacto-fuente').value = fuente || '';
+            document.getElementById('input-contacto-linkedin').value = linkedin || '';
+            document.getElementById('input-contacto-ciudad').value = ciudad || '';
+            document.getElementById('input-contacto-pais').value = pais || '';
+            document.getElementById('input-contacto-tags').value = tags || '';
+            document.getElementById('input-contacto-notas').value = notas || '';
+
+            // Change button text and add data attribute
+            const submitBtn = document.querySelector('#form-contactos button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Contacto';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
+            submitBtn.setAttribute('data-fecha-creacion', fechaCreacion);
         }
 
         /**
@@ -2459,9 +2642,12 @@
                             <span class="px-3 py-1 rounded-full text-sm bg-${estadoColor}-500/20 text-${estadoColor}-400">${estado || ''}</span>
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700">${comision || '0'}%</td>
-                        <td class="py-3 px-4 border-b border-gray-700">
+                        <td class="py-3 px-4 border-b border-gray-700 space-x-2">
+                            <button onclick="editPromotor(${index + 2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-400 hover:text-blue-300">
+                                ✏️ Editar
+                            </button>
                             <button onclick="deletePromotor(${index + 2})" class="text-red-400 hover:text-red-300">
-                                Eliminar
+                                🗑️ Eliminar
                             </button>
                         </td>
                     </tr>
@@ -2496,9 +2682,14 @@
         async function handlePromotoresSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
             try {
                 // Get form values
-                const id = generatePromotorId();
+                const id = isEditing ? editId : generatePromotorId();
                 const nombre = document.getElementById('input-promotor-nombre').value;
                 const email = document.getElementById('input-promotor-email').value;
                 const telefono = document.getElementById('input-promotor-telefono').value;
@@ -2507,16 +2698,16 @@
                 const banco = document.getElementById('input-promotor-banco').value;
                 const cuenta = document.getElementById('input-promotor-cuenta').value;
                 const notas = document.getElementById('input-promotor-notas').value;
-                const fechaCreacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                const fechaActualizacion = fechaCreacion;
+                const fechaCreacion = isEditing ? submitBtn.getAttribute('data-fecha-creacion') : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-                // Initialize metrics (17 columns A-Q)
-                const referidosActivos = '0';
-                const proyectosGanados = '0';
-                const tasaConversion = '0%';
-                const comisionTotal = '$0';
-                const comisionPagada = '$0';
-                const comisionPendiente = '$0';
+                // Initialize or preserve metrics (17 columns A-Q)
+                const referidosActivos = isEditing ? (submitBtn.getAttribute('data-referidos') || '0') : '0';
+                const proyectosGanados = isEditing ? (submitBtn.getAttribute('data-proyectos') || '0') : '0';
+                const tasaConversion = isEditing ? (submitBtn.getAttribute('data-tasa') || '0%') : '0%';
+                const comisionTotal = isEditing ? (submitBtn.getAttribute('data-total') || '$0') : '$0';
+                const comisionPagada = isEditing ? (submitBtn.getAttribute('data-pagada') || '$0') : '$0';
+                const comisionPendiente = isEditing ? (submitBtn.getAttribute('data-pendiente') || '$0') : '$0';
 
                 // Create row data
                 const rowData = [[
@@ -2539,13 +2730,28 @@
                     fechaActualizacion
                 ]];
 
-                // Write to Google Sheets
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.PROMOTORES, rowData);
-
-                showToast('Promotor guardado exitosamente', 'success');
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROMOTORES, `A${editRow}:Q${editRow}`, rowData);
+                    showToast('Promotor actualizado exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.PROMOTORES, rowData);
+                    showToast('Promotor guardado exitosamente', 'success');
+                }
 
                 // Reset form
                 document.getElementById('form-promotores').reset();
+                submitBtn.textContent = 'Guardar Promotor';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
+                submitBtn.removeAttribute('data-fecha-creacion');
+                submitBtn.removeAttribute('data-referidos');
+                submitBtn.removeAttribute('data-proyectos');
+                submitBtn.removeAttribute('data-tasa');
+                submitBtn.removeAttribute('data-total');
+                submitBtn.removeAttribute('data-pagada');
+                submitBtn.removeAttribute('data-pendiente');
 
                 // Reload table
                 await loadPromotoresView();
@@ -2554,6 +2760,39 @@
                 console.error('❌ Error saving promotor:', error);
                 showToast('Error al guardar promotor', 'error');
             }
+        }
+
+        /**
+         * Edit Promotor
+         */
+        function editPromotor(rowNumber, rowData) {
+            const [id, nombre, email, telefono, estado, comision, referidosActivos, proyectosGanados, tasaConversion, comisionTotal, comisionPagada, comisionPendiente, banco, cuenta, notas, fechaCreacion] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-nuevo-promotor').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-promotor-nombre').value = nombre || '';
+            document.getElementById('input-promotor-email').value = email || '';
+            document.getElementById('input-promotor-telefono').value = telefono || '';
+            document.getElementById('input-promotor-estado').value = estado || '';
+            document.getElementById('input-promotor-comision').value = comision || '';
+            document.getElementById('input-promotor-banco').value = banco || '';
+            document.getElementById('input-promotor-cuenta').value = cuenta || '';
+            document.getElementById('input-promotor-notas').value = notas || '';
+
+            // Change button text and add data attributes
+            const submitBtn = document.querySelector('#form-promotores button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Promotor';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
+            submitBtn.setAttribute('data-fecha-creacion', fechaCreacion);
+            submitBtn.setAttribute('data-referidos', referidosActivos);
+            submitBtn.setAttribute('data-proyectos', proyectosGanados);
+            submitBtn.setAttribute('data-tasa', tasaConversion);
+            submitBtn.setAttribute('data-total', comisionTotal);
+            submitBtn.setAttribute('data-pagada', comisionPagada);
+            submitBtn.setAttribute('data-pendiente', comisionPendiente);
         }
 
         /**
@@ -2644,9 +2883,12 @@
                         <td class="py-3 px-4 border-b border-gray-700">
                             <span class="px-3 py-1 rounded-full text-sm bg-${estadoColor}-500/20 text-${estadoColor}-400">${estado || ''}</span>
                         </td>
-                        <td class="py-3 px-4 border-b border-gray-700">
+                        <td class="py-3 px-4 border-b border-gray-700 space-x-2">
+                            <button onclick="editGasto(${index + 2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-400 hover:text-blue-300">
+                                ✏️ Editar
+                            </button>
                             <button onclick="deleteGasto(${index + 2})" class="text-red-400 hover:text-red-300">
-                                Eliminar
+                                🗑️ Eliminar
                             </button>
                         </td>
                     </tr>
@@ -2681,9 +2923,14 @@
         async function handleGastosSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = submitBtn.hasAttribute('data-edit-row');
+            const editRow = submitBtn.getAttribute('data-edit-row');
+            const editId = submitBtn.getAttribute('data-edit-id');
+
             try {
                 // Get form values
-                const id = generateGastoId();
+                const id = isEditing ? editId : generateGastoId();
                 const fecha = document.getElementById('input-gasto-fecha').value;
                 const concepto = document.getElementById('input-gasto-concepto').value;
                 const categoria = document.getElementById('input-gasto-categoria').value;
@@ -2695,7 +2942,7 @@
                 const facturaRecibo = document.getElementById('input-gasto-factura').value;
                 const esRecurrente = document.getElementById('input-gasto-recurrente').value;
                 const notas = document.getElementById('input-gasto-notas').value;
-                const fechaCreacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                const fechaCreacion = isEditing ? submitBtn.getAttribute('data-fecha-creacion') : new Date().toISOString().slice(0, 19).replace('T', ' ');
 
                 // Create row data (13 columns A-M)
                 const rowData = [[
@@ -2714,13 +2961,22 @@
                     fechaCreacion
                 ]];
 
-                // Write to Google Sheets
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.GASTOS, rowData);
-
-                showToast('Gasto guardado exitosamente', 'success');
+                if (isEditing) {
+                    // Update existing row
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.GASTOS, `A${editRow}:M${editRow}`, rowData);
+                    showToast('Gasto actualizado exitosamente', 'success');
+                } else {
+                    // Create new row
+                    await sheetsAPI.writeSheet(CONFIG.SHEETS.GASTOS, rowData);
+                    showToast('Gasto guardado exitosamente', 'success');
+                }
 
                 // Reset form
                 document.getElementById('form-gastos').reset();
+                submitBtn.textContent = 'Guardar Gasto';
+                submitBtn.removeAttribute('data-edit-row');
+                submitBtn.removeAttribute('data-edit-id');
+                submitBtn.removeAttribute('data-fecha-creacion');
 
                 // Reload table
                 await loadGastosView();
@@ -2732,6 +2988,36 @@
                 console.error('❌ Error saving gasto:', error);
                 showToast('Error al guardar gasto', 'error');
             }
+        }
+
+        /**
+         * Edit Gasto
+         */
+        function editGasto(rowNumber, rowData) {
+            const [id, fecha, concepto, categoria, monto, metodoPago, proveedor, proyecto, estado, facturaRecibo, esRecurrente, notas, fechaCreacion] = rowData;
+
+            // Scroll to form
+            document.getElementById('form-nuevo-gasto').scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form
+            document.getElementById('input-gasto-fecha').value = fecha || '';
+            document.getElementById('input-gasto-concepto').value = concepto || '';
+            document.getElementById('input-gasto-categoria').value = categoria || '';
+            document.getElementById('input-gasto-monto').value = monto || '';
+            document.getElementById('input-gasto-metodo').value = metodoPago || '';
+            document.getElementById('input-gasto-proveedor').value = proveedor || '';
+            document.getElementById('input-gasto-proyecto').value = proyecto || '';
+            document.getElementById('input-gasto-estado').value = estado || '';
+            document.getElementById('input-gasto-factura').value = facturaRecibo || '';
+            document.getElementById('input-gasto-recurrente').value = esRecurrente || '';
+            document.getElementById('input-gasto-notas').value = notas || '';
+
+            // Change button text and add data attribute
+            const submitBtn = document.querySelector('#form-gastos button[type="submit"]');
+            submitBtn.textContent = 'Actualizar Gasto';
+            submitBtn.setAttribute('data-edit-row', rowNumber);
+            submitBtn.setAttribute('data-edit-id', id);
+            submitBtn.setAttribute('data-fecha-creacion', fechaCreacion);
         }
 
         /**
