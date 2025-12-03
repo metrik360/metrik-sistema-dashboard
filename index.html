@@ -522,7 +522,10 @@
 
                     <!-- Table Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Proyectos Registrados</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Proyectos Registrados</h3>
+                            <input type="text" id="search-proyectos" placeholder="🔍 Buscar por nombre o cliente..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -659,7 +662,10 @@
 
                     <!-- Table Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Facturas Registradas</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Facturas Registradas</h3>
+                            <input type="text" id="search-facturacion" placeholder="🔍 Buscar por proyecto o cliente..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -770,7 +776,10 @@
 
                     <!-- Table Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Contactos Registrados</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Contactos Registrados</h3>
+                            <input type="text" id="search-contactos" placeholder="🔍 Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -860,7 +869,10 @@
 
                     <!-- Table Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Promotores Registrados</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Promotores Registrados</h3>
+                            <input type="text" id="search-promotores" placeholder="🔍 Buscar por nombre..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -970,7 +982,10 @@
 
                     <!-- Table Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Gastos Registrados</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Gastos Registrados</h3>
+                            <input type="text" id="search-gastos" placeholder="🔍 Buscar por concepto o categoría..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -1822,6 +1837,9 @@
         // PROYECTOS VIEW FUNCTIONS
         // ====================
 
+        // Store data for search/filter
+        let allProyectosData = [];
+
         /**
          * Load and render Proyectos data
          */
@@ -1830,13 +1848,34 @@
                 console.log('📊 Loading Proyectos view...');
 
                 const proyectosData = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS);
-                renderProyectosTable(proyectosData);
+                allProyectosData = proyectosData || [];
+                renderProyectosTable(allProyectosData);
 
                 console.log('✅ Proyectos view loaded');
             } catch (error) {
                 console.error('❌ Error loading Proyectos:', error);
                 showToast('Error al cargar Proyectos', 'error');
             }
+        }
+
+        /**
+         * Filter Proyectos table by search term
+         */
+        function filterProyectosTable(searchTerm) {
+            if (!searchTerm) {
+                renderProyectosTable(allProyectosData);
+                return;
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+            const filtered = allProyectosData.filter(row => {
+                const [id, nombre, cliente] = row;
+                return (
+                    (nombre && nombre.toLowerCase().includes(searchLower)) ||
+                    (cliente && cliente.toLowerCase().includes(searchLower))
+                );
+            });
+            renderProyectosTable(filtered);
         }
 
         /**
@@ -1992,6 +2031,9 @@
         // FACTURACIÓN VIEW FUNCTIONS
         // ====================
 
+        // Store data for search/filter
+        let allFacturacionData = [];
+
         /**
          * Load and render Facturación data
          */
@@ -2000,13 +2042,34 @@
                 console.log('📊 Loading Facturación view...');
 
                 const facturacionData = await sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION);
-                renderFacturacionTable(facturacionData);
+                allFacturacionData = facturacionData || [];
+                renderFacturacionTable(allFacturacionData);
 
                 console.log('✅ Facturación view loaded');
             } catch (error) {
                 console.error('❌ Error loading Facturación:', error);
                 showToast('Error al cargar Facturación', 'error');
             }
+        }
+
+        /**
+         * Filter Facturación table by search term
+         */
+        function filterFacturacionTable(searchTerm) {
+            if (!searchTerm) {
+                renderFacturacionTable(allFacturacionData);
+                return;
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+            const filtered = allFacturacionData.filter(row => {
+                const [id, proyecto, cliente] = row;
+                return (
+                    (proyecto && proyecto.toLowerCase().includes(searchLower)) ||
+                    (cliente && cliente.toLowerCase().includes(searchLower))
+                );
+            });
+            renderFacturacionTable(filtered);
         }
 
         /**
@@ -2171,17 +2234,42 @@
         // CONTACTOS VIEW FUNCTIONS
         // ====================
 
+        // Store data for search/filter
+        let allContactosData = [];
+
         /**
          * Load Contactos View
          */
         async function loadContactosView() {
             try {
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.CONTACTOS, 'A2:O');
-                renderContactosTable(data);
+                allContactosData = data || [];
+                renderContactosTable(allContactosData);
             } catch (error) {
                 console.error('❌ Error loading contactos:', error);
                 showToast('Error al cargar contactos', 'error');
             }
+        }
+
+        /**
+         * Filter Contactos table by search term
+         */
+        function filterContactosTable(searchTerm) {
+            if (!searchTerm) {
+                renderContactosTable(allContactosData);
+                return;
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+            const filtered = allContactosData.filter(row => {
+                const [id, nombre, email, telefono, empresa] = row;
+                return (
+                    (nombre && nombre.toLowerCase().includes(searchLower)) ||
+                    (empresa && empresa.toLowerCase().includes(searchLower)) ||
+                    (email && email.toLowerCase().includes(searchLower))
+                );
+            });
+            renderContactosTable(filtered);
         }
 
         /**
@@ -2313,17 +2401,38 @@
         // PROMOTORES VIEW FUNCTIONS
         // ====================
 
+        // Store data for search/filter
+        let allPromotoresData = [];
+
         /**
          * Load Promotores View
          */
         async function loadPromotoresView() {
             try {
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROMOTORES, 'A2:Q');
-                renderPromotoresTable(data);
+                allPromotoresData = data || [];
+                renderPromotoresTable(allPromotoresData);
             } catch (error) {
                 console.error('❌ Error loading promotores:', error);
                 showToast('Error al cargar promotores', 'error');
             }
+        }
+
+        /**
+         * Filter Promotores table by search term
+         */
+        function filterPromotoresTable(searchTerm) {
+            if (!searchTerm) {
+                renderPromotoresTable(allPromotoresData);
+                return;
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+            const filtered = allPromotoresData.filter(row => {
+                const [id, nombre] = row;
+                return (nombre && nombre.toLowerCase().includes(searchLower));
+            });
+            renderPromotoresTable(filtered);
         }
 
         /**
@@ -2474,17 +2583,41 @@
         // GASTOS VIEW FUNCTIONS
         // ====================
 
+        // Store data for search/filter
+        let allGastosData = [];
+
         /**
          * Load Gastos View
          */
         async function loadGastosView() {
             try {
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.GASTOS, 'A2:M');
-                renderGastosTable(data);
+                allGastosData = data || [];
+                renderGastosTable(allGastosData);
             } catch (error) {
                 console.error('❌ Error loading gastos:', error);
                 showToast('Error al cargar gastos', 'error');
             }
+        }
+
+        /**
+         * Filter Gastos table by search term
+         */
+        function filterGastosTable(searchTerm) {
+            if (!searchTerm) {
+                renderGastosTable(allGastosData);
+                return;
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+            const filtered = allGastosData.filter(row => {
+                const [id, fecha, concepto, categoria] = row;
+                return (
+                    (concepto && concepto.toLowerCase().includes(searchLower)) ||
+                    (categoria && categoria.toLowerCase().includes(searchLower))
+                );
+            });
+            renderGastosTable(filtered);
         }
 
         /**
@@ -2875,6 +3008,11 @@
             // Auto-fill email when cliente is selected
             document.getElementById('input-proyecto-cliente').addEventListener('change', handleClienteSelection);
 
+            // Search filter for Proyectos
+            document.getElementById('search-proyectos').addEventListener('input', (e) => {
+                filterProyectosTable(e.target.value);
+            });
+
             // Load Proyectos view when navigating to it
             document.querySelector('[data-view="proyectos"]').addEventListener('click', () => {
                 setTimeout(async () => {
@@ -2895,6 +3033,11 @@
             // Auto-fill cliente when proyecto is selected
             document.getElementById('input-factura-proyecto').addEventListener('change', handleProyectoSelectionFacturacion);
 
+            // Search filter for Facturación
+            document.getElementById('search-facturacion').addEventListener('input', (e) => {
+                filterFacturacionTable(e.target.value);
+            });
+
             // Load Facturación view when navigating to it
             document.querySelector('[data-view="facturacion"]').addEventListener('click', () => {
                 setTimeout(async () => {
@@ -2907,6 +3050,11 @@
             document.getElementById('form-contactos').addEventListener('submit', handleContactosSubmit);
             document.getElementById('btn-refresh-contactos').addEventListener('click', loadContactosView);
 
+            // Search filter for Contactos
+            document.getElementById('search-contactos').addEventListener('input', (e) => {
+                filterContactosTable(e.target.value);
+            });
+
             // Load Contactos view when navigating to it
             document.querySelector('[data-view="contactos"]').addEventListener('click', () => {
                 setTimeout(() => loadContactosView(), 100);
@@ -2916,6 +3064,11 @@
             document.getElementById('form-promotores').addEventListener('submit', handlePromotoresSubmit);
             document.getElementById('btn-refresh-promotores').addEventListener('click', loadPromotoresView);
 
+            // Search filter for Promotores
+            document.getElementById('search-promotores').addEventListener('input', (e) => {
+                filterPromotoresTable(e.target.value);
+            });
+
             // Load Promotores view when navigating to it
             document.querySelector('[data-view="promotores"]').addEventListener('click', () => {
                 setTimeout(() => loadPromotoresView(), 100);
@@ -2924,6 +3077,11 @@
             // Gastos view event listeners
             document.getElementById('form-gastos').addEventListener('submit', handleGastosSubmit);
             document.getElementById('btn-refresh-gastos').addEventListener('click', loadGastosView);
+
+            // Search filter for Gastos
+            document.getElementById('search-gastos').addEventListener('input', (e) => {
+                filterGastosTable(e.target.value);
+            });
 
             // Load Gastos view when navigating to it
             document.querySelector('[data-view="gastos"]').addEventListener('click', () => {
