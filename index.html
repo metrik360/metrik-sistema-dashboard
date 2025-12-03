@@ -1692,6 +1692,11 @@
                 try {
                     console.log(`🔄 Fetching: ${sheetName}!${range}`);
 
+                    // Set access token before making request
+                    if (accessToken) {
+                        gapi.client.setToken({ access_token: accessToken });
+                    }
+
                     const response = await gapi.client.sheets.spreadsheets.values.get({
                         spreadsheetId: CONFIG.SHEET_ID,
                         range: `${sheetName}!${range}`,
@@ -1722,6 +1727,11 @@
             async writeSheet(sheetName, values) {
                 try {
                     console.log(`✍️ Writing ${values.length} rows to ${sheetName}`);
+
+                    // Set access token before making request
+                    if (accessToken) {
+                        gapi.client.setToken({ access_token: accessToken });
+                    }
 
                     const response = await gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: CONFIG.SHEET_ID,
@@ -1755,6 +1765,11 @@
                 try {
                     console.log(`🔄 Updating ${sheetName}!${range}`);
 
+                    // Set access token before making request
+                    if (accessToken) {
+                        gapi.client.setToken({ access_token: accessToken });
+                    }
+
                     const response = await gapi.client.sheets.spreadsheets.values.update({
                         spreadsheetId: CONFIG.SHEET_ID,
                         range: `${sheetName}!${range}`,
@@ -1784,6 +1799,11 @@
             async deleteSheet(sheetName, range) {
                 try {
                     console.log(`🗑️ Deleting ${sheetName}!${range}`);
+
+                    // Set access token before making request
+                    if (accessToken) {
+                        gapi.client.setToken({ access_token: accessToken });
+                    }
 
                     const response = await gapi.client.sheets.spreadsheets.values.clear({
                         spreadsheetId: CONFIG.SHEET_ID,
