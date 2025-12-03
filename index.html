@@ -371,7 +371,10 @@
 
                     <!-- Table Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Leads Registrados</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Leads Registrados</h3>
+                            <input type="text" id="search-pipeline" placeholder="🔍 Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                        </div>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -1609,6 +1612,9 @@
         // PIPELINE VIEW FUNCTIONS
         // ====================
 
+        // Store data for search/filter
+        let allPipelineData = [];
+
         /**
          * Load and render Pipeline data
          */
@@ -1617,13 +1623,35 @@
                 console.log('📊 Loading Pipeline view...');
 
                 const pipelineData = await sheetsAPI.readSheet(CONFIG.SHEETS.PIPELINE);
-                renderPipelineTable(pipelineData);
+                allPipelineData = pipelineData || [];
+                renderPipelineTable(allPipelineData);
 
                 console.log('✅ Pipeline view loaded');
             } catch (error) {
                 console.error('❌ Error loading Pipeline:', error);
                 showToast('Error al cargar Pipeline', 'error');
             }
+        }
+
+        /**
+         * Filter Pipeline table by search term
+         */
+        function filterPipelineTable(searchTerm) {
+            if (!searchTerm) {
+                renderPipelineTable(allPipelineData);
+                return;
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+            const filtered = allPipelineData.filter(row => {
+                const [id, lead, empresa, email] = row;
+                return (
+                    (lead && lead.toLowerCase().includes(searchLower)) ||
+                    (empresa && empresa.toLowerCase().includes(searchLower)) ||
+                    (email && email.toLowerCase().includes(searchLower))
+                );
+            });
+            renderPipelineTable(filtered);
         }
 
         /**
@@ -2611,7 +2639,7 @@
 
             try {
                 // Show loading state
-                dropdown.innerHTML = '<option value="">Cargando clientes...</option>';
+                dropdown.innerHTML = '<option value="">⏳ Cargando clientes...</option>';
                 dropdown.disabled = true;
 
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.CONTACTOS, 'A2:O');
@@ -2621,6 +2649,7 @@
                 dropdown.disabled = false;
 
                 if (data && data.length > 0) {
+                    let count = 0;
                     data.forEach(row => {
                         const [id, nombre, email, telefono, empresa] = row;
                         if (nombre) {
@@ -2629,15 +2658,17 @@
                             option.setAttribute('data-email', email || '');
                             option.textContent = `${nombre}${empresa ? ` (${empresa})` : ''}`;
                             dropdown.appendChild(option);
+                            count++;
                         }
                     });
+                    console.log(`✅ ${count} clientes cargados`);
                 } else {
                     // Empty state
-                    dropdown.innerHTML = '<option value="">No hay clientes registrados - Agrega uno primero</option>';
+                    dropdown.innerHTML = '<option value="">⚠️ No hay contactos - Ve a Contactos para agregar</option>';
                 }
             } catch (error) {
                 console.error('❌ Error loading clientes:', error);
-                dropdown.innerHTML = '<option value="">Error al cargar clientes</option>';
+                dropdown.innerHTML = '<option value="">❌ Error al cargar - Intenta refrescar</option>';
                 dropdown.disabled = false;
                 showToast('Error al cargar lista de clientes', 'error');
             }
@@ -2651,7 +2682,7 @@
 
             try {
                 // Show loading state
-                dropdown.innerHTML = '<option value="">Cargando promotores...</option>';
+                dropdown.innerHTML = '<option value="">⏳ Cargando promotores...</option>';
                 dropdown.disabled = true;
 
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROMOTORES, 'A2:Q');
@@ -2661,26 +2692,29 @@
                 dropdown.disabled = false;
 
                 if (data && data.length > 0) {
-                    const promotoresActivos = data.filter(row => row[4] === 'Activo');
-
-                    if (promotoresActivos.length > 0) {
-                        promotoresActivos.forEach(row => {
-                            const [id, nombre] = row;
-                            if (nombre) {
-                                const option = document.createElement('option');
-                                option.value = nombre;
-                                option.textContent = nombre;
-                                dropdown.appendChild(option);
-                            }
-                        });
+                    let count = 0;
+                    data.forEach(row => {
+                        const [id, nombre, email, telefono, estado] = row;
+                        if (nombre && estado === 'Activo') {
+                            const option = document.createElement('option');
+                            option.value = nombre;
+                            option.textContent = nombre;
+                            dropdown.appendChild(option);
+                            count++;
+                        }
+                    });
+                    if (count === 0) {
+                        dropdown.innerHTML = '<option value="">⚠️ No hay promotores activos</option>';
                     } else {
-                        // No active promotores
-                        dropdown.innerHTML += '<option value="" disabled>No hay promotores activos</option>';
+                        console.log(`✅ ${count} promotores activos cargados`);
                     }
+                } else {
+                    // Empty state
+                    dropdown.innerHTML = '<option value="">⚠️ No hay promotores - Ve a Promotores para agregar</option>';
                 }
             } catch (error) {
                 console.error('❌ Error loading promotores:', error);
-                dropdown.innerHTML = '<option value="">Error al cargar promotores</option>';
+                dropdown.innerHTML = '<option value="">❌ Error al cargar - Intenta refrescar</option>';
                 dropdown.disabled = false;
                 showToast('Error al cargar lista de promotores', 'error');
             }
@@ -2694,7 +2728,7 @@
 
             try {
                 // Show loading state
-                dropdown.innerHTML = '<option value="">Cargando proyectos...</option>';
+                dropdown.innerHTML = '<option value="">⏳ Cargando proyectos...</option>';
                 dropdown.disabled = true;
 
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS, 'A2:O');
@@ -2704,6 +2738,7 @@
                 dropdown.disabled = false;
 
                 if (data && data.length > 0) {
+                    let count = 0;
                     data.forEach(row => {
                         const [id, nombre, cliente] = row;
                         if (nombre) {
@@ -2712,15 +2747,17 @@
                             option.setAttribute('data-cliente', cliente || '');
                             option.textContent = `${nombre}${cliente ? ` - ${cliente}` : ''}`;
                             dropdown.appendChild(option);
+                            count++;
                         }
                     });
+                    console.log(`✅ ${count} proyectos cargados`);
                 } else {
                     // Empty state
-                    dropdown.innerHTML = '<option value="">No hay proyectos - Crea uno primero</option>';
+                    dropdown.innerHTML = '<option value="">⚠️ No hay proyectos - Ve a Proyectos para crear</option>';
                 }
             } catch (error) {
                 console.error('❌ Error loading proyectos:', error);
-                dropdown.innerHTML = '<option value="">Error al cargar proyectos</option>';
+                dropdown.innerHTML = '<option value="">❌ Error al cargar - Intenta refrescar</option>';
                 dropdown.disabled = false;
                 showToast('Error al cargar lista de proyectos', 'error');
             }
@@ -2734,7 +2771,7 @@
 
             try {
                 // Show loading state
-                dropdown.innerHTML = '<option value="">Cargando proyectos...</option>';
+                dropdown.innerHTML = '<option value="">⏳ Cargando proyectos...</option>';
                 dropdown.disabled = true;
 
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS, 'A2:O');
@@ -2744,6 +2781,7 @@
                 dropdown.disabled = false;
 
                 if (data && data.length > 0) {
+                    let count = 0;
                     data.forEach(row => {
                         const [id, nombre, cliente] = row;
                         if (nombre) {
@@ -2751,12 +2789,17 @@
                             option.value = nombre;
                             option.textContent = `${nombre}${cliente ? ` - ${cliente}` : ''}`;
                             dropdown.appendChild(option);
+                            count++;
                         }
                     });
+                    console.log(`✅ ${count} proyectos cargados para gastos`);
+                } else {
+                    // Empty state (opcional, so just keep default)
+                    console.log('⚠️ No hay proyectos disponibles');
                 }
             } catch (error) {
                 console.error('❌ Error loading proyectos:', error);
-                dropdown.innerHTML = '<option value="">Error al cargar proyectos</option>';
+                dropdown.innerHTML = '<option value="">❌ Error al cargar - Intenta refrescar</option>';
                 dropdown.disabled = false;
                 showToast('Error al cargar lista de proyectos', 'error');
             }
@@ -2814,6 +2857,11 @@
             // Pipeline view event listeners
             document.getElementById('form-pipeline').addEventListener('submit', handlePipelineSubmit);
             document.getElementById('btn-refresh-pipeline').addEventListener('click', loadPipelineView);
+
+            // Search filter for Pipeline
+            document.getElementById('search-pipeline').addEventListener('input', (e) => {
+                filterPipelineTable(e.target.value);
+            });
 
             // Load Pipeline view when navigating to it
             document.querySelector('[data-view="pipeline"]').addEventListener('click', () => {
