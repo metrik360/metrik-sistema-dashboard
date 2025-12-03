@@ -1817,10 +1817,26 @@
                     // Update existing row
                     await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:N${editRow}`, rowData);
                     showToast('Lead actualizado exitosamente', 'success');
+
+                    // Check if estado changed to "Ganado" → Create project automatically
+                    if (estado === 'Ganado') {
+                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nValor: $${formatCurrency(parseFloat(valor))}`);
+                        if (createProject) {
+                            await convertLeadToProject(lead, empresa, email, valor, id);
+                        }
+                    }
                 } else {
                     // Create new row
                     await sheetsAPI.writeSheet(CONFIG.SHEETS.PIPELINE, rowData);
                     showToast('Lead guardado exitosamente', 'success');
+
+                    // Check if new lead is already "Ganado" → Create project automatically
+                    if (estado === 'Ganado') {
+                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nValor: $${formatCurrency(parseFloat(valor))}`);
+                        if (createProject) {
+                            await convertLeadToProject(lead, empresa, email, valor, id);
+                        }
+                    }
                 }
 
                 // Reset form
@@ -1838,6 +1854,111 @@
             } catch (error) {
                 console.error('❌ Error saving lead:', error);
                 showToast('Error al guardar lead', 'error');
+            }
+        }
+
+        /**
+         * Convert Lead to Project automatically
+         */
+        async function convertLeadToProject(leadNombre, cliente, emailCliente, valor, leadId) {
+            try {
+                console.log(`🔄 Converting lead ${leadId} to project...`);
+
+                // Generate Project ID
+                const projectId = generateProyectoId();
+                const today = new Date().toISOString().slice(0, 10);
+                const estimatedDelivery = new Date();
+                estimatedDelivery.setDate(estimatedDelivery.getDate() + 30); // 30 days from now
+                const fechaEntregaEst = estimatedDelivery.toISOString().slice(0, 10);
+
+                // Create project data
+                const projectData = [[
+                    projectId,                          // A: ID
+                    `Proyecto ${leadNombre}`,          // B: Nombre
+                    cliente,                            // C: Cliente
+                    emailCliente,                       // D: Email Cliente
+                    'Custom',                           // E: Tipo Proyecto
+                    'Activo',                           // F: Estado
+                    'Discovery',                        // G: Fase
+                    today,                              // H: Fecha Inicio
+                    fechaEntregaEst,                    // I: Fecha Entrega Estimada
+                    '',                                 // J: Fecha Entrega Real
+                    valor,                              // K: Valor
+                    '10',                               // L: Progreso (10% = Discovery)
+                    '',                                 // M: Promotor
+                    `Proyecto creado automáticamente desde lead ${leadId}`, // N: Notas
+                    new Date().toISOString().slice(0, 19).replace('T', ' ') // O: Fecha Actualización
+                ]];
+
+                // Save project to Google Sheets
+                await sheetsAPI.writeSheet(CONFIG.SHEETS.PROYECTOS, projectData);
+
+                showToast(`✅ Proyecto ${projectId} creado exitosamente!`, 'success');
+                console.log(`✅ Project ${projectId} created from lead ${leadId}`);
+
+                // Ask if user wants to create Anticipo invoice
+                const createInvoice = confirm(`✅ Proyecto creado: ${projectId}\n\n¿Deseas generar la factura de ANTICIPO (50%) ahora?`);
+                if (createInvoice) {
+                    await generateAnticipoInvoice(projectId, `Proyecto ${leadNombre}`, cliente, valor);
+                }
+
+                return projectId;
+            } catch (error) {
+                console.error('❌ Error converting lead to project:', error);
+                showToast('Error al crear proyecto automáticamente', 'error');
+                throw error;
+            }
+        }
+
+        /**
+         * Generate Anticipo Invoice (50%) for a project
+         */
+        async function generateAnticipoInvoice(projectId, projectName, cliente, valorTotal) {
+            try {
+                console.log(`💰 Generating anticipo invoice for project ${projectId}...`);
+
+                const facturaId = generateFacturaId();
+                const today = new Date().toISOString().slice(0, 10);
+                const vencimiento = new Date();
+                vencimiento.setDate(vencimiento.getDate() + 15); // 15 days to pay
+                const fechaVencimiento = vencimiento.toISOString().slice(0, 10);
+
+                // Calculate 50% anticipo
+                const monto = parseFloat(valorTotal) * 0.5;
+                const iva = 19; // 19% IVA
+                const montoTotal = monto + (monto * iva / 100);
+
+                // Create invoice data
+                const invoiceData = [[
+                    facturaId,                          // A: ID
+                    projectName,                        // B: Proyecto
+                    cliente,                            // C: Cliente
+                    monto.toString(),                   // D: Monto
+                    iva.toString(),                     // E: IVA
+                    montoTotal.toString(),              // F: Monto Total
+                    today,                              // G: Fecha Emisión
+                    fechaVencimiento,                   // H: Fecha Vencimiento
+                    '',                                 // I: Fecha Pago
+                    'Pendiente',                        // J: Estado
+                    '',                                 // K: Método Pago
+                    '',                                 // L: Referencia
+                    'Factura de anticipo (50%) generada automáticamente', // M: Notas
+                    'Anticipo 50%',                     // N: Tipo Factura
+                    '50',                               // O: % Proyecto
+                    new Date().toISOString().slice(0, 19).replace('T', ' ') // P: Fecha Actualización
+                ]];
+
+                // Save invoice to Google Sheets
+                await sheetsAPI.writeSheet(CONFIG.SHEETS.FACTURACION, invoiceData);
+
+                showToast(`✅ Factura anticipo ${facturaId} creada: ${formatCurrency(montoTotal)}`, 'success');
+                console.log(`✅ Anticipo invoice ${facturaId} created for project ${projectId}`);
+
+                return facturaId;
+            } catch (error) {
+                console.error('❌ Error generating anticipo invoice:', error);
+                showToast('Error al generar factura de anticipo', 'error');
+                throw error;
             }
         }
 
