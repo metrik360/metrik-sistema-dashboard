@@ -3081,7 +3081,6 @@
 
                 // Populate dropdowns
                 await populatePipelineDropdownProyectos();
-                await populatePromotoresDropdown();
 
                 console.log('✅ Proyectos view loaded');
             } catch (error) {
@@ -5193,8 +5192,6 @@
             document.querySelector('[data-view="proyectos"]').addEventListener('click', () => {
                 setTimeout(async () => {
                     await loadProyectosView();
-                    await populateClientesDropdown();
-                    await populatePromotoresDropdown();
                 }, 100);
             });
 
