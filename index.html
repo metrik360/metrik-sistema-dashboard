@@ -380,28 +380,37 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Nuevo Lead</h3>
 
                         <form id="form-pipeline" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Lead Name -->
+                            <!-- Contacto (Dropdown) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Lead *</label>
-                                <input type="text" id="input-lead" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Juan Pérez">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Contacto *</label>
+                                <select id="input-contacto" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar contacto...</option>
+                                    <!-- Populated from Contactos sheet -->
+                                </select>
                             </div>
 
-                            <!-- Empresa -->
+                            <!-- Nombre (Auto-populated, read-only) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa *</label>
-                                <input type="text" id="input-empresa" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Tech Solutions">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                <input type="text" id="input-lead" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
-                            <!-- Email -->
+                            <!-- Empresa (Auto-populated, read-only) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                                <input type="email" id="input-email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="juan@tech.co">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+                                <input type="text" id="input-empresa" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
-                            <!-- Teléfono -->
+                            <!-- Email (Auto-populated, read-only) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="input-email" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
+                            </div>
+
+                            <!-- Teléfono (Auto-populated, read-only) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                                <input type="tel" id="input-telefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="+57 300 123 4567">
+                                <input type="tel" id="input-telefono" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
                             <!-- Etapa -->
@@ -531,24 +540,43 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Nuevo Proyecto</h3>
 
                         <form id="form-proyectos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Pipeline Lead (Dropdown de Pipeline con Estado=Ganado) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Lead del Pipeline *</label>
+                                <select id="input-proyecto-pipeline" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar lead ganado...</option>
+                                    <!-- Populated from Pipeline sheet (Estado=Ganado) -->
+                                </select>
+                            </div>
+
                             <!-- Nombre Proyecto -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Proyecto *</label>
                                 <input type="text" id="input-proyecto-nombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Dashboard de Ventas">
                             </div>
 
-                            <!-- Cliente (Dropdown dinámico desde Contactos) -->
+                            <!-- Cliente (Auto-populated) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
-                                <select id="input-proyecto-cliente" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="">Selecciona un cliente...</option>
-                                </select>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                                <input type="text" id="input-proyecto-cliente" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
-                            <!-- Email Cliente (auto-completado) -->
+                            <!-- Empresa (Auto-populated) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+                                <input type="text" id="input-proyecto-empresa" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
+                            </div>
+
+                            <!-- Email Cliente (Auto-populated) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email Cliente</label>
-                                <input type="email" id="input-proyecto-email" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Se llena automáticamente">
+                                <input type="email" id="input-proyecto-email" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
+                            </div>
+
+                            <!-- Teléfono Cliente (Auto-populated) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Cliente</label>
+                                <input type="tel" id="input-proyecto-telefono" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
                             <!-- Tipo Proyecto -->
@@ -604,10 +632,10 @@
                                 <input type="date" id="input-proyecto-fecha-entrega-real" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
 
-                            <!-- Valor -->
+                            <!-- Valor (Auto-populated from Pipeline) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Valor (COP) *</label>
-                                <input type="number" id="input-proyecto-valor" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="15000000" min="0">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Valor (COP)</label>
+                                <input type="number" id="input-proyecto-valor" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado" min="0">
                             </div>
 
                             <!-- Progreso -->
@@ -616,13 +644,20 @@
                                 <input type="number" id="input-proyecto-progreso" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="50" min="0" max="100" value="0">
                             </div>
 
-                            <!-- Promotor (Dropdown dinámico desde Promotores) -->
+                            <!-- Repositorio -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Promotor</label>
-                                <select id="input-proyecto-promotor" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="">Sin promotor</option>
-                                </select>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Repositorio (GitHub)</label>
+                                <input type="url" id="input-proyecto-repositorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://github.com/...">
                             </div>
+
+                            <!-- Deploy URL -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deploy URL</label>
+                                <input type="url" id="input-proyecto-deploy" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://app.ejemplo.com">
+                            </div>
+
+                            <!-- Placeholder for grid alignment -->
+                            <div></div>
 
                             <!-- Notas -->
                             <div class="md:col-span-2 lg:col-span-3">
@@ -2391,6 +2426,10 @@
                 allPipelineData = pipelineData || [];
                 renderPipelineTable(allPipelineData);
 
+                // Populate dropdowns
+                await populateContactosDropdownPipeline();
+                await populateServiciosDropdownPipeline();
+
                 console.log('✅ Pipeline view loaded');
             } catch (error) {
                 console.error('❌ Error loading Pipeline:', error);
@@ -2409,7 +2448,8 @@
 
             const searchLower = searchTerm.toLowerCase();
             const filtered = allPipelineData.filter(row => {
-                const [id, lead, empresa, email] = row;
+                // Updated structure: ID, ContactoID, Nombre, Empresa, Email...
+                const [id, contactoId, lead, empresa, email] = row;
                 return (
                     (lead && lead.toLowerCase().includes(searchLower)) ||
                     (empresa && empresa.toLowerCase().includes(searchLower)) ||
@@ -2431,7 +2471,8 @@
             }
 
             tbody.innerHTML = data.map((row, index) => {
-                const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = row;
+                // Updated structure: ID, ContactoID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización
+                const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = row;
 
                 // Generate badge colors
                 const etapaBadge = getBadge(etapa, 'blue');
@@ -2514,10 +2555,21 @@
             try {
                 // Get form values
                 const id = isEditing ? editId : generatePipelineId();
-                const lead = document.getElementById('input-lead').value;
-                const empresa = document.getElementById('input-empresa').value;
-                const email = document.getElementById('input-email').value;
-                const telefono = document.getElementById('input-telefono').value;
+                const contactoSelect = document.getElementById('input-contacto').value;
+
+                // Validate contacto selection
+                if (!contactoSelect) {
+                    showToast('Debes seleccionar un contacto', 'error');
+                    return;
+                }
+
+                const contactoData = JSON.parse(contactoSelect);
+                const contactoId = contactoData.id;
+                const lead = contactoData.nombre;
+                const empresa = contactoData.empresa;
+                const email = contactoData.email;
+                const telefono = contactoData.telefono;
+
                 const etapa = document.getElementById('input-etapa').value;
                 const valor = document.getElementById('input-valor').value;
                 const probabilidad = document.getElementById('input-probabilidad').value;
@@ -2530,9 +2582,10 @@
                 const servicio = servicioSelect ? JSON.parse(servicioSelect).nombre : '';
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-                // Create row data (15 columns A-O)
+                // Create row data (16 columns A-P: ID, Contacto ID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización)
                 const rowData = [[
                     id,
+                    contactoId,
                     lead,
                     empresa,
                     email,
@@ -2550,8 +2603,8 @@
                 ]];
 
                 if (isEditing) {
-                    // Update existing row
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:O${editRow}`, rowData);
+                    // Update existing row (16 columns A-P)
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:P${editRow}`, rowData);
                     showToast('Lead actualizado exitosamente', 'success');
 
                     // Check if estado changed to "Ganado" → Create project automatically
@@ -2559,7 +2612,7 @@
                         const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
                         const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
-                            await convertLeadToProject(lead, empresa, email, valor, id, servicioData);
+                            await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData);
                         }
                     }
                 } else {
@@ -2572,7 +2625,7 @@
                         const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
                         const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
-                            await convertLeadToProject(lead, empresa, email, valor, id, servicioData);
+                            await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData);
                         }
                     }
                 }
@@ -2598,9 +2651,9 @@
         /**
          * Convert Lead to Project automatically
          */
-        async function convertLeadToProject(leadNombre, cliente, emailCliente, valor, leadId, servicioData = null) {
+        async function convertLeadToProject(pipelineId, nombre, empresa, email, telefono, valor, servicioData = null) {
             try {
-                console.log(`🔄 Converting lead ${leadId} to project...`);
+                console.log(`🔄 Converting lead ${pipelineId} to project...`);
 
                 // Generate Project ID
                 const projectId = generateProyectoId();
@@ -2615,35 +2668,39 @@
                 // Get tipo proyecto from servicio categoria or default Custom
                 const tipoProyecto = servicioData ? servicioData.categoria : 'Custom';
 
-                // Create project data
+                // Create project data (19 columns A-S)
                 const projectData = [[
                     projectId,                          // A: ID
-                    `Proyecto ${leadNombre}`,          // B: Nombre
-                    cliente,                            // C: Cliente
-                    emailCliente,                       // D: Email Cliente
-                    tipoProyecto,                       // E: Tipo Proyecto (from Servicio)
-                    'Activo',                           // F: Estado
-                    'Discovery',                        // G: Fase
-                    today,                              // H: Fecha Inicio
-                    fechaEntregaEst,                    // I: Fecha Entrega Estimada
-                    '',                                 // J: Fecha Entrega Real
-                    valor,                              // K: Valor
-                    '10',                               // L: Progreso (10% = Discovery)
-                    '',                                 // M: Promotor
-                    `Proyecto creado automáticamente desde lead ${leadId}${servicioData ? ` - Servicio: ${servicioData.nombre}` : ''}`, // N: Notas
-                    new Date().toISOString().slice(0, 19).replace('T', ' ') // O: Fecha Actualización
+                    pipelineId,                         // B: Pipeline ID
+                    `Proyecto ${nombre}`,               // C: Nombre
+                    nombre,                             // D: Cliente (Nombre)
+                    empresa,                            // E: Empresa
+                    email,                              // F: Email Cliente
+                    telefono,                           // G: Teléfono Cliente
+                    tipoProyecto,                       // H: Tipo Proyecto (from Servicio)
+                    'Activo',                           // I: Estado
+                    'Discovery',                        // J: Fase
+                    today,                              // K: Fecha Inicio
+                    fechaEntregaEst,                    // L: Fecha Entrega Estimada
+                    '',                                 // M: Fecha Entrega Real
+                    valor,                              // N: Valor
+                    '10',                               // O: Progreso (10% = Discovery)
+                    '',                                 // P: Repositorio
+                    '',                                 // Q: Deploy URL
+                    `Proyecto creado automáticamente desde Pipeline ${pipelineId}${servicioData ? ` - Servicio: ${servicioData.nombre}` : ''}`, // R: Notas
+                    new Date().toISOString().slice(0, 19).replace('T', ' ') // S: Fecha Actualización
                 ]];
 
                 // Save project to Google Sheets
                 await sheetsAPI.writeSheet(CONFIG.SHEETS.PROYECTOS, projectData);
 
                 showToast(`✅ Proyecto ${projectId} creado exitosamente!`, 'success');
-                console.log(`✅ Project ${projectId} created from lead ${leadId}`);
+                console.log(`✅ Project ${projectId} created from Pipeline ${pipelineId}`);
 
                 // Ask if user wants to create Anticipo invoice
                 const createInvoice = confirm(`✅ Proyecto creado: ${projectId}\n\n¿Deseas generar la factura de ANTICIPO (50%) ahora?`);
                 if (createInvoice) {
-                    await generateAnticipoInvoice(projectId, `Proyecto ${leadNombre}`, cliente, valor);
+                    await generateAnticipoInvoice(projectId, `Proyecto ${nombre}`, empresa, valor);
                 }
 
                 return projectId;
@@ -2833,16 +2890,26 @@
          * Edit Pipeline lead
          */
         function editPipelineLead(rowNumber, rowData) {
-            const [id, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = rowData;
+            const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = rowData;
 
             // Scroll to form
             document.getElementById('form-pipeline').scrollIntoView({ behavior: 'smooth' });
 
-            // Pre-fill form
-            document.getElementById('input-lead').value = lead || '';
-            document.getElementById('input-empresa').value = empresa || '';
-            document.getElementById('input-email').value = email || '';
-            document.getElementById('input-telefono').value = telefono || '';
+            // Pre-select contacto (need to match by contactoId)
+            const contactoDropdown = document.getElementById('input-contacto');
+            for (let option of contactoDropdown.options) {
+                if (option.value) {
+                    const optionData = JSON.parse(option.value);
+                    if (optionData.id === contactoId) {
+                        contactoDropdown.value = option.value;
+                        // Trigger change to auto-populate fields
+                        contactoDropdown.dispatchEvent(new Event('change'));
+                        break;
+                    }
+                }
+            }
+
+            // Pre-fill other form fields
             document.getElementById('input-etapa').value = etapa || '';
             document.getElementById('input-valor').value = valor || '';
             document.getElementById('input-probabilidad').value = probabilidad || '';
@@ -2879,8 +2946,8 @@
             }
 
             try {
-                // Delete row (clear content)
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PIPELINE, `A${rowNumber}:O${rowNumber}`);
+                // Delete row (clear content) - 16 columns A-P
+                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PIPELINE, `A${rowNumber}:P${rowNumber}`);
 
                 showToast('Lead eliminado exitosamente', 'success');
 
@@ -2935,6 +3002,52 @@
             }
         }
 
+        /**
+         * Populate Contactos dropdown in Pipeline
+         */
+        async function populateContactosDropdownPipeline() {
+            try {
+                const contactosData = await sheetsAPI.readSheet(CONFIG.SHEETS.CONTACTOS);
+                const dropdown = document.getElementById('input-contacto');
+
+                // Clear existing options (except first)
+                dropdown.innerHTML = '<option value="">Seleccionar contacto...</option>';
+
+                // Add all contactos
+                contactosData.forEach(row => {
+                    const [id, nombre, email, telefono, empresa, cargo, tipo] = row;
+
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify({
+                        id, nombre, email, telefono, empresa
+                    });
+                    option.textContent = `${nombre} - ${empresa}`;
+                    dropdown.appendChild(option);
+                });
+
+                // Add event listener to auto-populate contact fields
+                dropdown.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        const contacto = JSON.parse(e.target.value);
+                        document.getElementById('input-lead').value = contacto.nombre || '';
+                        document.getElementById('input-empresa').value = contacto.empresa || '';
+                        document.getElementById('input-email').value = contacto.email || '';
+                        document.getElementById('input-telefono').value = contacto.telefono || '';
+                    } else {
+                        // Clear fields if no contacto selected
+                        document.getElementById('input-lead').value = '';
+                        document.getElementById('input-empresa').value = '';
+                        document.getElementById('input-email').value = '';
+                        document.getElementById('input-telefono').value = '';
+                    }
+                });
+
+                console.log('✅ Contactos dropdown populated in Pipeline');
+            } catch (error) {
+                console.error('❌ Error populating contactos dropdown:', error);
+            }
+        }
+
         // ====================
         // PROYECTOS VIEW FUNCTIONS
         // ====================
@@ -2952,6 +3065,10 @@
                 const proyectosData = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS);
                 allProyectosData = proyectosData || [];
                 renderProyectosTable(allProyectosData);
+
+                // Populate dropdowns
+                await populatePipelineDropdownProyectos();
+                await populatePromotoresDropdown();
 
                 console.log('✅ Proyectos view loaded');
             } catch (error) {
@@ -2971,10 +3088,12 @@
 
             const searchLower = searchTerm.toLowerCase();
             const filtered = allProyectosData.filter(row => {
-                const [id, nombre, cliente] = row;
+                // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa...
+                const [id, pipelineId, nombre, cliente, empresa] = row;
                 return (
                     (nombre && nombre.toLowerCase().includes(searchLower)) ||
-                    (cliente && cliente.toLowerCase().includes(searchLower))
+                    (cliente && cliente.toLowerCase().includes(searchLower)) ||
+                    (empresa && empresa.toLowerCase().includes(searchLower))
                 );
             });
             renderProyectosTable(filtered);
@@ -2992,7 +3111,8 @@
             }
 
             tbody.innerHTML = data.map((row, index) => {
-                const [id, nombre, cliente, emailCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, promotor, notas] = row;
+                // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, Notas, FechaActualización
+                const [id, pipelineId, nombre, cliente, empresa, email, telefono, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, notas] = row;
 
                 // Generate badge colors
                 const estadoBadge = getBadge(estado, getProyectoEstadoColor(estado));
@@ -3010,7 +3130,7 @@
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${nombre || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${cliente || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${empresa || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${tipoProyecto || '-'}</td>
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
                         <td class="px-4 py-3 text-sm">${faseBadge}</td>
@@ -3045,6 +3165,59 @@
         }
 
         /**
+         * Populate Pipeline dropdown in Proyectos (only Ganado leads)
+         */
+        async function populatePipelineDropdownProyectos() {
+            try {
+                const pipelineData = await sheetsAPI.readSheet(CONFIG.SHEETS.PIPELINE);
+                const dropdown = document.getElementById('input-proyecto-pipeline');
+
+                // Clear existing options (except first)
+                dropdown.innerHTML = '<option value="">Seleccionar lead ganado...</option>';
+
+                // Add only Ganado leads
+                pipelineData.forEach(row => {
+                    // Structure: ID, ContactoID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado...
+                    const [id, contactoId, nombre, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado] = row;
+
+                    if (estado === 'Ganado') {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify({
+                            id, nombre, empresa, email, telefono, valor
+                        });
+                        option.textContent = `${id} - ${nombre} (${empresa})`;
+                        dropdown.appendChild(option);
+                    }
+                });
+
+                // Add event listener to auto-populate fields from Pipeline
+                dropdown.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        const pipeline = JSON.parse(e.target.value);
+                        document.getElementById('input-proyecto-nombre').value = `Proyecto ${pipeline.nombre}`;
+                        document.getElementById('input-proyecto-cliente').value = pipeline.nombre || '';
+                        document.getElementById('input-proyecto-empresa').value = pipeline.empresa || '';
+                        document.getElementById('input-proyecto-email').value = pipeline.email || '';
+                        document.getElementById('input-proyecto-telefono').value = pipeline.telefono || '';
+                        document.getElementById('input-proyecto-valor').value = pipeline.valor || '';
+                    } else {
+                        // Clear fields if no pipeline selected
+                        document.getElementById('input-proyecto-nombre').value = '';
+                        document.getElementById('input-proyecto-cliente').value = '';
+                        document.getElementById('input-proyecto-empresa').value = '';
+                        document.getElementById('input-proyecto-email').value = '';
+                        document.getElementById('input-proyecto-telefono').value = '';
+                        document.getElementById('input-proyecto-valor').value = '';
+                    }
+                });
+
+                console.log('✅ Pipeline dropdown populated in Proyectos');
+            } catch (error) {
+                console.error('❌ Error populating pipeline dropdown:', error);
+            }
+        }
+
+        /**
          * Generate Proyecto ID
          */
         function generateProyectoId() {
@@ -3067,9 +3240,22 @@
             try {
                 // Get form values
                 const id = isEditing ? editId : generateProyectoId();
+                const pipelineSelect = document.getElementById('input-proyecto-pipeline').value;
+
+                // Validate pipeline selection
+                if (!pipelineSelect) {
+                    showToast('Debes seleccionar un lead del Pipeline', 'error');
+                    return;
+                }
+
+                const pipelineData = JSON.parse(pipelineSelect);
+                const pipelineId = pipelineData.id;
+
                 const nombre = document.getElementById('input-proyecto-nombre').value;
                 const cliente = document.getElementById('input-proyecto-cliente').value;
+                const empresa = document.getElementById('input-proyecto-empresa').value;
                 const emailCliente = document.getElementById('input-proyecto-email').value;
+                const telefonoCliente = document.getElementById('input-proyecto-telefono').value;
                 const tipoProyecto = document.getElementById('input-proyecto-tipo').value;
                 const estado = document.getElementById('input-proyecto-estado').value;
                 const fase = document.getElementById('input-proyecto-fase').value;
@@ -3078,32 +3264,37 @@
                 const fechaEntregaReal = document.getElementById('input-proyecto-fecha-entrega-real').value;
                 const valor = document.getElementById('input-proyecto-valor').value;
                 const progreso = document.getElementById('input-proyecto-progreso').value;
-                const promotor = document.getElementById('input-proyecto-promotor').value;
+                const repositorio = document.getElementById('input-proyecto-repositorio')?.value || '';
+                const deployURL = document.getElementById('input-proyecto-deploy')?.value || '';
                 const notas = document.getElementById('input-proyecto-notas').value;
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-                // Create row data
+                // Create row data (19 columns A-S)
                 const rowData = [[
-                    id,
-                    nombre,
-                    cliente,
-                    emailCliente,
-                    tipoProyecto,
-                    estado,
-                    fase,
-                    fechaInicio,
-                    fechaEntregaEst,
-                    fechaEntregaReal,
-                    valor,
-                    progreso,
-                    promotor,
-                    notas,
-                    fechaActualizacion
+                    id,                     // A: ID
+                    pipelineId,            // B: Pipeline ID
+                    nombre,                // C: Nombre
+                    cliente,               // D: Cliente
+                    empresa,               // E: Empresa
+                    emailCliente,          // F: Email Cliente
+                    telefonoCliente,       // G: Teléfono Cliente
+                    tipoProyecto,          // H: Tipo Proyecto
+                    estado,                // I: Estado
+                    fase,                  // J: Fase
+                    fechaInicio,           // K: Fecha Inicio
+                    fechaEntregaEst,       // L: Fecha Entrega Estimada
+                    fechaEntregaReal,      // M: Fecha Entrega Real
+                    valor,                 // N: Valor
+                    progreso,              // O: Progreso
+                    repositorio,           // P: Repositorio
+                    deployURL,             // Q: Deploy URL
+                    notas,                 // R: Notas
+                    fechaActualizacion     // S: Fecha Actualización
                 ]];
 
                 if (isEditing) {
-                    // Update existing row
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROYECTOS, `A${editRow}:O${editRow}`, rowData);
+                    // Update existing row (19 columns A-S)
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROYECTOS, `A${editRow}:S${editRow}`, rowData);
                     showToast('Proyecto actualizado exitosamente', 'success');
                 } else {
                     // Create new row
@@ -3133,24 +3324,37 @@
          * Edit Proyecto
          */
         function editProyecto(rowNumber, rowData) {
-            const [id, nombre, cliente, emailCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, promotor, notas] = rowData;
+            // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, Notas
+            const [id, pipelineId, nombre, cliente, empresa, emailCliente, telefonoCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, notas] = rowData;
 
             // Scroll to form
             document.getElementById('form-proyectos').scrollIntoView({ behavior: 'smooth' });
 
-            // Pre-fill form
+            // Pre-select pipeline (need to match by pipelineId)
+            const pipelineDropdown = document.getElementById('input-proyecto-pipeline');
+            for (let option of pipelineDropdown.options) {
+                if (option.value) {
+                    const optionData = JSON.parse(option.value);
+                    if (optionData.id === pipelineId) {
+                        pipelineDropdown.value = option.value;
+                        // Trigger change to auto-populate fields
+                        pipelineDropdown.dispatchEvent(new Event('change'));
+                        break;
+                    }
+                }
+            }
+
+            // Pre-fill other form fields
             document.getElementById('input-proyecto-nombre').value = nombre || '';
-            document.getElementById('input-proyecto-cliente').value = cliente || '';
-            document.getElementById('input-proyecto-email').value = emailCliente || '';
             document.getElementById('input-proyecto-tipo').value = tipoProyecto || '';
             document.getElementById('input-proyecto-estado').value = estado || '';
             document.getElementById('input-proyecto-fase').value = fase || '';
             document.getElementById('input-proyecto-fecha-inicio').value = fechaInicio || '';
             document.getElementById('input-proyecto-fecha-entrega-est').value = fechaEntregaEst || '';
             document.getElementById('input-proyecto-fecha-entrega-real').value = fechaEntregaReal || '';
-            document.getElementById('input-proyecto-valor').value = valor || '';
             document.getElementById('input-proyecto-progreso').value = progreso || '';
-            document.getElementById('input-proyecto-promotor').value = promotor || '';
+            document.getElementById('input-proyecto-repositorio').value = repositorio || '';
+            document.getElementById('input-proyecto-deploy').value = deployURL || '';
             document.getElementById('input-proyecto-notas').value = notas || '';
 
             // Change button text and add data attribute
@@ -3169,8 +3373,8 @@
             }
 
             try {
-                // Delete row (clear content)
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PROYECTOS, `A${rowNumber}:O${rowNumber}`);
+                // Delete row (clear content) - 19 columns A-S
+                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PROYECTOS, `A${rowNumber}:S${rowNumber}`);
 
                 showToast('Proyecto eliminado exitosamente', 'success');
 

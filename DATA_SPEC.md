@@ -33,36 +33,39 @@ Este documento especifica la estructura detallada de las 7 hojas de Google Sheet
 | # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
 |---|-------|------|-----------|--------------|-------------------|-------------|
 | A | **ID** | Texto | Sí | Único, auto-generado | `PIP-YYYY-####` | Identificador único del lead |
-| B | **Lead** | Texto | Sí | Min 3 caracteres | - | Nombre de la persona de contacto |
-| C | **Empresa** | Texto | Sí | Min 2 caracteres | - | Nombre de la empresa |
-| D | **Email** | Email | Sí | Formato email válido | - | Email de contacto |
-| E | **Teléfono** | Texto | No | Formato: +57 ### ### #### | - | Teléfono de contacto |
-| F | **Etapa** | Dropdown | Sí | - | Contacto, Propuesta, Negociación, Cierre | Etapa actual en el pipeline |
-| G | **Valor** | Número | Sí | > 0 | - | Valor potencial del proyecto (COP) |
-| H | **Probabilidad** | Número | Sí | 0-100 | - | % de probabilidad de cierre |
-| I | **Fecha Contacto** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha del primer contacto |
-| J | **Fecha Estimada Cierre** | Fecha | No | >= Fecha Contacto | - | Fecha esperada de cierre |
-| K | **Estado** | Dropdown | Sí | - | Activo, Ganado, Perdido, Pausado | Estado actual del lead |
-| L | **Fuente** | Dropdown | No | - | Web, Referido, LinkedIn, Evento, Otro | Origen del lead |
-| M | **Notas** | Texto largo | No | - | - | Observaciones adicionales |
-| N | **Servicio** | Dropdown | No | Debe existir en Servicios | - | Servicio solicitado (auto-completa Valor) |
-| O | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación (auto) |
+| B | **Contacto** | Dropdown | Sí | Debe existir en Contactos | - | Contacto asociado (auto-completa: Nombre, Empresa, Email, Teléfono) |
+| C | **Nombre** | Texto | Auto | Trae de Contactos | - | Nombre del contacto (auto-populate) |
+| D | **Empresa** | Texto | Auto | Trae de Contactos | - | Empresa del contacto (auto-populate) |
+| E | **Email** | Email | Auto | Trae de Contactos | - | Email del contacto (auto-populate) |
+| F | **Teléfono** | Texto | Auto | Trae de Contactos | - | Teléfono del contacto (auto-populate) |
+| G | **Etapa** | Dropdown | Sí | - | Contacto, Propuesta, Negociación, Cierre | Etapa actual en el pipeline |
+| H | **Valor** | Número | Sí | > 0 | - | Valor potencial del proyecto (COP) |
+| I | **Probabilidad** | Número | Sí | 0-100 | - | % de probabilidad de cierre |
+| J | **Fecha Contacto** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha del primer contacto |
+| K | **Fecha Estimada Cierre** | Fecha | No | >= Fecha Contacto | - | Fecha esperada de cierre |
+| L | **Estado** | Dropdown | Sí | - | Activo, Ganado, Perdido, Pausado | Estado actual del lead |
+| M | **Fuente** | Dropdown | No | - | Web, Referido, LinkedIn, Evento, Otro | Origen del lead |
+| N | **Notas** | Texto largo | No | - | - | Observaciones adicionales |
+| O | **Servicio** | Dropdown | No | Debe existir en Servicios | - | Servicio solicitado (auto-completa Valor) |
+| P | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación (auto) |
 
 ### Reglas de Negocio
 
-1. **Pipeline Value = Valor × (Probabilidad / 100)**
-2. **Probabilidad por etapa (sugerida):**
+1. **Flujo de datos:** Contacto debe existir primero en CONTACTOS → seleccionar en Pipeline → datos heredan automáticamente
+2. **Al seleccionar Contacto:** Sistema auto-completa Nombre, Empresa, Email y Teléfono (campos C, D, E, F)
+3. **Pipeline Value = Valor × (Probabilidad / 100)**
+4. **Probabilidad por etapa (sugerida):**
    - Contacto: 25%
    - Propuesta: 50%
    - Negociación: 75%
    - Cierre: 90%
-3. **Estado "Ganado"** → Debe crear registro automático en Proyectos
-4. **Leads Activos** = Estado != "Ganado" && Estado != "Perdido"
+5. **Estado "Ganado"** → Debe crear registro automático en Proyectos con datos del Pipeline
+6. **Leads Activos** = Estado != "Ganado" && Estado != "Perdido"
 
 ### Ejemplos de Datos
 
 ```
-PIP-2025-0001 | Juan Pérez | Tech Solutions | juan@tech.co | +57 300 123 4567 | Propuesta | 15000000 | 50 | 2025-11-15 | 2025-12-30 | Activo | LinkedIn | Interesado en dashboard de ventas | 2025-11-20 10:30
+PIP-2025-0001 | CON-2025-0001 | Juan Pérez | Tech Solutions | juan@tech.co | +57 300 123 4567 | Propuesta | 15000000 | 50 | 2025-11-15 | 2025-12-30 | Activo | LinkedIn | Interesado en dashboard de ventas | Dashboard Personalizado | 2025-11-20 10:30
 ```
 
 ---
@@ -76,25 +79,30 @@ PIP-2025-0001 | Juan Pérez | Tech Solutions | juan@tech.co | +57 300 123 4567 |
 | # | Campo | Tipo | Requerido | Validaciones | Valores Permitidos | Descripción |
 |---|-------|------|-----------|--------------|-------------------|-------------|
 | A | **ID** | Texto | Sí | Único, auto-generado | `PRJ-YYYY-####` | Identificador único del proyecto |
-| B | **Nombre** | Texto | Sí | Min 5 caracteres | - | Nombre del proyecto |
-| C | **Cliente** | Dropdown | Sí | Debe existir en Contactos | - | Nombre del cliente |
-| D | **Email Cliente** | Email | Auto | Trae de Contactos | - | Email del cliente (auto-populate) |
-| E | **Tipo Proyecto** | Dropdown | Sí | - | Dashboard, CRM, Landing, Custom | Tipo de entregable |
-| F | **Estado** | Dropdown | Sí | - | Activo, Pausado, Completado, Cancelado | Estado actual |
-| G | **Fase** | Dropdown | Sí | - | Discovery, Design, Desarrollo, QA, Deploy, Cerrado | Fase actual del proyecto |
-| H | **Fecha Inicio** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha de inicio del proyecto |
-| I | **Fecha Entrega Estimada** | Fecha | Sí | >= Fecha Inicio | - | Fecha comprometida de entrega |
-| J | **Fecha Entrega Real** | Fecha | No | >= Fecha Inicio | - | Fecha real de entrega |
-| K | **Valor** | Número | Sí | > 0 | - | Valor del proyecto (COP) |
-| L | **Progreso** | Número | Sí | 0-100 | - | % de avance del proyecto |
-| M | **Repositorio** | URL | No | Formato URL válido | - | Link al repo GitHub |
-| N | **Deploy URL** | URL | No | Formato URL válido | - | URL del proyecto en producción |
-| O | **Notas** | Texto largo | No | - | - | Observaciones |
-| P | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
+| B | **Pipeline ID** | Dropdown | Sí | Debe existir en Pipeline con Estado="Ganado" | - | Lead asociado del Pipeline (auto-completa todos los campos C-G) |
+| C | **Nombre** | Texto | Sí | Min 5 caracteres | - | Nombre del proyecto |
+| D | **Cliente** | Texto | Auto | Trae de Pipeline (Nombre) | - | Nombre del cliente (auto-populate) |
+| E | **Empresa** | Texto | Auto | Trae de Pipeline (Empresa) | - | Empresa del cliente (auto-populate) |
+| F | **Email Cliente** | Email | Auto | Trae de Pipeline (Email) | - | Email del cliente (auto-populate) |
+| G | **Teléfono Cliente** | Texto | Auto | Trae de Pipeline (Teléfono) | - | Teléfono del cliente (auto-populate) |
+| H | **Tipo Proyecto** | Dropdown | Sí | - | Dashboard, CRM, Landing, Custom | Tipo de entregable |
+| I | **Estado** | Dropdown | Sí | - | Activo, Pausado, Completado, Cancelado | Estado actual |
+| J | **Fase** | Dropdown | Sí | - | Discovery, Design, Desarrollo, QA, Deploy, Cerrado | Fase actual del proyecto |
+| K | **Fecha Inicio** | Fecha | Sí | Formato: YYYY-MM-DD | - | Fecha de inicio del proyecto |
+| L | **Fecha Entrega Estimada** | Fecha | Sí | >= Fecha Inicio | - | Fecha comprometida de entrega |
+| M | **Fecha Entrega Real** | Fecha | No | >= Fecha Inicio | - | Fecha real de entrega |
+| N | **Valor** | Número | Auto | Trae de Pipeline (Valor) | - | Valor del proyecto (COP) (auto-populate) |
+| O | **Progreso** | Número | Sí | 0-100 | - | % de avance del proyecto |
+| P | **Repositorio** | URL | No | Formato URL válido | - | Link al repo GitHub |
+| Q | **Deploy URL** | URL | No | Formato URL válido | - | URL del proyecto en producción |
+| R | **Notas** | Texto largo | No | - | - | Observaciones |
+| S | **Fecha Actualización** | Fecha | Auto | Formato: YYYY-MM-DD HH:MM | - | Última modificación |
 
 ### Reglas de Negocio
 
-1. **Progreso por fase (estimado):**
+1. **Flujo de datos:** Lead debe estar en Pipeline con Estado="Ganado" → seleccionar Pipeline ID → todos los campos heredan automáticamente
+2. **Al seleccionar Pipeline ID:** Sistema auto-completa Cliente, Empresa, Email, Teléfono y Valor (campos D, E, F, G, N)
+3. **Progreso por fase (estimado):**
    - Discovery: 10%
    - Design: 30%
    - Desarrollo: 70%
@@ -102,18 +110,18 @@ PIP-2025-0001 | Juan Pérez | Tech Solutions | juan@tech.co | +57 300 123 4567 |
    - Deploy: 95%
    - Cerrado: 100%
 
-2. **Estado vs Fase:**
+4. **Estado vs Fase:**
    - Completado → Fase debe ser "Cerrado" y Progreso = 100%
    - Cancelado → Progreso se congela
 
-3. **Días transcurridos** = Hoy - Fecha Inicio
-4. **Días restantes** = Fecha Entrega Estimada - Hoy
-5. **Alerta si:** Días restantes < 2 y Progreso < 80%
+5. **Días transcurridos** = Hoy - Fecha Inicio
+6. **Días restantes** = Fecha Entrega Estimada - Hoy
+7. **Alerta si:** Días restantes < 2 y Progreso < 80%
 
 ### Ejemplos de Datos
 
 ```
-PRJ-2025-0001 | Dashboard Ventas Tech Solutions | Tech Solutions | juan@tech.co | Dashboard | Activo | Desarrollo | 2025-11-20 | 2025-12-05 | - | 15000000 | 60 | github.com/metrik/tech-dashboard | - | En desarrollo según cronograma | 2025-11-28 14:20
+PRJ-2025-0001 | PIP-2025-0001 | Dashboard Ventas Tech Solutions | Juan Pérez | Tech Solutions | juan@tech.co | +57 300 123 4567 | Dashboard | Activo | Desarrollo | 2025-11-20 | 2025-12-05 | - | 15000000 | 60 | github.com/metrik/tech-dashboard | - | En desarrollo según cronograma | 2025-11-28 14:20
 ```
 
 ---
