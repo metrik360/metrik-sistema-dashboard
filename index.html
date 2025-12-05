@@ -176,7 +176,7 @@
         <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
             <div class="px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <button id="menu-toggle" class="lg:hidden">
+                    <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -195,7 +195,7 @@
 
         <div class="flex">
             <!-- Sidebar -->
-            <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-16">
+            <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto transition-all duration-300">
                 <nav class="p-4 sidebar-nav">
                     <a href="#" data-view="dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 active">
                         <span class="text-xl">📊</span>
@@ -1834,29 +1834,53 @@
             }
 
             /**
-             * Delete rows from a sheet (by clearing content)
+             * Delete a row from a sheet (completely removes the row)
              * @param {string} sheetName - Name of the sheet
-             * @param {string} range - Range to clear (e.g., 'A2:Z2')
+             * @param {number} rowNumber - Row number to delete (1-indexed)
              * @returns {Promise<Object>} Response object
              */
-            async deleteSheet(sheetName, range) {
+            async deleteRow(sheetName, rowNumber) {
                 try {
-                    console.log(`🗑️ Deleting ${sheetName}!${range}`);
+                    console.log(`🗑️ Deleting row ${rowNumber} from ${sheetName}`);
 
                     // Set access token before making request
                     if (accessToken) {
                         gapi.client.setToken({ access_token: accessToken });
                     }
 
-                    const response = await gapi.client.sheets.spreadsheets.values.clear({
+                    // Get sheet ID for the sheet name
+                    const sheetMetadata = await gapi.client.sheets.spreadsheets.get({
+                        spreadsheetId: CONFIG.SHEET_ID
+                    });
+
+                    const sheet = sheetMetadata.result.sheets.find(s => s.properties.title === sheetName);
+                    if (!sheet) {
+                        throw new Error(`Sheet ${sheetName} not found`);
+                    }
+
+                    const sheetId = sheet.properties.sheetId;
+
+                    // Delete the row using batchUpdate
+                    const response = await gapi.client.sheets.spreadsheets.batchUpdate({
                         spreadsheetId: CONFIG.SHEET_ID,
-                        range: `${sheetName}!${range}`
+                        resource: {
+                            requests: [{
+                                deleteDimension: {
+                                    range: {
+                                        sheetId: sheetId,
+                                        dimension: 'ROWS',
+                                        startIndex: rowNumber - 1, // 0-indexed
+                                        endIndex: rowNumber // exclusive
+                                    }
+                                }
+                            }]
+                        }
                     });
 
                     // Invalidate cache for this sheet
                     this.invalidateCache(sheetName);
 
-                    console.log(`✅ Deleted from ${sheetName}`);
+                    console.log(`✅ Row ${rowNumber} deleted from ${sheetName}`);
                     return response.result;
                 } catch (error) {
                     console.error(`❌ Error deleting from ${sheetName}:`, error);
@@ -1987,6 +2011,24 @@
 
         // Logout button
         document.getElementById('logout-button').addEventListener('click', logout);
+
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+
+            if (sidebar.classList.contains('w-64')) {
+                // Collapse
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-16');
+                sidebar.querySelectorAll('span:not(.text-xl)').forEach(span => span.classList.add('hidden'));
+            } else {
+                // Expand
+                sidebar.classList.remove('w-16');
+                sidebar.classList.add('w-64');
+                sidebar.querySelectorAll('span:not(.text-xl)').forEach(span => span.classList.remove('hidden'));
+            }
+        });
 
         // On successful authentication
         async function onAuthSuccess() {
@@ -2954,13 +2996,18 @@
          * Delete Pipeline lead
          */
         async function deletePipelineLead(rowNumber) {
+            // Only Super Admin can delete
+            if (!sessionManager.isSuperAdmin()) {
+                showToast('Solo el Super Admin puede eliminar registros', 'error');
+                return;
+            }
+
             if (!confirm('¿Estás seguro de eliminar este lead?')) {
                 return;
             }
 
             try {
-                // Delete row (clear content) - 16 columns A-P
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PIPELINE, `A${rowNumber}:P${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.PIPELINE, rowNumber);
 
                 showToast('Lead eliminado exitosamente', 'success');
 
@@ -3380,13 +3427,17 @@
          * Delete Proyecto
          */
         async function deleteProyecto(rowNumber) {
+            if (!sessionManager.isSuperAdmin()) {
+                showToast('Solo el Super Admin puede eliminar registros', 'error');
+                return;
+            }
+
             if (!confirm('¿Estás seguro de eliminar este proyecto?')) {
                 return;
             }
 
             try {
-                // Delete row (clear content) - 19 columns A-S
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PROYECTOS, `A${rowNumber}:S${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.PROYECTOS, rowNumber);
 
                 showToast('Proyecto eliminado exitosamente', 'success');
 
@@ -3680,7 +3731,7 @@
 
             try {
                 // Delete row (clear content) - 16 columns A-P
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.FACTURACION, `A${rowNumber}:P${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.FACTURACION, rowNumber);
 
                 showToast('Factura eliminada exitosamente', 'success');
 
@@ -3897,7 +3948,7 @@
 
             try {
                 // Delete row (clear content)
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.CONTACTOS, `A${rowNumber}:O${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.CONTACTOS, rowNumber);
 
                 showToast('Contacto eliminado exitosamente', 'success');
 
@@ -4135,7 +4186,7 @@
 
             try {
                 // Delete row (clear content)
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.PROMOTORES, `A${rowNumber}:Q${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.PROMOTORES, rowNumber);
 
                 showToast('Promotor eliminado exitosamente', 'success');
 
@@ -4363,7 +4414,7 @@
             }
 
             try {
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.SERVICIOS, `A${rowNumber}:R${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.SERVICIOS, rowNumber);
                 showToast('Servicio eliminado exitosamente', 'success');
                 await loadServiciosView();
             } catch (error) {
@@ -4679,7 +4730,7 @@
             }
 
             try {
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.USUARIOS, `A${rowNumber}:K${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.USUARIOS, rowNumber);
                 showToast('Usuario eliminado exitosamente', 'success');
                 await loadUsuariosView();
             } catch (error) {
@@ -4916,7 +4967,7 @@
 
             try {
                 // Delete row (clear content)
-                await sheetsAPI.deleteSheet(CONFIG.SHEETS.GASTOS, `A${rowNumber}:M${rowNumber}`);
+                await sheetsAPI.deleteRow(CONFIG.SHEETS.GASTOS, rowNumber);
 
                 showToast('Gasto eliminado exitosamente', 'success');
 
