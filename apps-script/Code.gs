@@ -82,7 +82,7 @@ function handleRequest(e) {
         break;
 
       case 'read':
-        result = handleRead(sheetName, e.parameter.range);
+        result = handleRead(sheetName, postData.range || 'A2:Z');
         break;
 
       case 'write':
@@ -90,11 +90,11 @@ function handleRequest(e) {
         break;
 
       case 'update':
-        result = handleUpdate(sheetName, e.parameter.range, postData.values);
+        result = handleUpdate(sheetName, postData.range, postData.values);
         break;
 
       case 'delete':
-        result = handleDelete(sheetName, parseInt(e.parameter.rowNumber));
+        result = handleDelete(sheetName, parseInt(postData.rowNumber));
         break;
 
       default:

@@ -1621,12 +1621,16 @@
                 console.log('🔐 Authenticating via Apps Script API...');
 
                 // Call Apps Script authentication endpoint
-                const url = `${CONFIG.APPS_SCRIPT_URL}?action=authenticate&email=${encodeURIComponent(email)}&pin=${encodeURIComponent(pin)}`;
-                const response = await fetch(url, {
-                    method: 'GET',
+                const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        action: 'authenticate',
+                        email: email,
+                        pin: pin
+                    })
                 });
 
                 const result = await response.json();
@@ -1736,12 +1740,16 @@
                 try {
                     console.log(`🔄 Fetching via Apps Script: ${sheetName}!${range}`);
 
-                    const url = `${this.apiUrl}?action=read&sheet=${sheetName}&range=${range}`;
-                    const response = await fetch(url, {
-                        method: 'GET',
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({
+                            action: 'read',
+                            sheet: sheetName,
+                            range: range
+                        })
                     });
 
                     const result = await response.json();
@@ -1856,12 +1864,16 @@
                 try {
                     console.log(`🗑️ Deleting row ${rowNumber} from ${sheetName} via Apps Script`);
 
-                    const url = `${this.apiUrl}?action=delete&sheet=${sheetName}&rowNumber=${rowNumber}`;
-                    const response = await fetch(url, {
-                        method: 'GET',
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({
+                            action: 'delete',
+                            sheet: sheetName,
+                            rowNumber: rowNumber
+                        })
                     });
 
                     const result = await response.json();
