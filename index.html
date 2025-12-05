@@ -3245,7 +3245,7 @@
                 dropdown.addEventListener('change', (e) => {
                     if (e.target.value) {
                         const pipeline = JSON.parse(e.target.value);
-                        document.getElementById('input-proyecto-nombre').value = `Proyecto ${pipeline.nombre}`;
+                        document.getElementById('input-proyecto-nombre').value = `Proyecto ${pipeline.empresa}`;
                         document.getElementById('input-proyecto-cliente').value = pipeline.nombre || '';
                         document.getElementById('input-proyecto-empresa').value = pipeline.empresa || '';
                         document.getElementById('input-proyecto-email').value = pipeline.email || '';
