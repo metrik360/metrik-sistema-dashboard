@@ -1802,10 +1802,8 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-100 py-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-center gap-2 text-gray-500">
-                <span class="text-xs font-medium">Powered by</span>
-                <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" alt="MéTRIK" class="h-4 w-auto opacity-80 hover:opacity-100 transition-opacity">
-                <span class="text-xs font-semibold text-gray-700">MéTRIK</span>
+            <div class="flex items-center justify-center">
+                <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" alt="MéTRIK" class="h-5 w-auto opacity-60 hover:opacity-100 transition-opacity">
             </div>
         </div>
     </footer>
@@ -2548,12 +2546,18 @@
          * Format number as currency (COP)
          */
         function formatCurrency(value) {
-            if (value >= 1000000) {
-                return `$${(value / 1000000).toFixed(1)}M`;
-            } else if (value >= 1000) {
-                return `$${(value / 1000).toFixed(1)}K`;
+            // Convert to number and validate
+            const num = parseFloat(value);
+            if (isNaN(num) || num === null || num === undefined) {
+                return '$0';
+            }
+
+            if (num >= 1000000) {
+                return `$${(num / 1000000).toFixed(1)}M`;
+            } else if (num >= 1000) {
+                return `$${(num / 1000).toFixed(1)}K`;
             } else {
-                return `$${value.toFixed(0)}`;
+                return `$${num.toFixed(0)}`;
             }
         }
 
