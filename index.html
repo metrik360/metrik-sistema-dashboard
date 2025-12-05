@@ -161,6 +161,11 @@
                 left: 0;
             }
 
+            /* Show all text in mobile sidebar */
+            #sidebar span {
+                display: inline !important;
+            }
+
             /* Main content fills full width on mobile */
             #main-content {
                 margin-left: 0 !important;
@@ -239,9 +244,22 @@
                 width: 100% !important;
             }
 
+            /* Optimize all form inputs for mobile */
+            input[type="text"],
+            input[type="email"],
+            input[type="number"],
+            input[type="date"],
+            input[type="password"],
+            select,
+            textarea {
+                font-size: 16px !important; /* Prevents zoom on iOS */
+                padding: 0.625rem !important; /* Smaller padding */
+            }
+
             /* Better button sizes on mobile */
             button {
                 font-size: 0.875rem;
+                padding: 0.625rem 1rem !important;
             }
 
             /* Improve badge visibility on mobile */
@@ -274,6 +292,51 @@
             form button[type="submit"],
             form button[type="button"] {
                 width: 100% !important;
+            }
+
+            /* Collapsible tables on mobile */
+            .table-section {
+                margin-top: 1.5rem;
+            }
+
+            .table-toggle-btn {
+                display: flex !important;
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                background: white;
+                border: 1px solid #E5E7EB;
+                border-radius: 0.75rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            .table-content {
+                display: none;
+            }
+
+            .table-content.expanded {
+                display: block;
+            }
+
+            .toggle-icon {
+                transition: transform 0.3s;
+            }
+
+            .toggle-icon.rotated {
+                transform: rotate(180deg);
+            }
+        }
+
+        /* Hide table toggle button on desktop */
+        @media (min-width: 769px) {
+            .table-toggle-btn {
+                display: none !important;
+            }
+
+            .table-content {
+                display: block !important;
             }
         }
 
@@ -689,13 +752,27 @@
                     </div>
 
                     <!-- Table Card -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Leads Registrados</h3>
-                            <input type="text" id="search-pipeline" placeholder="🔍 Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
-                        </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 table-section">
+                        <!-- Mobile Toggle Button -->
+                        <button class="table-toggle-btn" onclick="toggleTable('pipeline')">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">📋</span>
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900 text-left">Leads Registrados</h3>
+                                    <p class="text-xs text-gray-500">Ver lista completa</p>
+                                </div>
+                            </div>
+                            <span class="toggle-icon text-2xl">▼</span>
+                        </button>
 
-                        <div class="overflow-x-auto">
+                        <!-- Table Content (collapsible on mobile) -->
+                        <div id="table-pipeline-content" class="table-content">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Leads Registrados</h3>
+                                <input type="text" id="search-pipeline" placeholder="🔍 Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                            </div>
+
+                            <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -714,6 +791,7 @@
                                     <!-- Rows will be inserted here -->
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2607,6 +2685,23 @@
             setTimeout(() => {
                 toast.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50';
             }, 3000);
+        }
+
+        /**
+         * Toggle table visibility on mobile
+         */
+        function toggleTable(tableName) {
+            const content = document.getElementById(`table-${tableName}-content`);
+            const button = event.currentTarget;
+            const icon = button.querySelector('.toggle-icon');
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('rotated');
+            }
         }
 
         // ====================
