@@ -194,15 +194,40 @@ function handleAuthentication(data) {
 // ========================================
 
 /**
+ * Helper function to get actual sheet name from CONFIG
+ */
+function getActualSheetName(sheetName) {
+  if (!sheetName) {
+    return null;
+  }
+
+  // Normalize sheet name (remove accents and uppercase for lookup)
+  const normalizedName = sheetName
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, ''); // Remove accents
+
+  // Find the actual sheet name from CONFIG
+  for (const [key, value] of Object.entries(CONFIG.SHEETS)) {
+    if (key === normalizedName) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Read data from a sheet
  */
 function handleRead(sheetName, range = 'A2:Z') {
   try {
-    if (!sheetName || !CONFIG.SHEETS[sheetName.toUpperCase()]) {
-      return { error: 'Invalid sheet name' };
+    const actualSheetName = getActualSheetName(sheetName);
+
+    if (!actualSheetName) {
+      return { error: 'Invalid sheet name: ' + sheetName };
     }
 
-    const actualSheetName = CONFIG.SHEETS[sheetName.toUpperCase()];
     const sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(actualSheetName);
 
     if (!sheet) {
@@ -231,15 +256,16 @@ function handleRead(sheetName, range = 'A2:Z') {
  */
 function handleWrite(sheetName, values) {
   try {
-    if (!sheetName || !CONFIG.SHEETS[sheetName.toUpperCase()]) {
-      return { error: 'Invalid sheet name' };
+    const actualSheetName = getActualSheetName(sheetName);
+
+    if (!actualSheetName) {
+      return { error: 'Invalid sheet name: ' + sheetName };
     }
 
     if (!values || !Array.isArray(values)) {
       return { error: 'Values must be an array' };
     }
 
-    const actualSheetName = CONFIG.SHEETS[sheetName.toUpperCase()];
     const sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(actualSheetName);
 
     if (!sheet) {
@@ -266,8 +292,10 @@ function handleWrite(sheetName, values) {
  */
 function handleUpdate(sheetName, range, values) {
   try {
-    if (!sheetName || !CONFIG.SHEETS[sheetName.toUpperCase()]) {
-      return { error: 'Invalid sheet name' };
+    const actualSheetName = getActualSheetName(sheetName);
+
+    if (!actualSheetName) {
+      return { error: 'Invalid sheet name: ' + sheetName };
     }
 
     if (!range) {
@@ -278,7 +306,6 @@ function handleUpdate(sheetName, range, values) {
       return { error: 'Values must be an array' };
     }
 
-    const actualSheetName = CONFIG.SHEETS[sheetName.toUpperCase()];
     const sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(actualSheetName);
 
     if (!sheet) {
@@ -305,15 +332,16 @@ function handleUpdate(sheetName, range, values) {
  */
 function handleDelete(sheetName, rowNumber) {
   try {
-    if (!sheetName || !CONFIG.SHEETS[sheetName.toUpperCase()]) {
-      return { error: 'Invalid sheet name' };
+    const actualSheetName = getActualSheetName(sheetName);
+
+    if (!actualSheetName) {
+      return { error: 'Invalid sheet name: ' + sheetName };
     }
 
     if (!rowNumber || rowNumber < 2) {
       return { error: 'Invalid row number (must be >= 2)' };
     }
 
-    const actualSheetName = CONFIG.SHEETS[sheetName.toUpperCase()];
     const sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(actualSheetName);
 
     if (!sheet) {
