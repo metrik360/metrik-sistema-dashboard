@@ -17,17 +17,12 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
-    <!-- Google API Client -->
-    <script src="https://apis.google.com/js/api.js"></script>
-
     <!-- Configuration -->
     <script>
         // Configuration for Sistema MéTRIK
         const CONFIG = {
-            // OAuth 2.0 Configuration
-            CLIENT_ID: '482658322972-3nst66clokld9b2rcjarg8i5v5ngo540.apps.googleusercontent.com',
-            SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email',
-            DISCOVERY_DOCS: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            // Apps Script API URL (backend without OAuth popup)
+            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxJ1EdlzQDPeFszO9P7XtVP-OabN6MPPk_cbHs2rR2HJplJTrtWAn49CVV6RNPl9i5R/exec',
 
             // Google Sheets Configuration
             SHEET_ID: '16uKHN5v6DhGCMjuyUaC84yIw9Fx-DKjayP2NRINrAJc',
@@ -1501,11 +1496,6 @@
 
     <script>
         // Global variables
-        let gapiInited = false;
-        let gisInited = false;
-        let tokenClient;
-        let accessToken = null;
-
         // Chart instances
         let chartPipeline = null;
         let chartProyectos = null;
@@ -1628,69 +1618,40 @@
 
         async function authenticateWithEmailPIN(email, pin) {
             try {
-                // Normalize email to lowercase for comparison
-                const normalizedEmail = email.toLowerCase().trim();
+                console.log('🔐 Authenticating via Apps Script API...');
 
-                // Read usuarios from sheet
-                const usuariosData = await sheetsAPI.readSheet(CONFIG.SHEETS.USUARIOS, 'A2:K');
-
-                if (!usuariosData || usuariosData.length === 0) {
-                    showToast('No hay usuarios registrados', 'error');
-                    return false;
-                }
-
-                // Find user by email (case-insensitive)
-                const userRow = usuariosData.find(row =>
-                    row[2] && row[2].toLowerCase().trim() === normalizedEmail
-                );
-
-                if (!userRow) {
-                    showToast('Credenciales incorrectas', 'error');
-                    return false;
-                }
-
-                const [id, nombre, userEmail, userPIN, rol, estado, empresaId, permisos] = userRow;
-
-                // Validate PIN
-                if (userPIN !== pin) {
-                    showToast('Credenciales incorrectas', 'error');
-                    return false;
-                }
-
-                // Validate status
-                if (estado !== 'Activo') {
-                    showToast('Usuario inactivo. Contacta al administrador.', 'error');
-                    return false;
-                }
-
-                // Update last activity
-                const rowIndex = usuariosData.indexOf(userRow) + 2; // +2 because of header and 0-index
-                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                await sheetsAPI.updateSheet(CONFIG.SHEETS.USUARIOS, `K${rowIndex}`, [[now]]);
-
-                // Parse permisos if exists
-                let permisosObj = {};
-                try {
-                    if (permisos) {
-                        permisosObj = JSON.parse(permisos);
+                // Call Apps Script authentication endpoint
+                const url = `${CONFIG.APPS_SCRIPT_URL}?action=authenticate&email=${encodeURIComponent(email)}&pin=${encodeURIComponent(pin)}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
-                } catch (e) {
-                    console.warn('Could not parse permisos JSON:', e);
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    showToast(result.error || 'Credenciales incorrectas', 'error');
+                    return false;
                 }
+
+                const user = result.user;
 
                 // Create session
                 sessionManager.saveSession({
-                    email: userEmail,
-                    nombre: nombre,
-                    rol: rol,
-                    empresaId: empresaId || null,
-                    permisos: permisosObj
+                    email: user.email,
+                    nombre: user.nombre,
+                    rol: user.rol,
+                    empresaId: user.empresaId || null,
+                    permisos: user.permisos || {}
                 });
 
+                console.log('✅ Authentication successful');
                 return true;
             } catch (error) {
                 console.error('❌ Error in Email+PIN authentication:', error);
-                showToast('Error al autenticar', 'error');
+                showToast('Error al autenticar. Intenta de nuevo.', 'error');
                 return false;
             }
         }
@@ -1712,17 +1673,7 @@
         function logout() {
             sessionManager.clearSession();
 
-            // Clear saved Google token
-            localStorage.removeItem('google_access_token');
-            localStorage.removeItem('google_token_expiry');
-
-            // Revoke Google token if exists
-            if (accessToken) {
-                google.accounts.oauth2.revoke(accessToken, () => {
-                    console.log('Token revoked');
-                });
-                accessToken = null;
-            }
+            console.log('🚪 User logged out');
 
             // Reload page to show login screen
             window.location.reload();
@@ -1751,15 +1702,17 @@
         }
 
         // ====================
-        // DATA LAYER: Google Sheets API
+        // DATA LAYER: Apps Script API
         // ====================
 
         /**
-         * Google Sheets API wrapper with caching
+         * Apps Script API wrapper with caching
+         * Uses Google Apps Script backend instead of direct OAuth
          */
-        class GoogleSheetsAPI {
+        class AppsScriptAPI {
             constructor() {
                 this.cache = new Map();
+                this.apiUrl = CONFIG.APPS_SCRIPT_URL;
             }
 
             /**
@@ -1781,19 +1734,23 @@
                 }
 
                 try {
-                    console.log(`🔄 Fetching: ${sheetName}!${range}`);
+                    console.log(`🔄 Fetching via Apps Script: ${sheetName}!${range}`);
 
-                    // Set access token before making request
-                    if (accessToken) {
-                        gapi.client.setToken({ access_token: accessToken });
-                    }
-
-                    const response = await gapi.client.sheets.spreadsheets.values.get({
-                        spreadsheetId: CONFIG.SHEET_ID,
-                        range: `${sheetName}!${range}`,
+                    const url = `${this.apiUrl}?action=read&sheet=${sheetName}&range=${range}`;
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
 
-                    const data = response.result.values || [];
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.error || 'Error reading sheet');
+                    }
+
+                    const data = result.data || [];
 
                     // Cache the result
                     this.cache.set(cacheKey, {
@@ -1817,28 +1774,31 @@
              */
             async writeSheet(sheetName, values) {
                 try {
-                    console.log(`✍️ Writing ${values.length} rows to ${sheetName}`);
+                    console.log(`✍️ Writing ${values.length} rows to ${sheetName} via Apps Script`);
 
-                    // Set access token before making request
-                    if (accessToken) {
-                        gapi.client.setToken({ access_token: accessToken });
-                    }
-
-                    const response = await gapi.client.sheets.spreadsheets.values.append({
-                        spreadsheetId: CONFIG.SHEET_ID,
-                        range: `${sheetName}!A2`,
-                        valueInputOption: 'USER_ENTERED',
-                        insertDataOption: 'INSERT_ROWS',
-                        resource: {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'write',
+                            sheet: sheetName,
                             values: values
-                        }
+                        })
                     });
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.error || 'Error writing to sheet');
+                    }
 
                     // Invalidate cache for this sheet
                     this.invalidateCache(sheetName);
 
                     console.log(`✅ Written to ${sheetName}`);
-                    return response.result;
+                    return result;
                 } catch (error) {
                     console.error(`❌ Error writing to ${sheetName}:`, error);
                     throw error;
@@ -1854,27 +1814,32 @@
              */
             async updateSheet(sheetName, range, values) {
                 try {
-                    console.log(`🔄 Updating ${sheetName}!${range}`);
+                    console.log(`🔄 Updating ${sheetName}!${range} via Apps Script`);
 
-                    // Set access token before making request
-                    if (accessToken) {
-                        gapi.client.setToken({ access_token: accessToken });
-                    }
-
-                    const response = await gapi.client.sheets.spreadsheets.values.update({
-                        spreadsheetId: CONFIG.SHEET_ID,
-                        range: `${sheetName}!${range}`,
-                        valueInputOption: 'USER_ENTERED',
-                        resource: {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'update',
+                            sheet: sheetName,
+                            range: range,
                             values: values
-                        }
+                        })
                     });
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.error || 'Error updating sheet');
+                    }
 
                     // Invalidate cache for this sheet
                     this.invalidateCache(sheetName);
 
                     console.log(`✅ Updated ${sheetName}`);
-                    return response.result;
+                    return result;
                 } catch (error) {
                     console.error(`❌ Error updating ${sheetName}:`, error);
                     throw error;
@@ -1889,47 +1854,27 @@
              */
             async deleteRow(sheetName, rowNumber) {
                 try {
-                    console.log(`🗑️ Deleting row ${rowNumber} from ${sheetName}`);
+                    console.log(`🗑️ Deleting row ${rowNumber} from ${sheetName} via Apps Script`);
 
-                    // Set access token before making request
-                    if (accessToken) {
-                        gapi.client.setToken({ access_token: accessToken });
-                    }
-
-                    // Get sheet ID for the sheet name
-                    const sheetMetadata = await gapi.client.sheets.spreadsheets.get({
-                        spreadsheetId: CONFIG.SHEET_ID
-                    });
-
-                    const sheet = sheetMetadata.result.sheets.find(s => s.properties.title === sheetName);
-                    if (!sheet) {
-                        throw new Error(`Sheet ${sheetName} not found`);
-                    }
-
-                    const sheetId = sheet.properties.sheetId;
-
-                    // Delete the row using batchUpdate
-                    const response = await gapi.client.sheets.spreadsheets.batchUpdate({
-                        spreadsheetId: CONFIG.SHEET_ID,
-                        resource: {
-                            requests: [{
-                                deleteDimension: {
-                                    range: {
-                                        sheetId: sheetId,
-                                        dimension: 'ROWS',
-                                        startIndex: rowNumber - 1, // 0-indexed
-                                        endIndex: rowNumber // exclusive
-                                    }
-                                }
-                            }]
+                    const url = `${this.apiUrl}?action=delete&sheet=${sheetName}&rowNumber=${rowNumber}`;
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
                         }
                     });
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.error || 'Error deleting row');
+                    }
 
                     // Invalidate cache for this sheet
                     this.invalidateCache(sheetName);
 
                     console.log(`✅ Row ${rowNumber} deleted from ${sheetName}`);
-                    return response.result;
+                    return result;
                 } catch (error) {
                     console.error(`❌ Error deleting from ${sheetName}:`, error);
                     throw error;
@@ -1961,78 +1906,21 @@
         }
 
         // Create global instance
-        const sheetsAPI = new GoogleSheetsAPI();
+        const sheetsAPI = new AppsScriptAPI();
 
         // Initialize on load
         window.onload = function() {
-            gapiLoadClient();
-            gisInit();
-        };
-
-        // Load the Google API client
-        function gapiLoadClient() {
-            gapi.load('client', async () => {
-                await gapi.client.init({
-                    discoveryDocs: CONFIG.DISCOVERY_DOCS,
-                });
-                // Explicitly load the Sheets API
-                await gapi.client.load('sheets', 'v4');
-                gapiInited = true;
-                maybeEnableButtons();
-            });
-        }
-
-        // Initialize Google Identity Services
-        function gisInit() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CONFIG.CLIENT_ID,
-                scope: CONFIG.SCOPES,
-                callback: (tokenResponse) => {
-                    accessToken = tokenResponse.access_token;
-
-                    // Save token and expiry time in localStorage
-                    const expiresIn = tokenResponse.expires_in || 3600; // Default 1 hour
-                    const expiryTime = Date.now() + (expiresIn * 1000);
-                    localStorage.setItem('google_access_token', accessToken);
-                    localStorage.setItem('google_token_expiry', expiryTime.toString());
-
-                    console.log('✅ Google token saved (expires in ' + expiresIn + 's)');
-                    onAuthSuccess();
-                },
-            });
-            gisInited = true;
-            maybeEnableButtons();
-        }
-
-        function maybeEnableButtons() {
-            if (gapiInited && gisInited) {
-                // Try to restore saved token
-                const savedToken = localStorage.getItem('google_access_token');
-                const tokenExpiry = localStorage.getItem('google_token_expiry');
-
-                if (savedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
-                    // Token is still valid
-                    console.log('✅ Valid Google token found, restoring session...');
-                    accessToken = savedToken;
-                    gapi.client.setToken({ access_token: accessToken });
-
-                    // Check if user session exists
-                    if (sessionManager.isAuthenticated()) {
-                        onAuthSuccess();
-                        return;
-                    }
-                } else if (savedToken) {
-                    // Token expired, clear it
-                    console.log('⚠️ Google token expired, clearing...');
-                    localStorage.removeItem('google_access_token');
-                    localStorage.removeItem('google_token_expiry');
-                }
-
+            // Check if user is already authenticated
+            if (sessionManager.isAuthenticated()) {
+                console.log('✅ User session found, loading dashboard...');
+                onAuthSuccess();
+            } else {
                 // Show login screen
+                console.log('🔐 No session found, showing login screen...');
                 document.getElementById('loading-screen').classList.add('hidden');
                 document.getElementById('login-screen').classList.remove('hidden');
             }
-        }
+        };
 
         // DEPRECATED: Google Login button (removed from UI)
         // document.getElementById('login-google-button').addEventListener('click', async () => {
@@ -2057,43 +1945,8 @@
             const pin = document.getElementById('login-pin').value.trim();
 
             try {
-                // STEP 1: First, request Google Sheets access token
-                // We need this to read the Usuarios sheet
-                console.log('🔐 Step 1: Requesting Google OAuth token...');
-
-                // Create a promise to wait for token
-                const tokenPromise = new Promise((resolve, reject) => {
-                    // Set up temporary callback
-                    const originalCallback = tokenClient.callback;
-                    tokenClient.callback = (tokenResponse) => {
-                        if (tokenResponse && tokenResponse.access_token) {
-                            accessToken = tokenResponse.access_token;
-                            console.log('✅ Google OAuth token obtained');
-                            tokenClient.callback = originalCallback; // Restore original
-                            resolve();
-                        } else {
-                            tokenClient.callback = originalCallback; // Restore original
-                            reject(new Error('No token received'));
-                        }
-                    };
-
-                    // Request token
-                    tokenClient.requestAccessToken({ prompt: '' });
-
-                    // Timeout after 30 seconds
-                    setTimeout(() => {
-                        if (!accessToken) {
-                            tokenClient.callback = originalCallback; // Restore original
-                            reject(new Error('Token request timeout'));
-                        }
-                    }, 30000);
-                });
-
-                // Wait for token
-                await tokenPromise;
-
-                // STEP 2: Now authenticate with Email+PIN using the token
-                console.log('🔐 Step 2: Validating Email+PIN...');
+                // Authenticate with Email+PIN via Apps Script
+                console.log('🔐 Authenticating with Email+PIN...');
                 const success = await authenticateWithEmailPIN(email, pin);
 
                 if (success) {
@@ -2105,7 +1958,7 @@
                 }
             } catch (error) {
                 console.error('❌ Error during authentication:', error);
-                showToast('Error al conectar con Google. Intenta de nuevo.', 'error');
+                showToast('Error al autenticar. Intenta de nuevo.', 'error');
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
             }
@@ -5524,7 +5377,5 @@
         }
     </script>
 
-    <!-- Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
