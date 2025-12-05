@@ -2236,16 +2236,34 @@
         const sheetsAPI = new AppsScriptAPI();
 
         // Initialize on load
-        window.onload = function() {
-            // Check if user is already authenticated
-            if (sessionManager.isAuthenticated()) {
-                console.log('✅ User session found, loading dashboard...');
-                onAuthSuccess();
-            } else {
-                // Show login screen
-                console.log('🔐 No session found, showing login screen...');
+        window.onload = async function() {
+            try {
+                // Check if user is already authenticated
+                if (sessionManager.isAuthenticated()) {
+                    console.log('✅ User session found, loading dashboard...');
+
+                    // Set a timeout to catch hanging loads
+                    const timeout = setTimeout(() => {
+                        console.error('⏱️ Dashboard load timeout - clearing session');
+                        sessionManager.logout();
+                        document.getElementById('loading-screen').classList.add('hidden');
+                        document.getElementById('login-screen').classList.remove('hidden');
+                        showToast('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                    }, 10000); // 10 second timeout
+
+                    await onAuthSuccess();
+                    clearTimeout(timeout);
+                } else {
+                    // Show login screen
+                    console.log('🔐 No session found, showing login screen...');
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    document.getElementById('login-screen').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('❌ Error during initialization:', error);
                 document.getElementById('loading-screen').classList.add('hidden');
                 document.getElementById('login-screen').classList.remove('hidden');
+                showToast('Error al iniciar. Por favor, intenta de nuevo.', 'error');
             }
         };
 
@@ -2340,18 +2358,31 @@
 
         // On successful authentication
         async function onAuthSuccess() {
-            // Hide login, show main app
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
+            try {
+                // Hide loading and login screens, show main app
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
 
-            // Setup UI based on role
-            setupUIForRole();
+                // Setup UI based on role
+                setupUIForRole();
 
-            // Initialize navigation
-            initNavigation();
+                // Initialize navigation
+                initNavigation();
 
-            // Load dashboard data
-            loadDashboardData();
+                // Load dashboard data
+                await loadDashboardData();
+
+                console.log('✅ Authentication successful and dashboard loaded');
+            } catch (error) {
+                console.error('❌ Error in onAuthSuccess:', error);
+                // If there's an error, logout and show login
+                sessionManager.logout();
+                document.getElementById('main-app').classList.add('hidden');
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+                showToast('Error al cargar el dashboard. Por favor, intenta de nuevo.', 'error');
+            }
         }
 
         // Load dashboard data
