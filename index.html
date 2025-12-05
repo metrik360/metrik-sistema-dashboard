@@ -157,28 +157,6 @@
                 <p class="text-gray-600 text-lg">Sistema de Gestión Interno</p>
             </div>
 
-            <!-- Google Login (Super Admin) -->
-            <button
-                id="login-google-button"
-                class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 mb-6"
-                style="box-shadow: var(--shadow-green);"
-            >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-                </svg>
-                Iniciar sesión con Google
-            </button>
-
-            <!-- Divider -->
-            <div class="relative mb-6">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-300"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-white text-gray-500">O</span>
-                </div>
-            </div>
-
             <!-- Email + PIN Login -->
             <form id="login-form-pin" class="space-y-4">
                 <div>
@@ -205,15 +183,16 @@
                 </div>
                 <button
                     type="submit"
-                    class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+                    id="login-submit-button"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200"
+                    style="box-shadow: var(--shadow-green);"
                 >
                     Iniciar Sesión
                 </button>
             </form>
 
             <p class="text-xs text-gray-500 text-center mt-6">
-                Super Admin: Iniciar con Google<br/>
-                Usuarios: Iniciar con Email + PIN
+                Ingresa con tu email y PIN asignado
             </p>
         </div>
     </div>
@@ -1615,49 +1594,43 @@
         /**
          * Authentication Functions
          */
-        async function authenticateWithGoogle() {
-            try {
-                // Request access token
-                tokenClient.requestAccessToken({ prompt: 'consent' });
-
-                // Wait for token to be set
-                await new Promise((resolve) => {
-                    const checkToken = setInterval(() => {
-                        if (accessToken) {
-                            clearInterval(checkToken);
-                            resolve();
-                        }
-                    }, 100);
-                });
-
-                // Get user info
-                const userInfo = await getUserInfo();
-
-                // Check if user is Super Admin
-                if (!CONFIG.SUPER_ADMIN_EMAILS.includes(userInfo.email)) {
-                    showToast('No autorizado. Solo Super Admins pueden usar Google OAuth.', 'error');
-                    return false;
-                }
-
-                // Create session
-                sessionManager.saveSession({
-                    email: userInfo.email,
-                    nombre: userInfo.name || userInfo.email.split('@')[0],
-                    rol: CONFIG.ROLES.SUPER_ADMIN,
-                    empresaId: null,
-                    permisos: {}
-                });
-
-                return true;
-            } catch (error) {
-                console.error('❌ Error in Google authentication:', error);
-                showToast('Error al autenticar con Google', 'error');
-                return false;
-            }
-        }
+        // DEPRECATED: Google OAuth authentication (commented out - using Email+PIN only)
+        // async function authenticateWithGoogle() {
+        //     try {
+        //         tokenClient.requestAccessToken({ prompt: 'consent' });
+        //         await new Promise((resolve) => {
+        //             const checkToken = setInterval(() => {
+        //                 if (accessToken) {
+        //                     clearInterval(checkToken);
+        //                     resolve();
+        //                 }
+        //             }, 100);
+        //         });
+        //         const userInfo = await getUserInfo();
+        //         if (!CONFIG.SUPER_ADMIN_EMAILS.includes(userInfo.email)) {
+        //             showToast('No autorizado. Solo Super Admins pueden usar Google OAuth.', 'error');
+        //             return false;
+        //         }
+        //         sessionManager.saveSession({
+        //             email: userInfo.email,
+        //             nombre: userInfo.name || userInfo.email.split('@')[0],
+        //             rol: CONFIG.ROLES.SUPER_ADMIN,
+        //             empresaId: null,
+        //             permisos: {}
+        //         });
+        //         return true;
+        //     } catch (error) {
+        //         console.error('❌ Error in Google authentication:', error);
+        //         showToast('Error al autenticar con Google', 'error');
+        //         return false;
+        //     }
+        // }
 
         async function authenticateWithEmailPIN(email, pin) {
             try {
+                // Normalize email to lowercase for comparison
+                const normalizedEmail = email.toLowerCase().trim();
+
                 // Read usuarios from sheet
                 const usuariosData = await sheetsAPI.readSheet(CONFIG.SHEETS.USUARIOS, 'A2:K');
 
@@ -1666,11 +1639,13 @@
                     return false;
                 }
 
-                // Find user by email
-                const userRow = usuariosData.find(row => row[2] === email); // Column C: Email
+                // Find user by email (case-insensitive)
+                const userRow = usuariosData.find(row =>
+                    row[2] && row[2].toLowerCase().trim() === normalizedEmail
+                );
 
                 if (!userRow) {
-                    showToast('Email no encontrado', 'error');
+                    showToast('Credenciales incorrectas', 'error');
                     return false;
                 }
 
@@ -1678,7 +1653,7 @@
 
                 // Validate PIN
                 if (userPIN !== pin) {
-                    showToast('PIN incorrecto', 'error');
+                    showToast('Credenciales incorrectas', 'error');
                     return false;
                 }
 
@@ -2033,13 +2008,13 @@
             }
         }
 
-        // Google Login button
-        document.getElementById('login-google-button').addEventListener('click', async () => {
-            const success = await authenticateWithGoogle();
-            if (success) {
-                onAuthSuccess();
-            }
-        });
+        // DEPRECATED: Google Login button (removed from UI)
+        // document.getElementById('login-google-button').addEventListener('click', async () => {
+        //     const success = await authenticateWithGoogle();
+        //     if (success) {
+        //         onAuthSuccess();
+        //     }
+        // });
 
         // Email + PIN Login form
         document.getElementById('login-form-pin').addEventListener('submit', async (e) => {
