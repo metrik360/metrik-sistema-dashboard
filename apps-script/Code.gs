@@ -4,7 +4,7 @@
  * This script provides a REST API for the MéTRIK dashboard system
  * without requiring OAuth popups for each user.
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @author Claude Code
  */
 
@@ -56,10 +56,6 @@ function handleRequest(e) {
     // Enable CORS
     const origin = e.parameter.origin || e.headers?.origin;
 
-    // Parse request
-    const action = e.parameter.action;
-    const sheetName = e.parameter.sheet;
-
     // Parse POST data if exists, otherwise use GET parameters
     let postData = {};
     if (e.postData && e.postData.contents) {
@@ -72,6 +68,10 @@ function handleRequest(e) {
       // Use GET parameters as fallback (for testing)
       postData = e.parameter;
     }
+
+    // Get action and sheetName from POST body or GET parameters
+    const action = postData.action || e.parameter.action;
+    const sheetName = postData.sheet || e.parameter.sheet;
 
     // Route to appropriate handler
     let result;

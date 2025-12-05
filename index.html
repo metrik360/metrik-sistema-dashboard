@@ -1621,10 +1621,11 @@
                 console.log('🔐 Authenticating via Apps Script API...');
 
                 // Call Apps Script authentication endpoint
+                // Using text/plain to avoid CORS preflight
                 const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain'
                     },
                     body: JSON.stringify({
                         action: 'authenticate',
@@ -1743,7 +1744,7 @@
                     const response = await fetch(this.apiUrl, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'text/plain'
                         },
                         body: JSON.stringify({
                             action: 'read',
@@ -1787,7 +1788,7 @@
                     const response = await fetch(this.apiUrl, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'text/plain'
                         },
                         body: JSON.stringify({
                             action: 'write',
@@ -1827,7 +1828,7 @@
                     const response = await fetch(this.apiUrl, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'text/plain'
                         },
                         body: JSON.stringify({
                             action: 'update',
@@ -1867,7 +1868,7 @@
                     const response = await fetch(this.apiUrl, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'text/plain'
                         },
                         body: JSON.stringify({
                             action: 'delete',
