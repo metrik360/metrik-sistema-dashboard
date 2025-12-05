@@ -2044,37 +2044,69 @@
         // Email + PIN Login form
         document.getElementById('login-form-pin').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Autenticando...';
+
             const email = document.getElementById('login-email').value.trim();
             const pin = document.getElementById('login-pin').value.trim();
 
-            const success = await authenticateWithEmailPIN(email, pin);
-            if (success) {
-                // After successful Email+PIN auth, request Google Sheets access
-                // This is needed because we store data in Google Sheets
-                tokenClient.requestAccessToken({ prompt: '' });
+            try {
+                // STEP 1: First, request Google Sheets access token
+                // We need this to read the Usuarios sheet
+                console.log('🔐 Step 1: Requesting Google OAuth token...');
 
-                // Wait for token to be set
-                await new Promise((resolve) => {
-                    const checkToken = setInterval(() => {
-                        if (accessToken) {
-                            clearInterval(checkToken);
+                // Create a promise to wait for token
+                const tokenPromise = new Promise((resolve, reject) => {
+                    // Set up temporary callback
+                    const originalCallback = tokenClient.callback;
+                    tokenClient.callback = (tokenResponse) => {
+                        if (tokenResponse && tokenResponse.access_token) {
+                            accessToken = tokenResponse.access_token;
+                            console.log('✅ Google OAuth token obtained');
+                            tokenClient.callback = originalCallback; // Restore original
                             resolve();
+                        } else {
+                            tokenClient.callback = originalCallback; // Restore original
+                            reject(new Error('No token received'));
                         }
-                    }, 100);
+                    };
+
+                    // Request token
+                    tokenClient.requestAccessToken({ prompt: '' });
+
                     // Timeout after 30 seconds
                     setTimeout(() => {
-                        clearInterval(checkToken);
                         if (!accessToken) {
-                            showToast('Error al obtener acceso a Google Sheets. Intenta de nuevo.', 'error');
-                            logout();
+                            tokenClient.callback = originalCallback; // Restore original
+                            reject(new Error('Token request timeout'));
                         }
-                        resolve();
                     }, 30000);
                 });
 
-                if (accessToken) {
+                // Wait for token
+                await tokenPromise;
+
+                // STEP 2: Now authenticate with Email+PIN using the token
+                console.log('🔐 Step 2: Validating Email+PIN...');
+                const success = await authenticateWithEmailPIN(email, pin);
+
+                if (success) {
+                    console.log('✅ Authentication successful');
                     onAuthSuccess();
+                } else {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
                 }
+            } catch (error) {
+                console.error('❌ Error during authentication:', error);
+                showToast('Error al conectar con Google. Intenta de nuevo.', 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
