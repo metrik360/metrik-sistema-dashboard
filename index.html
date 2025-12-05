@@ -1799,6 +1799,17 @@
         <p id="toast-message"></p>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center gap-2 text-gray-500">
+                <span class="text-xs font-medium">Powered by</span>
+                <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" alt="MéTRIK" class="h-4 w-auto opacity-80 hover:opacity-100 transition-opacity">
+                <span class="text-xs font-semibold text-gray-700">MéTRIK</span>
+            </div>
+        </div>
+    </footer>
+
     <script>
         // Global variables
         // Chart instances
@@ -2794,7 +2805,11 @@
                 console.log('📊 Loading Pipeline view...');
 
                 const pipelineData = await sheetsAPI.readSheet(CONFIG.SHEETS.PIPELINE);
-                allPipelineData = pipelineData || [];
+                // Add row numbers (starting from row 2, after header)
+                allPipelineData = (pipelineData || []).map((row, index) => ({
+                    data: row,
+                    rowNumber: index + 2
+                }));
                 renderPipelineTable(allPipelineData);
 
                 // Populate dropdowns
@@ -2819,7 +2834,8 @@
             }
 
             const searchLower = searchTerm.toLowerCase();
-            const filtered = allPipelineData.filter(row => {
+            const filtered = allPipelineData.filter(item => {
+                const row = item.data;
                 // Updated structure: ID, ContactoID, Nombre, Empresa, Email...
                 const [id, contactoId, lead, empresa, email] = row;
                 return (
@@ -2842,7 +2858,10 @@
                 return;
             }
 
-            tbody.innerHTML = data.map((row, index) => {
+            tbody.innerHTML = data.map((item) => {
+                const row = item.data;
+                const rowNumber = item.rowNumber;
+
                 // Updated structure: ID, ContactoID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización, Promotor, DriveFolder
                 const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio, fechaActualizacion, promotor, driveFolder] = row;
 
@@ -2852,7 +2871,7 @@
                 const servicioBadge = servicio ? getBadge(servicio, 'green') : '<span class="text-gray-400 text-xs">Sin servicio</span>';
                 const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-yellow-600 hover:text-yellow-800" title="Abrir carpeta Google Drive">📁</a>` : '';
                 const deleteBtn = sessionManager.isSuperAdmin() ?
-                    `<button onclick="deletePipelineLead(${index + 2})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
+                    `<button onclick="deletePipelineLead(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
 
                 return `
                     <tr class="hover:bg-gray-50">
@@ -2866,7 +2885,7 @@
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
                         <td class="px-4 py-3 text-sm text-right space-x-1">
                             ${driveFolderBtn}
-                            <button onclick='editPipelineLead(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
+                            <button onclick='editPipelineLead(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
                             ${deleteBtn}
                         </td>
                     </tr>
@@ -3507,7 +3526,11 @@
                 console.log('📊 Loading Proyectos view...');
 
                 const proyectosData = await sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS);
-                allProyectosData = proyectosData || [];
+                // Add row numbers (starting from row 2, after header)
+                allProyectosData = (proyectosData || []).map((row, index) => ({
+                    data: row,
+                    rowNumber: index + 2
+                }));
                 renderProyectosTable(allProyectosData);
 
                 // Populate dropdowns
@@ -3530,7 +3553,8 @@
             }
 
             const searchLower = searchTerm.toLowerCase();
-            const filtered = allProyectosData.filter(row => {
+            const filtered = allProyectosData.filter(item => {
+                const row = item.data;
                 // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa...
                 const [id, pipelineId, nombre, cliente, empresa] = row;
                 return (
@@ -3553,7 +3577,10 @@
                 return;
             }
 
-            tbody.innerHTML = data.map((row, index) => {
+            tbody.innerHTML = data.map((item) => {
+                const row = item.data;
+                const rowNumber = item.rowNumber;
+
                 // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas, FechaActualización
                 const [id, pipelineId, nombre, cliente, empresa, email, telefono, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = row;
 
@@ -3567,7 +3594,7 @@
                 const saldoBtn = progresoNum >= 90 ? `<button onclick='generateSaldoFromProject(${JSON.stringify(row)})' class="text-purple-600 hover:text-purple-800" title="Generar factura saldo 50%">💵</button>` : '';
                 const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-yellow-600 hover:text-yellow-800" title="Abrir carpeta Google Drive">📁</a>` : '';
                 const deleteBtn = sessionManager.isSuperAdmin() ?
-                    `<button onclick="deleteProyecto(${index + 2})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
+                    `<button onclick="deleteProyecto(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
 
                 return `
                     <tr class="hover:bg-gray-50">
@@ -3582,7 +3609,7 @@
                             ${driveFolderBtn}
                             ${anticipoBtn}
                             ${saldoBtn}
-                            <button onclick='editProyecto(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
+                            <button onclick='editProyecto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
                             ${deleteBtn}
                         </td>
                     </tr>
@@ -3851,7 +3878,11 @@
                 console.log('📊 Loading Facturación view...');
 
                 const facturacionData = await sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION);
-                allFacturacionData = facturacionData || [];
+                // Add row numbers (starting from row 2, after header)
+                allFacturacionData = (facturacionData || []).map((row, index) => ({
+                    data: row,
+                    rowNumber: index + 2
+                }));
                 renderFacturacionTable(allFacturacionData);
 
                 console.log('✅ Facturación view loaded');
@@ -3871,7 +3902,8 @@
             }
 
             const searchLower = searchTerm.toLowerCase();
-            const filtered = allFacturacionData.filter(row => {
+            const filtered = allFacturacionData.filter(item => {
+                const row = item.data;
                 const [id, proyecto, cliente] = row;
                 return (
                     (proyecto && proyecto.toLowerCase().includes(searchLower)) ||
@@ -3892,7 +3924,10 @@
                 return;
             }
 
-            tbody.innerHTML = data.map((row, index) => {
+            tbody.innerHTML = data.map((item) => {
+                const row = item.data;
+                const rowNumber = item.rowNumber;
+
                 const [id, proyecto, cliente, monto, iva, montoTotal, fechaEmision, fechaVencimiento, fechaPago, estado, metodoPago, referencia, notas, tipoFactura, porcentajeProyecto] = row;
 
                 // Generate badge colors
@@ -3910,8 +3945,8 @@
                         <td class="px-4 py-3 text-sm text-gray-600">${fechaEmision || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${fechaVencimiento || '-'}</td>
                         <td class="px-4 py-3 text-sm text-right space-x-1">
-                            <button onclick='editFactura(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteFactura(${index + 2})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editFactura(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteFactura(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -4143,7 +4178,11 @@
         async function loadContactosView() {
             try {
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.CONTACTOS, 'A2:O');
-                allContactosData = data || [];
+                // Add row numbers (starting from row 2, after header)
+                allContactosData = (data || []).map((row, index) => ({
+                    data: row,
+                    rowNumber: index + 2
+                }));
                 renderContactosTable(allContactosData);
             } catch (error) {
                 console.error('❌ Error loading contactos:', error);
@@ -4161,7 +4200,8 @@
             }
 
             const searchLower = searchTerm.toLowerCase();
-            const filtered = allContactosData.filter(row => {
+            const filtered = allContactosData.filter(item => {
+                const row = item.data;
                 const [id, nombre, email, telefono, empresa] = row;
                 return (
                     (nombre && nombre.toLowerCase().includes(searchLower)) ||
@@ -4183,7 +4223,10 @@
                 return;
             }
 
-            tbody.innerHTML = data.map((row, index) => {
+            tbody.innerHTML = data.map((item) => {
+                const row = item.data;
+                const rowNumber = item.rowNumber;
+
                 const [id, nombre, email, telefono, empresa, cargo, tipo, fuente, linkedin, ciudad, pais] = row;
                 return `
                     <tr>
@@ -4196,8 +4239,8 @@
                             <span class="px-3 py-1 rounded-full text-sm bg-gray-700 text-gray-300">${tipo || ''}</span>
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700 space-x-1">
-                            <button onclick='editContacto(${index + 2}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteContacto(${index + 2})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editContacto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteContacto(${rowNumber})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -4357,7 +4400,11 @@
         async function loadPromotoresView() {
             try {
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.PROMOTORES, 'A2:Q');
-                allPromotoresData = data || [];
+                // Add row numbers (starting from row 2, after header)
+                allPromotoresData = (data || []).map((row, index) => ({
+                    data: row,
+                    rowNumber: index + 2
+                }));
                 renderPromotoresTable(allPromotoresData);
             } catch (error) {
                 console.error('❌ Error loading promotores:', error);
@@ -4375,7 +4422,8 @@
             }
 
             const searchLower = searchTerm.toLowerCase();
-            const filtered = allPromotoresData.filter(row => {
+            const filtered = allPromotoresData.filter(item => {
+                const row = item.data;
                 const [id, nombre] = row;
                 return (nombre && nombre.toLowerCase().includes(searchLower));
             });
@@ -4393,7 +4441,10 @@
                 return;
             }
 
-            tbody.innerHTML = data.map((row, index) => {
+            tbody.innerHTML = data.map((item) => {
+                const row = item.data;
+                const rowNumber = item.rowNumber;
+
                 const [id, nombre, email, telefono, estado, comision] = row;
                 const estadoColor = getPromotorEstadoColor(estado);
                 return `
@@ -4407,8 +4458,8 @@
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700">${comision || '0'}%</td>
                         <td class="py-3 px-4 border-b border-gray-700 space-x-1">
-                            <button onclick='editPromotor(${index + 2}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deletePromotor(${index + 2})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editPromotor(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deletePromotor(${rowNumber})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -5154,7 +5205,11 @@
         async function loadGastosView() {
             try {
                 const data = await sheetsAPI.readSheet(CONFIG.SHEETS.GASTOS, 'A2:M');
-                allGastosData = data || [];
+                // Add row numbers (starting from row 2, after header)
+                allGastosData = (data || []).map((row, index) => ({
+                    data: row,
+                    rowNumber: index + 2
+                }));
                 renderGastosTable(allGastosData);
             } catch (error) {
                 console.error('❌ Error loading gastos:', error);
@@ -5172,7 +5227,8 @@
             }
 
             const searchLower = searchTerm.toLowerCase();
-            const filtered = allGastosData.filter(row => {
+            const filtered = allGastosData.filter(item => {
+                const row = item.data;
                 const [id, fecha, concepto, categoria] = row;
                 return (
                     (concepto && concepto.toLowerCase().includes(searchLower)) ||
@@ -5193,7 +5249,10 @@
                 return;
             }
 
-            tbody.innerHTML = data.map((row, index) => {
+            tbody.innerHTML = data.map((item) => {
+                const row = item.data;
+                const rowNumber = item.rowNumber;
+
                 const [id, fecha, concepto, categoria, monto, metodoPago, proveedor, proyecto, estado] = row;
                 const estadoColor = getGastoEstadoColor(estado);
                 return `
@@ -5207,8 +5266,8 @@
                             <span class="px-3 py-1 rounded-full text-sm bg-${estadoColor}-500/20 text-${estadoColor}-400">${estado || ''}</span>
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700 space-x-1">
-                            <button onclick='editGasto(${index + 2}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteGasto(${index + 2})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editGasto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteGasto(${rowNumber})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
                         </td>
                     </tr>
                 `;
