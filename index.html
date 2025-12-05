@@ -493,6 +493,12 @@
                                 </select>
                             </div>
 
+                            <!-- Google Drive Folder -->
+                            <div class="md:col-span-2 lg:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">📁 Carpeta Google Drive</label>
+                                <input type="url" id="input-drive-pipeline" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://drive.google.com/drive/folders/...">
+                            </div>
+
                             <!-- Notas -->
                             <div class="md:col-span-2 lg:col-span-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
@@ -668,8 +674,11 @@
                                 <input type="url" id="input-proyecto-deploy" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://app.ejemplo.com">
                             </div>
 
-                            <!-- Placeholder for grid alignment -->
-                            <div></div>
+                            <!-- Google Drive Folder -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">📁 Carpeta Google Drive</label>
+                                <input type="url" id="input-proyecto-drive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://drive.google.com/drive/folders/...">
+                            </div>
 
                             <!-- Notas -->
                             <div class="md:col-span-2 lg:col-span-3">
@@ -2536,13 +2545,14 @@
             }
 
             tbody.innerHTML = data.map((row, index) => {
-                // Updated structure: ID, ContactoID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización
-                const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio] = row;
+                // Updated structure: ID, ContactoID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización, Promotor, DriveFolder
+                const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio, fechaActualizacion, promotor, driveFolder] = row;
 
                 // Generate badge colors
                 const etapaBadge = getBadge(etapa, 'blue');
                 const estadoBadge = getBadge(estado, getEstadoColor(estado));
                 const servicioBadge = servicio ? getBadge(servicio, 'green') : '<span class="text-gray-400 text-xs">Sin servicio</span>';
+                const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-yellow-600 hover:text-yellow-800" title="Abrir carpeta Google Drive">📁</a>` : '';
                 const deleteBtn = sessionManager.isSuperAdmin() ?
                     `<button onclick="deletePipelineLead(${index + 2})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
 
@@ -2556,7 +2566,8 @@
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${probabilidad}%</td>
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
-                        <td class="px-4 py-3 text-sm text-right space-x-2">
+                        <td class="px-4 py-3 text-sm text-right space-x-1">
+                            ${driveFolderBtn}
                             <button onclick='editPipelineLead(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
                             ${deleteBtn}
                         </td>
@@ -2644,6 +2655,7 @@
                 const servicioSelect = document.getElementById('input-servicio').value;
                 const servicio = servicioSelect ? JSON.parse(servicioSelect).nombre : '';
                 const promotor = fuente === 'Referido' ? document.getElementById('input-promotor').value : '';
+                const driveFolder = document.getElementById('input-drive-pipeline').value;
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
                 // Validate promotor if fuente is Referido
@@ -2652,7 +2664,7 @@
                     return;
                 }
 
-                // Create row data (17 columns A-Q: ID, Contacto ID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización, Promotor)
+                // Create row data (18 columns A-R: ID, Contacto ID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización, Promotor, DriveFolder)
                 const rowData = [[
                     id,
                     contactoId,
@@ -2670,12 +2682,13 @@
                     notas,
                     servicio,
                     fechaActualizacion,
-                    promotor
+                    promotor,
+                    driveFolder
                 ]];
 
                 if (isEditing) {
-                    // Update existing row (17 columns A-Q)
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:Q${editRow}`, rowData);
+                    // Update existing row (18 columns A-R)
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:R${editRow}`, rowData);
                     showToast('Lead actualizado exitosamente', 'success');
 
                     // Check if estado changed to "Ganado" → Create project automatically
@@ -2988,6 +3001,7 @@
             document.getElementById('input-fecha-cierre').value = fechaCierre || '';
             document.getElementById('input-estado').value = estado || '';
             document.getElementById('input-fuente').value = fuente || '';
+            document.getElementById('input-drive-pipeline').value = driveFolder || '';
             document.getElementById('input-notas').value = notas || '';
 
             // Show/hide and pre-select Promotor field if Fuente is Referido
@@ -3242,8 +3256,8 @@
             }
 
             tbody.innerHTML = data.map((row, index) => {
-                // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, Notas, FechaActualización
-                const [id, pipelineId, nombre, cliente, empresa, email, telefono, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, notas] = row;
+                // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas, FechaActualización
+                const [id, pipelineId, nombre, cliente, empresa, email, telefono, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = row;
 
                 // Generate badge colors
                 const estadoBadge = getBadge(estado, getProyectoEstadoColor(estado));
@@ -3253,6 +3267,7 @@
                 const progresoNum = parseFloat(progreso) || 0;
                 const anticipoBtn = `<button onclick='generateAnticipoFromProject(${JSON.stringify(row)})' class="text-green-600 hover:text-green-800" title="Generar factura anticipo 50%">💰</button>`;
                 const saldoBtn = progresoNum >= 90 ? `<button onclick='generateSaldoFromProject(${JSON.stringify(row)})' class="text-purple-600 hover:text-purple-800" title="Generar factura saldo 50%">💵</button>` : '';
+                const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-yellow-600 hover:text-yellow-800" title="Abrir carpeta Google Drive">📁</a>` : '';
                 const deleteBtn = sessionManager.isSuperAdmin() ?
                     `<button onclick="deleteProyecto(${index + 2})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
 
@@ -3266,6 +3281,7 @@
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${progreso}%</td>
                         <td class="px-4 py-3 text-sm text-right space-x-1">
+                            ${driveFolderBtn}
                             ${anticipoBtn}
                             ${saldoBtn}
                             <button onclick='editProyecto(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
@@ -3391,10 +3407,11 @@
                 const progreso = document.getElementById('input-proyecto-progreso').value;
                 const repositorio = document.getElementById('input-proyecto-repositorio')?.value || '';
                 const deployURL = document.getElementById('input-proyecto-deploy')?.value || '';
+                const driveFolder = document.getElementById('input-proyecto-drive')?.value || '';
                 const notas = document.getElementById('input-proyecto-notas').value;
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-                // Create row data (19 columns A-S)
+                // Create row data (20 columns A-T)
                 const rowData = [[
                     id,                     // A: ID
                     pipelineId,            // B: Pipeline ID
@@ -3413,13 +3430,14 @@
                     progreso,              // O: Progreso
                     repositorio,           // P: Repositorio
                     deployURL,             // Q: Deploy URL
-                    notas,                 // R: Notas
-                    fechaActualizacion     // S: Fecha Actualización
+                    driveFolder,           // R: Drive Folder
+                    notas,                 // S: Notas
+                    fechaActualizacion     // T: Fecha Actualización
                 ]];
 
                 if (isEditing) {
-                    // Update existing row (19 columns A-S)
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROYECTOS, `A${editRow}:S${editRow}`, rowData);
+                    // Update existing row (20 columns A-T)
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROYECTOS, `A${editRow}:T${editRow}`, rowData);
                     showToast('Proyecto actualizado exitosamente', 'success');
                 } else {
                     // Create new row
@@ -3449,8 +3467,8 @@
          * Edit Proyecto
          */
         function editProyecto(rowNumber, rowData) {
-            // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, Notas
-            const [id, pipelineId, nombre, cliente, empresa, emailCliente, telefonoCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, notas] = rowData;
+            // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas
+            const [id, pipelineId, nombre, cliente, empresa, emailCliente, telefonoCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = rowData;
 
             // Scroll to form
             document.getElementById('form-proyectos').scrollIntoView({ behavior: 'smooth' });
@@ -3480,6 +3498,7 @@
             document.getElementById('input-proyecto-progreso').value = progreso || '';
             document.getElementById('input-proyecto-repositorio').value = repositorio || '';
             document.getElementById('input-proyecto-deploy').value = deployURL || '';
+            document.getElementById('input-proyecto-drive').value = driveFolder || '';
             document.getElementById('input-proyecto-notas').value = notas || '';
 
             // Change button text and add data attribute
