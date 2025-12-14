@@ -17,6 +17,9 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
+    <!-- Lucide Icons (SVG icons library) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <!-- Configuration -->
     <script>
         // Configuration for Sistema MéTRIK
@@ -435,39 +438,39 @@
             <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto transition-all duration-300">
                 <nav class="p-4 sidebar-nav">
                     <a href="#" data-view="dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 active">
-                        <span class="text-xl">📊</span>
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                         <span>Dashboard</span>
                     </a>
                     <a href="#" data-view="pipeline" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">🎯</span>
+                        <i data-lucide="target" class="w-5 h-5"></i>
                         <span>Pipeline</span>
                     </a>
                     <a href="#" data-view="proyectos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">📋</span>
+                        <i data-lucide="folder-kanban" class="w-5 h-5"></i>
                         <span>Proyectos</span>
                     </a>
                     <a href="#" data-view="facturacion" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">💰</span>
+                        <i data-lucide="receipt" class="w-5 h-5"></i>
                         <span>Facturación</span>
                     </a>
                     <a href="#" data-view="contactos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">👥</span>
+                        <i data-lucide="users" class="w-5 h-5"></i>
                         <span>Contactos</span>
                     </a>
                     <a href="#" data-view="promotores" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">🤝</span>
+                        <i data-lucide="handshake" class="w-5 h-5"></i>
                         <span>Promotores</span>
                     </a>
                     <a href="#" data-view="servicios" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">📦</span>
+                        <i data-lucide="package" class="w-5 h-5"></i>
                         <span>Servicios</span>
                     </a>
                     <a href="#" data-view="gastos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <span class="text-xl">💸</span>
+                        <i data-lucide="wallet" class="w-5 h-5"></i>
                         <span>Gastos</span>
                     </a>
                     <a href="#" data-view="usuarios" id="nav-usuarios" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 hidden">
-                        <span class="text-xl">👥</span>
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
                         <span>Usuarios</span>
                     </a>
                 </nav>
@@ -484,7 +487,9 @@
                         <!-- KPI Card 1 -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="text-4xl">🎯</div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                                    <i data-lucide="target" class="w-6 h-6"></i>
+                                </div>
                                 <div class="flex-1">
                                     <p class="text-sm text-gray-600">Leads Activos</p>
                                     <h3 class="text-3xl font-bold text-gray-900" id="kpi-leads">-</h3>
@@ -496,7 +501,9 @@
                         <!-- KPI Card 2 -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="text-4xl">💵</div>
+                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+                                    <i data-lucide="trending-up" class="w-6 h-6"></i>
+                                </div>
                                 <div class="flex-1">
                                     <p class="text-sm text-gray-600">Pipeline Value</p>
                                     <h3 class="text-3xl font-bold text-gray-900" id="kpi-pipeline">-</h3>
@@ -508,7 +515,9 @@
                         <!-- KPI Card 3 -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="text-4xl">📋</div>
+                                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                                    <i data-lucide="folder-kanban" class="w-6 h-6"></i>
+                                </div>
                                 <div class="flex-1">
                                     <p class="text-sm text-gray-600">Proyectos Activos</p>
                                     <h3 class="text-3xl font-bold text-gray-900" id="kpi-proyectos">-</h3>
@@ -520,7 +529,9 @@
                         <!-- KPI Card 4 -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="text-4xl">💰</div>
+                                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                                    <i data-lucide="banknote" class="w-6 h-6"></i>
+                                </div>
                                 <div class="flex-1">
                                     <p class="text-sm text-gray-600">Facturación Mes</p>
                                     <h3 class="text-3xl font-bold text-gray-900" id="kpi-facturacion">-</h3>
@@ -532,12 +543,17 @@
 
                     <!-- KPIs Grid - Flujo de Caja -->
                     <div class="mb-6">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-4">💰 Flujo de Caja</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="wallet" class="w-5 h-5 text-gray-700"></i>
+                            Flujo de Caja
+                        </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <!-- Facturado Este Mes -->
                             <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-6">
                                 <div class="flex items-center gap-4">
-                                    <div class="text-4xl">💵</div>
+                                    <div class="w-12 h-12 bg-green-200 rounded-xl flex items-center justify-center text-green-700">
+                                        <i data-lucide="circle-check" class="w-6 h-6"></i>
+                                    </div>
                                     <div class="flex-1">
                                         <p class="text-sm text-gray-600">Facturado Este Mes</p>
                                         <h3 class="text-2xl font-bold text-gray-900" id="kpi-facturado-mes">-</h3>
@@ -549,7 +565,9 @@
                             <!-- Por Cobrar -->
                             <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-sm border border-yellow-200 p-6">
                                 <div class="flex items-center gap-4">
-                                    <div class="text-4xl">📊</div>
+                                    <div class="w-12 h-12 bg-yellow-200 rounded-xl flex items-center justify-center text-yellow-700">
+                                        <i data-lucide="clock" class="w-6 h-6"></i>
+                                    </div>
                                     <div class="flex-1">
                                         <p class="text-sm text-gray-600">Por Cobrar</p>
                                         <h3 class="text-2xl font-bold text-gray-900" id="kpi-por-cobrar">-</h3>
@@ -561,7 +579,9 @@
                             <!-- Proyectado 30 Días -->
                             <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-6">
                                 <div class="flex items-center gap-4">
-                                    <div class="text-4xl">🔮</div>
+                                    <div class="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center text-blue-700">
+                                        <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                                    </div>
                                     <div class="flex-1">
                                         <p class="text-sm text-gray-600">Proyectado 30 Días</p>
                                         <h3 class="text-2xl font-bold text-gray-900" id="kpi-proyectado-30">-</h3>
@@ -573,7 +593,9 @@
                             <!-- Anticipos sin Saldo -->
                             <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-200 p-6">
                                 <div class="flex items-center gap-4">
-                                    <div class="text-4xl">⚠️</div>
+                                    <div class="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center text-purple-700">
+                                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                                    </div>
                                     <div class="flex-1">
                                         <p class="text-sm text-gray-600">Anticipos sin Saldo</p>
                                         <h3 class="text-2xl font-bold text-gray-900" id="kpi-anticipos-sin-saldo">-</h3>
@@ -732,7 +754,7 @@
 
                             <!-- Google Drive Folder -->
                             <div class="md:col-span-2 lg:col-span-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">📁 Carpeta Google Drive</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Carpeta Google Drive</label>
                                 <input type="url" id="input-drive-pipeline" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://drive.google.com/drive/folders/...">
                             </div>
 
@@ -756,20 +778,20 @@
                         <!-- Mobile Toggle Button -->
                         <button class="table-toggle-btn" onclick="toggleTable('pipeline')">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl">📋</span>
+                                <i data-lucide="target" class="w-5 h-5 text-gray-600"></i>
                                 <div>
                                     <h3 class="text-base font-semibold text-gray-900 text-left">Leads Registrados</h3>
                                     <p class="text-xs text-gray-500">Ver lista completa</p>
                                 </div>
                             </div>
-                            <span class="toggle-icon text-2xl">▼</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 toggle-icon"></i>
                         </button>
 
                         <!-- Table Content (collapsible on mobile) -->
                         <div id="table-pipeline-content" class="table-content">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">Leads Registrados</h3>
-                                <input type="text" id="search-pipeline" placeholder="🔍 Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                                <input type="text" id="search-pipeline" placeholder="Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                             </div>
 
                             <div class="overflow-x-auto">
@@ -928,7 +950,7 @@
 
                             <!-- Google Drive Folder -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">📁 Carpeta Google Drive</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Carpeta Google Drive</label>
                                 <input type="url" id="input-proyecto-drive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="https://drive.google.com/drive/folders/...">
                             </div>
 
@@ -952,20 +974,20 @@
                         <!-- Mobile Toggle Button -->
                         <button class="table-toggle-btn" onclick="toggleTable('proyectos')">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl">📋</span>
+                                <i data-lucide="folder-kanban" class="w-5 h-5 text-gray-600"></i>
                                 <div>
                                     <h3 class="text-base font-semibold text-gray-900 text-left">Proyectos Registrados</h3>
                                     <p class="text-xs text-gray-500">Ver lista completa</p>
                                 </div>
                             </div>
-                            <span class="toggle-icon text-2xl">▼</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 toggle-icon"></i>
                         </button>
 
                         <!-- Table Content (collapsible on mobile) -->
                         <div id="table-proyectos-content" class="table-content">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">Proyectos Registrados</h3>
-                                <input type="text" id="search-proyectos" placeholder="🔍 Buscar por nombre o cliente..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                                <input type="text" id="search-proyectos" placeholder="Buscar por nombre o cliente..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                             </div>
 
                             <div class="overflow-x-auto">
@@ -1125,20 +1147,20 @@
                         <!-- Mobile Toggle Button -->
                         <button class="table-toggle-btn" onclick="toggleTable('facturacion')">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl">💰</span>
+                                <i data-lucide="receipt" class="w-5 h-5 text-gray-600"></i>
                                 <div>
                                     <h3 class="text-base font-semibold text-gray-900 text-left">Facturas Registradas</h3>
                                     <p class="text-xs text-gray-500">Ver lista completa</p>
                                 </div>
                             </div>
-                            <span class="toggle-icon text-2xl">▼</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 toggle-icon"></i>
                         </button>
 
                         <!-- Table Content (collapsible on mobile) -->
                         <div id="table-facturacion-content" class="table-content">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">Facturas Registradas</h3>
-                                <input type="text" id="search-facturacion" placeholder="🔍 Buscar por proyecto o cliente..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                                <input type="text" id="search-facturacion" placeholder="Buscar por proyecto o cliente..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                             </div>
 
                             <div class="overflow-x-auto">
@@ -1265,20 +1287,20 @@
                         <!-- Mobile Toggle Button -->
                         <button class="table-toggle-btn" onclick="toggleTable('contactos')">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl">👥</span>
+                                <i data-lucide="users" class="w-5 h-5 text-gray-600"></i>
                                 <div>
                                     <h3 class="text-base font-semibold text-gray-900 text-left">Contactos Registrados</h3>
                                     <p class="text-xs text-gray-500">Ver lista completa</p>
                                 </div>
                             </div>
-                            <span class="toggle-icon text-2xl">▼</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 toggle-icon"></i>
                         </button>
 
                         <!-- Table Content (collapsible on mobile) -->
                         <div id="table-contactos-content" class="table-content">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">Contactos Registrados</h3>
-                                <input type="text" id="search-contactos" placeholder="🔍 Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                                <input type="text" id="search-contactos" placeholder="Buscar por nombre, empresa o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                             </div>
 
                             <div class="overflow-x-auto">
@@ -1312,26 +1334,46 @@
                         </button>
                     </div>
 
-                    <!-- Form Card -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Nuevo Promotor</h3>
+                    <!-- Info Card - Promotores se crean desde Contactos -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="info" class="w-6 h-6 text-blue-600"></i>
+                            <div>
+                                <h3 class="text-sm font-semibold text-blue-900">¿Cómo agregar un promotor?</h3>
+                                <p class="text-sm text-blue-700 mt-1">
+                                    Los promotores se crean desde la vista de <strong>Contactos</strong>.
+                                    Crea un nuevo contacto y selecciona <strong>Tipo: Promotor</strong>.
+                                    El contacto aparecerá automáticamente aquí para configurar su comisión y datos bancarios.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Form (hidden by default, shown when editing) -->
+                    <div id="promotor-edit-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Editar Promotor</h3>
+                            <button type="button" id="btn-cancel-promotor-edit" class="text-gray-500 hover:text-gray-700" title="Cancelar">✕</button>
+                        </div>
 
                         <form id="form-promotores" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Read-only fields from Contactos -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-                                <input type="text" id="input-promotor-nombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="María García">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                <input type="text" id="input-promotor-nombre" readonly class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                                <input type="email" id="input-promotor-email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="maria@promotor.co">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="input-promotor-email" readonly class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                                <input type="tel" id="input-promotor-telefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="+57 300 123 4567">
+                                <input type="tel" id="input-promotor-telefono" readonly class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
                             </div>
 
+                            <!-- Editable fields specific to Promotores -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
                                 <select id="input-promotor-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
@@ -1343,7 +1385,7 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">% Comisión *</label>
-                                <input type="number" id="input-promotor-comision" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="10" min="0" max="30">
+                                <input type="number" id="input-promotor-comision" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="10" min="0" max="100">
                             </div>
 
                             <div>
@@ -1356,14 +1398,17 @@
                                 <input type="text" id="input-promotor-cuenta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="123456789">
                             </div>
 
-                            <div class="md:col-span-2 lg:col-span-2">
+                            <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
                                 <textarea id="input-promotor-notas" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Observaciones..."></textarea>
                             </div>
 
-                            <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3">
+                                <button type="button" id="btn-cancel-promotor" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-all">
+                                    Cancelar
+                                </button>
                                 <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
-                                    Guardar Promotor
+                                    Actualizar Promotor
                                 </button>
                             </div>
                         </form>
@@ -1374,20 +1419,20 @@
                         <!-- Mobile Toggle Button -->
                         <button class="table-toggle-btn" onclick="toggleTable('promotores')">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl">🤝</span>
+                                <i data-lucide="handshake" class="w-5 h-5 text-gray-600"></i>
                                 <div>
                                     <h3 class="text-base font-semibold text-gray-900 text-left">Promotores Registrados</h3>
                                     <p class="text-xs text-gray-500">Ver lista completa</p>
                                 </div>
                             </div>
-                            <span class="toggle-icon text-2xl">▼</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 toggle-icon"></i>
                         </button>
 
                         <!-- Table Content (collapsible on mobile) -->
                         <div id="table-promotores-content" class="table-content">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">Promotores Registrados</h3>
-                                <input type="text" id="search-promotores" placeholder="🔍 Buscar por nombre..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                                <input type="text" id="search-promotores" placeholder="Buscar por nombre..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                             </div>
 
                             <div class="overflow-x-auto">
@@ -1541,7 +1586,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Catálogo de Servicios</h3>
-                            <input type="text" id="search-servicios" placeholder="🔍 Buscar servicio..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                            <input type="text" id="search-servicios" placeholder="Buscar servicio..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                         </div>
 
                         <div class="overflow-x-auto">
@@ -1656,20 +1701,20 @@
                         <!-- Mobile Toggle Button -->
                         <button class="table-toggle-btn" onclick="toggleTable('gastos')">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl">💸</span>
+                                <i data-lucide="wallet" class="w-5 h-5 text-gray-600"></i>
                                 <div>
                                     <h3 class="text-base font-semibold text-gray-900 text-left">Gastos Registrados</h3>
                                     <p class="text-xs text-gray-500">Ver lista completa</p>
                                 </div>
                             </div>
-                            <span class="toggle-icon text-2xl">▼</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 toggle-icon"></i>
                         </button>
 
                         <!-- Table Content (collapsible on mobile) -->
                         <div id="table-gastos-content" class="table-content">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">Gastos Registrados</h3>
-                                <input type="text" id="search-gastos" placeholder="🔍 Buscar por concepto o categoría..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                                <input type="text" id="search-gastos" placeholder="Buscar por concepto o categoría..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                             </div>
 
                             <div class="overflow-x-auto">
@@ -1767,7 +1812,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Usuarios Registrados</h3>
-                            <input type="text" id="search-usuarios" placeholder="🔍 Buscar por nombre o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
+                            <input type="text" id="search-usuarios" placeholder="Buscar por nombre o email..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-96">
                         </div>
 
                         <div class="overflow-x-auto">
@@ -2238,6 +2283,9 @@
 
         // Initialize on load
         window.onload = async function() {
+            // Initialize Lucide icons
+            lucide.createIcons();
+
             try {
                 // Check if user is already authenticated
                 if (sessionManager.isAuthenticated()) {
@@ -2328,11 +2376,13 @@
                 if (sidebar.classList.contains('w-64')) {
                     sidebar.classList.remove('w-64');
                     sidebar.classList.add('w-16');
-                    sidebar.querySelectorAll('span:not(.text-xl)').forEach(span => span.classList.add('hidden'));
+                    // Hide text labels, keep icons visible
+                    sidebar.querySelectorAll('nav span').forEach(span => span.classList.add('hidden'));
                 } else {
                     sidebar.classList.remove('w-16');
                     sidebar.classList.add('w-64');
-                    sidebar.querySelectorAll('span:not(.text-xl)').forEach(span => span.classList.remove('hidden'));
+                    // Show text labels
+                    sidebar.querySelectorAll('nav span').forEach(span => span.classList.remove('hidden'));
                 }
             }
         });
@@ -2402,8 +2452,9 @@
                 // KPI 1: Leads Activos
                 // ====================
                 // Count leads with estado != "Perdido" and != "Ganado"
+                // Structure: ID(0), ContactoID(1), Nombre(2), Empresa(3), Email(4), Teléfono(5), Etapa(6), Valor(7), Probabilidad(8), FechaContacto(9), FechaCierre(10), Estado(11)
                 const leadsActivos = pipelineData.filter(row => {
-                    const estado = row[10]; // Column K: Estado
+                    const estado = row[11]; // Column L: Estado
                     return estado && estado !== 'Perdido' && estado !== 'Ganado';
                 }).length;
 
@@ -2414,14 +2465,15 @@
                 // ====================
                 // Sum of "Pipeline Value" for active leads
                 // Formula: Valor × (Probabilidad / 100)
+                // Structure: ID(0), ContactoID(1), Nombre(2), Empresa(3), Email(4), Teléfono(5), Etapa(6), Valor(7), Probabilidad(8), FechaContacto(9), FechaCierre(10), Estado(11)
                 const pipelineValue = pipelineData
                     .filter(row => {
-                        const estado = row[10]; // Column K: Estado
+                        const estado = row[11]; // Column L: Estado
                         return estado && estado !== 'Perdido' && estado !== 'Ganado';
                     })
                     .reduce((sum, row) => {
-                        const valor = parseFloat(row[6]) || 0; // Column G: Valor
-                        const probabilidad = parseFloat(row[7]) || 0; // Column H: Probabilidad
+                        const valor = parseFloat(row[7]) || 0; // Column H: Valor
+                        const probabilidad = parseFloat(row[8]) || 0; // Column I: Probabilidad
                         const pipelineVal = valor * (probabilidad / 100);
                         return sum + pipelineVal;
                     }, 0);
@@ -2905,9 +2957,9 @@
                 const etapaBadge = getBadge(etapa, 'blue');
                 const estadoBadge = getBadge(estado, getEstadoColor(estado));
                 const servicioBadge = servicio ? getBadge(servicio, 'green') : '<span class="text-gray-400 text-xs">Sin servicio</span>';
-                const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-yellow-600 hover:text-yellow-800" title="Abrir carpeta Google Drive">📁</a>` : '';
+                const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-amber-600 hover:text-amber-800 inline-flex" title="Abrir carpeta Google Drive">${getIcon('folder')}</a>` : '';
                 const deleteBtn = sessionManager.isSuperAdmin() ?
-                    `<button onclick="deletePipelineLead(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
+                    `<button onclick="deletePipelineLead(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : '';
 
                 return `
                     <tr class="hover:bg-gray-50">
@@ -2919,9 +2971,9 @@
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${probabilidad}%</td>
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
-                        <td class="px-4 py-3 text-sm text-right space-x-1">
+                        <td class="px-4 py-3 text-sm text-right space-x-2 flex items-center justify-end">
                             ${driveFolderBtn}
-                            <button onclick='editPipelineLead(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
+                            <button onclick='editPipelineLead(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
                             ${deleteBtn}
                         </td>
                     </tr>
@@ -2944,6 +2996,34 @@
             const colorClass = colors[color] || colors.gray;
 
             return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${colorClass}">${text}</span>`;
+        }
+
+        /**
+         * Get SVG icon HTML - Inline SVG icons for consistent rendering
+         */
+        function getIcon(name, size = 16) {
+            const icons = {
+                'edit': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`,
+                'trash': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`,
+                'folder': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>`,
+                'external-link': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>`,
+                'refresh': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`,
+                'plus': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+                'info': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+                'x': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+                'check': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+                'alert': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+                'users': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+                'target': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+                'dollar': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+                'briefcase': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>`,
+                'trending-up': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+                'clock': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+                'calendar': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>`,
+                'lightbulb': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`,
+                'chevron-down': `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`
+            };
+            return icons[name] || '';
         }
 
         /**
@@ -3327,7 +3407,7 @@
          * Edit Pipeline lead
          */
         function editPipelineLead(rowNumber, rowData) {
-            const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio, fechaActualizacion, promotor] = rowData;
+            const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio, fechaActualizacion, promotor, driveFolder] = rowData;
 
             // Scroll to form
             document.getElementById('form-pipeline').scrollIntoView({ behavior: 'smooth' });
@@ -3626,11 +3706,11 @@
 
                 // Show invoice buttons based on project progress
                 const progresoNum = parseFloat(progreso) || 0;
-                const anticipoBtn = `<button onclick='generateAnticipoFromProject(${JSON.stringify(row)})' class="text-green-600 hover:text-green-800" title="Generar factura anticipo 50%">💰</button>`;
-                const saldoBtn = progresoNum >= 90 ? `<button onclick='generateSaldoFromProject(${JSON.stringify(row)})' class="text-purple-600 hover:text-purple-800" title="Generar factura saldo 50%">💵</button>` : '';
-                const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-yellow-600 hover:text-yellow-800" title="Abrir carpeta Google Drive">📁</a>` : '';
+                const anticipoBtn = `<button onclick='generateAnticipoFromProject(${JSON.stringify(row)})' class="text-green-600 hover:text-green-800 inline-flex" title="Generar factura anticipo 50%">${getIcon('dollar')}</button>`;
+                const saldoBtn = progresoNum >= 90 ? `<button onclick='generateSaldoFromProject(${JSON.stringify(row)})' class="text-purple-600 hover:text-purple-800 inline-flex" title="Generar factura saldo 50%">${getIcon('dollar')}</button>` : '';
+                const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-amber-600 hover:text-amber-800 inline-flex" title="Abrir carpeta Google Drive">${getIcon('folder')}</a>` : '';
                 const deleteBtn = sessionManager.isSuperAdmin() ?
-                    `<button onclick="deleteProyecto(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : '';
+                    `<button onclick="deleteProyecto(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : '';
 
                 return `
                     <tr class="hover:bg-gray-50">
@@ -3641,11 +3721,11 @@
                         <td class="px-4 py-3 text-sm">${faseBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${progreso}%</td>
-                        <td class="px-4 py-3 text-sm text-right space-x-1">
+                        <td class="px-4 py-3 text-sm text-right space-x-2 flex items-center justify-end">
                             ${driveFolderBtn}
                             ${anticipoBtn}
                             ${saldoBtn}
-                            <button onclick='editProyecto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
+                            <button onclick='editProyecto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
                             ${deleteBtn}
                         </td>
                     </tr>
@@ -3980,9 +4060,9 @@
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${fechaEmision || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${fechaVencimiento || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-right space-x-1">
-                            <button onclick='editFactura(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteFactura(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : ''}
+                        <td class="px-4 py-3 text-sm text-right space-x-2 flex items-center justify-end">
+                            <button onclick='editFactura(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteFactura(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -4275,8 +4355,8 @@
                             <span class="px-3 py-1 rounded-full text-sm bg-gray-700 text-gray-300">${tipo || ''}</span>
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700 space-x-1">
-                            <button onclick='editContacto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteContacto(${rowNumber})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editContacto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteContacto(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -4344,10 +4424,16 @@
                     // Update existing row
                     await sheetsAPI.updateSheet(CONFIG.SHEETS.CONTACTOS, `A${editRow}:O${editRow}`, rowData);
                     showToast('Contacto actualizado exitosamente', 'success');
+
+                    // Sync with Promotores if type is "Promotor"
+                    await syncContactoWithPromotores(id, nombre, email, telefono, tipo);
                 } else {
                     // Create new row
                     await sheetsAPI.writeSheet(CONFIG.SHEETS.CONTACTOS, rowData);
                     showToast('Contacto guardado exitosamente', 'success');
+
+                    // Sync with Promotores if type is "Promotor"
+                    await syncContactoWithPromotores(id, nombre, email, telefono, tipo);
                 }
 
                 // Reset form
@@ -4423,6 +4509,126 @@
             }
         }
 
+        /**
+         * Sync Contacto with Promotores sheet
+         * Creates new promotor if tipo is "Promotor" and doesn't exist
+         * Updates existing promotor data if already exists
+         * Marks promotor as inactive if tipo changes from "Promotor" to something else
+         */
+        async function syncContactoWithPromotores(contactoId, nombre, email, telefono, tipo) {
+            try {
+                // Read existing promotores to check if this contact already exists
+                const promotoresData = await sheetsAPI.readSheet(CONFIG.SHEETS.PROMOTORES, 'A2:Q');
+
+                // Find if promotor already exists (by contactoId stored in column A or matching email)
+                let existingPromotorRow = null;
+                let existingPromotorIndex = -1;
+
+                if (promotoresData) {
+                    promotoresData.forEach((row, index) => {
+                        // Check by contactoId (stored in ID field with format PROM-CON-xxx) or by email match
+                        const promotorId = row[0] || '';
+                        const promotorEmail = row[2] || '';
+
+                        if (promotorId.includes(contactoId) || promotorEmail.toLowerCase() === email.toLowerCase()) {
+                            existingPromotorRow = row;
+                            existingPromotorIndex = index + 2; // +2 for header row and 0-index
+                        }
+                    });
+                }
+
+                if (tipo === 'Promotor') {
+                    const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                    if (existingPromotorRow) {
+                        // Update existing promotor's basic data (keep their specific fields)
+                        const [id, , , , estado, comision, referidosActivos, proyectosGanados, tasaConversion, comisionTotal, comisionPagada, comisionPendiente, banco, cuenta, notas, fechaCreacion] = existingPromotorRow;
+
+                        const updatedRow = [[
+                            id,
+                            nombre,
+                            email,
+                            telefono,
+                            estado || 'Activo',
+                            comision || '0',
+                            referidosActivos || '0',
+                            proyectosGanados || '0',
+                            tasaConversion || '0%',
+                            comisionTotal || '$0',
+                            comisionPagada || '$0',
+                            comisionPendiente || '$0',
+                            banco || '',
+                            cuenta || '',
+                            notas || '',
+                            fechaCreacion || fechaActualizacion,
+                            fechaActualizacion
+                        ]];
+
+                        await sheetsAPI.updateSheet(CONFIG.SHEETS.PROMOTORES, `A${existingPromotorIndex}:Q${existingPromotorIndex}`, updatedRow);
+                        console.log(`✅ Promotor ${nombre} actualizado desde Contactos`);
+                    } else {
+                        // Create new promotor from contact
+                        const promotorId = `PROM-${contactoId}`;
+                        const fechaCreacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                        const newPromotorRow = [[
+                            promotorId,
+                            nombre,
+                            email,
+                            telefono,
+                            'Activo',      // Estado default
+                            '0',           // Comisión % (to be configured)
+                            '0',           // Referidos Activos
+                            '0',           // Proyectos Ganados
+                            '0%',          // Tasa Conversión
+                            '$0',          // Comisión Total
+                            '$0',          // Comisión Pagada
+                            '$0',          // Comisión Pendiente
+                            '',            // Banco
+                            '',            // Cuenta
+                            '',            // Notas
+                            fechaCreacion,
+                            fechaCreacion
+                        ]];
+
+                        await sheetsAPI.writeSheet(CONFIG.SHEETS.PROMOTORES, newPromotorRow);
+                        console.log(`✅ Nuevo promotor ${nombre} creado desde Contactos`);
+                        showToast(`Promotor "${nombre}" creado. Configura su comisión en la vista Promotores.`, 'success');
+                    }
+                } else if (existingPromotorRow) {
+                    // Contact was a Promotor but type changed - mark as Inactivo
+                    const [id, , , , , comision, referidosActivos, proyectosGanados, tasaConversion, comisionTotal, comisionPagada, comisionPendiente, banco, cuenta, notas, fechaCreacion] = existingPromotorRow;
+                    const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                    const updatedRow = [[
+                        id,
+                        nombre,
+                        email,
+                        telefono,
+                        'Inactivo',    // Mark as inactive
+                        comision || '0',
+                        referidosActivos || '0',
+                        proyectosGanados || '0',
+                        tasaConversion || '0%',
+                        comisionTotal || '$0',
+                        comisionPagada || '$0',
+                        comisionPendiente || '$0',
+                        banco || '',
+                        cuenta || '',
+                        notas || '',
+                        fechaCreacion,
+                        fechaActualizacion
+                    ]];
+
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROMOTORES, `A${existingPromotorIndex}:Q${existingPromotorIndex}`, updatedRow);
+                    console.log(`⚠️ Promotor ${nombre} marcado como Inactivo (tipo cambiado a ${tipo})`);
+                }
+            } catch (error) {
+                console.error('❌ Error syncing with Promotores:', error);
+                // Don't show error toast - this is a background sync
+            }
+        }
+
         // ====================
         // PROMOTORES VIEW FUNCTIONS
         // ====================
@@ -4494,8 +4700,8 @@
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700">${comision || '0'}%</td>
                         <td class="py-3 px-4 border-b border-gray-700 space-x-1">
-                            <button onclick='editPromotor(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deletePromotor(${rowNumber})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editPromotor(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deletePromotor(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -4524,41 +4730,48 @@
         }
 
         /**
-         * Handle Promotores form submission
+         * Handle Promotores form submission (Edit only - no new creation)
+         * Promotores are created from Contactos view
          */
         async function handlePromotoresSubmit(event) {
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
-            const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
 
+            // Must be editing - no direct creation allowed
+            if (!editRow || !editId) {
+                showToast('Error: No hay promotor seleccionado para editar', 'error');
+                return;
+            }
+
             try {
-                // Get form values
-                const id = isEditing ? editId : generatePromotorId();
+                // Get form values - read-only fields (from Contactos)
                 const nombre = document.getElementById('input-promotor-nombre').value;
                 const email = document.getElementById('input-promotor-email').value;
                 const telefono = document.getElementById('input-promotor-telefono').value;
+
+                // Get form values - editable fields (Promotor-specific)
                 const estado = document.getElementById('input-promotor-estado').value;
                 const comision = document.getElementById('input-promotor-comision').value;
                 const banco = document.getElementById('input-promotor-banco').value;
                 const cuenta = document.getElementById('input-promotor-cuenta').value;
                 const notas = document.getElementById('input-promotor-notas').value;
-                const fechaCreacion = isEditing ? submitBtn.getAttribute('data-fecha-creacion') : new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                // Preserve existing data
+                const fechaCreacion = submitBtn.getAttribute('data-fecha-creacion') || new Date().toISOString().slice(0, 19).replace('T', ' ');
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                const referidosActivos = submitBtn.getAttribute('data-referidos') || '0';
+                const proyectosGanados = submitBtn.getAttribute('data-proyectos') || '0';
+                const tasaConversion = submitBtn.getAttribute('data-tasa') || '0%';
+                const comisionTotal = submitBtn.getAttribute('data-total') || '$0';
+                const comisionPagada = submitBtn.getAttribute('data-pagada') || '$0';
+                const comisionPendiente = submitBtn.getAttribute('data-pendiente') || '$0';
 
-                // Initialize or preserve metrics (17 columns A-Q)
-                const referidosActivos = isEditing ? (submitBtn.getAttribute('data-referidos') || '0') : '0';
-                const proyectosGanados = isEditing ? (submitBtn.getAttribute('data-proyectos') || '0') : '0';
-                const tasaConversion = isEditing ? (submitBtn.getAttribute('data-tasa') || '0%') : '0%';
-                const comisionTotal = isEditing ? (submitBtn.getAttribute('data-total') || '$0') : '$0';
-                const comisionPagada = isEditing ? (submitBtn.getAttribute('data-pagada') || '$0') : '$0';
-                const comisionPendiente = isEditing ? (submitBtn.getAttribute('data-pendiente') || '$0') : '$0';
-
-                // Create row data
+                // Create row data (17 columns A-Q)
                 const rowData = [[
-                    id,
+                    editId,
                     nombre,
                     email,
                     telefono,
@@ -4577,28 +4790,12 @@
                     fechaActualizacion
                 ]];
 
-                if (isEditing) {
-                    // Update existing row
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PROMOTORES, `A${editRow}:Q${editRow}`, rowData);
-                    showToast('Promotor actualizado exitosamente', 'success');
-                } else {
-                    // Create new row
-                    await sheetsAPI.writeSheet(CONFIG.SHEETS.PROMOTORES, rowData);
-                    showToast('Promotor guardado exitosamente', 'success');
-                }
+                // Update existing row
+                await sheetsAPI.updateSheet(CONFIG.SHEETS.PROMOTORES, `A${editRow}:Q${editRow}`, rowData);
+                showToast('Promotor actualizado exitosamente', 'success');
 
-                // Reset form
-                document.getElementById('form-promotores').reset();
-                submitBtn.textContent = 'Guardar Promotor';
-                submitBtn.removeAttribute('data-edit-row');
-                submitBtn.removeAttribute('data-edit-id');
-                submitBtn.removeAttribute('data-fecha-creacion');
-                submitBtn.removeAttribute('data-referidos');
-                submitBtn.removeAttribute('data-proyectos');
-                submitBtn.removeAttribute('data-tasa');
-                submitBtn.removeAttribute('data-total');
-                submitBtn.removeAttribute('data-pagada');
-                submitBtn.removeAttribute('data-pendiente');
+                // Hide edit form and reset
+                cancelPromotorEdit();
 
                 // Reload table
                 await loadPromotoresView();
@@ -4610,36 +4807,65 @@
         }
 
         /**
-         * Edit Promotor
+         * Edit Promotor - Only allows editing promotor-specific fields
+         * Contact data (nombre, email, telefono) is read-only
          */
         function editPromotor(rowNumber, rowData) {
             const [id, nombre, email, telefono, estado, comision, referidosActivos, proyectosGanados, tasaConversion, comisionTotal, comisionPagada, comisionPendiente, banco, cuenta, notas, fechaCreacion] = rowData;
 
-            // Scroll to form
-            document.getElementById('form-promotores').scrollIntoView({ behavior: 'smooth' });
+            // Show edit card
+            const editCard = document.getElementById('promotor-edit-card');
+            editCard.classList.remove('hidden');
 
-            // Pre-fill form
+            // Scroll to form
+            editCard.scrollIntoView({ behavior: 'smooth' });
+
+            // Pre-fill form - Read-only fields (from Contactos)
             document.getElementById('input-promotor-nombre').value = nombre || '';
             document.getElementById('input-promotor-email').value = email || '';
             document.getElementById('input-promotor-telefono').value = telefono || '';
-            document.getElementById('input-promotor-estado').value = estado || '';
-            document.getElementById('input-promotor-comision').value = comision || '';
+
+            // Pre-fill form - Editable fields (Promotor-specific)
+            document.getElementById('input-promotor-estado').value = estado || 'Activo';
+            document.getElementById('input-promotor-comision').value = comision || '0';
             document.getElementById('input-promotor-banco').value = banco || '';
             document.getElementById('input-promotor-cuenta').value = cuenta || '';
             document.getElementById('input-promotor-notas').value = notas || '';
 
-            // Change button text and add data attributes
+            // Add data attributes to submit button
             const submitBtn = document.querySelector('#form-promotores button[type="submit"]');
-            submitBtn.textContent = 'Actualizar Promotor';
             submitBtn.setAttribute('data-edit-row', rowNumber);
             submitBtn.setAttribute('data-edit-id', id);
-            submitBtn.setAttribute('data-fecha-creacion', fechaCreacion);
-            submitBtn.setAttribute('data-referidos', referidosActivos);
-            submitBtn.setAttribute('data-proyectos', proyectosGanados);
-            submitBtn.setAttribute('data-tasa', tasaConversion);
-            submitBtn.setAttribute('data-total', comisionTotal);
-            submitBtn.setAttribute('data-pagada', comisionPagada);
-            submitBtn.setAttribute('data-pendiente', comisionPendiente);
+            submitBtn.setAttribute('data-fecha-creacion', fechaCreacion || '');
+            submitBtn.setAttribute('data-referidos', referidosActivos || '0');
+            submitBtn.setAttribute('data-proyectos', proyectosGanados || '0');
+            submitBtn.setAttribute('data-tasa', tasaConversion || '0%');
+            submitBtn.setAttribute('data-total', comisionTotal || '$0');
+            submitBtn.setAttribute('data-pagada', comisionPagada || '$0');
+            submitBtn.setAttribute('data-pendiente', comisionPendiente || '$0');
+        }
+
+        /**
+         * Cancel Promotor Edit - Hide the edit form
+         */
+        function cancelPromotorEdit() {
+            const editCard = document.getElementById('promotor-edit-card');
+            editCard.classList.add('hidden');
+
+            // Reset form
+            document.getElementById('form-promotores').reset();
+
+            // Clear data attributes
+            const submitBtn = document.querySelector('#form-promotores button[type="submit"]');
+            submitBtn.removeAttribute('data-edit-row');
+            submitBtn.removeAttribute('data-edit-id');
+            submitBtn.removeAttribute('data-fecha-creacion');
+            submitBtn.removeAttribute('data-referidos');
+            submitBtn.removeAttribute('data-proyectos');
+            submitBtn.removeAttribute('data-tasa');
+            submitBtn.removeAttribute('data-total');
+            submitBtn.removeAttribute('data-pagada');
+            submitBtn.removeAttribute('data-pendiente');
         }
 
         /**
@@ -4752,8 +4978,8 @@
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${soporteIcon}</td>
                         <td class="px-4 py-3 text-sm text-right space-x-1">
-                            <button onclick='editServicio(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteServicio(${index + 2})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editServicio(${index + 2}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteServicio(${index + 2})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -5033,8 +5259,8 @@
                         <td class="px-4 py-3 text-sm text-gray-600">${empresaId || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${ultimaActividadFormatted}</td>
                         <td class="px-4 py-3 text-sm text-right space-x-1">
-                            <button onclick="editUsuario(${rowNumber}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteUsuario(${rowNumber})" class="text-red-600 hover:text-red-800" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick="editUsuario(${rowNumber}, ${JSON.stringify(row).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteUsuario(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -5302,8 +5528,8 @@
                             <span class="px-3 py-1 rounded-full text-sm bg-${estadoColor}-500/20 text-${estadoColor}-400">${estado || ''}</span>
                         </td>
                         <td class="py-3 px-4 border-b border-gray-700 space-x-1">
-                            <button onclick='editGasto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-400 hover:text-blue-300" title="Editar">✏️</button>
-                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteGasto(${rowNumber})" class="text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>` : ''}
+                            <button onclick='editGasto(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${sessionManager.isSuperAdmin() ? `<button onclick="deleteGasto(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -5764,6 +5990,10 @@
             // Promotores view event listeners
             document.getElementById('form-promotores').addEventListener('submit', handlePromotoresSubmit);
             document.getElementById('btn-refresh-promotores').addEventListener('click', loadPromotoresView);
+
+            // Cancel edit buttons for Promotores
+            document.getElementById('btn-cancel-promotor').addEventListener('click', cancelPromotorEdit);
+            document.getElementById('btn-cancel-promotor-edit').addEventListener('click', cancelPromotorEdit);
 
             // Search filter for Promotores
             document.getElementById('search-promotores').addEventListener('input', (e) => {
