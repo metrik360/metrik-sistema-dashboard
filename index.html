@@ -131,6 +131,34 @@
             font-weight: 600;
         }
 
+        /* Collapsed Sidebar (Desktop) */
+        #sidebar.w-16 {
+            overflow: visible;
+        }
+
+        #sidebar.w-16 .sidebar-nav {
+            padding: 1rem 0.5rem;
+        }
+
+        #sidebar.w-16 .sidebar-nav a {
+            justify-content: center;
+            padding: 0.75rem;
+            gap: 0;
+        }
+
+        #sidebar.w-16 .sidebar-nav a:hover {
+            transform: none;
+        }
+
+        #sidebar.w-16 .sidebar-nav a span {
+            display: none;
+        }
+
+        #sidebar.w-16 .sidebar-nav a i {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
         /* Mobile Sidebar Overlay */
         #sidebar-overlay {
             display: none;
@@ -2372,17 +2400,13 @@
                 sidebar.classList.toggle('mobile-open');
                 overlay.classList.toggle('active');
             } else {
-                // Desktop: Collapse/expand
+                // Desktop: Collapse/expand (CSS handles icon/text visibility)
                 if (sidebar.classList.contains('w-64')) {
                     sidebar.classList.remove('w-64');
                     sidebar.classList.add('w-16');
-                    // Hide text labels, keep icons visible
-                    sidebar.querySelectorAll('nav span').forEach(span => span.classList.add('hidden'));
                 } else {
                     sidebar.classList.remove('w-16');
                     sidebar.classList.add('w-64');
-                    // Show text labels
-                    sidebar.querySelectorAll('nav span').forEach(span => span.classList.remove('hidden'));
                 }
             }
         });
