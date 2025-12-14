@@ -794,7 +794,10 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3">
+                                <button type="button" id="btn-cancel-pipeline" onclick="cancelPipelineEdit()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-all">
+                                    Cancelar
+                                </button>
                                 <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
                                     Guardar Lead
                                 </button>
@@ -990,7 +993,10 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3">
+                                <button type="button" id="btn-cancel-proyecto" onclick="cancelProyectoEdit()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-all">
+                                    Cancelar
+                                </button>
                                 <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
                                     Guardar Proyecto
                                 </button>
@@ -1163,7 +1169,10 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3">
+                                <button type="button" id="btn-cancel-factura" onclick="cancelFacturaEdit()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-all">
+                                    Cancelar
+                                </button>
                                 <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
                                     Guardar Factura
                                 </button>
@@ -1717,7 +1726,10 @@
                                 <textarea id="input-gasto-notas" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Observaciones..."></textarea>
                             </div>
 
-                            <div class="md:col-span-2 lg:col-span-3 flex justify-end">
+                            <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-3">
+                                <button type="button" id="btn-cancel-gasto" onclick="cancelGastoEdit()" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-all">
+                                    Cancelar
+                                </button>
                                 <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
                                     Guardar Gasto
                                 </button>
@@ -3503,7 +3515,7 @@
                         const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
                         const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
-                            await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData);
+                            await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData, driveFolder);
                         }
                     }
                 } else {
@@ -3525,7 +3537,7 @@
                         const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
                         const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
-                            await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData);
+                            await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData, driveFolder);
                         }
                     }
                 }
@@ -3536,6 +3548,9 @@
                 submitBtn.removeAttribute('data-edit-row');
                 submitBtn.removeAttribute('data-edit-id');
                 submitBtn.removeAttribute('data-original');
+
+                // Hide cancel button
+                document.getElementById('btn-cancel-pipeline').classList.add('hidden');
 
                 // Reload table
                 await loadPipelineView();
@@ -3552,7 +3567,7 @@
         /**
          * Convert Lead to Project automatically
          */
-        async function convertLeadToProject(pipelineId, nombre, empresa, email, telefono, valor, servicioData = null) {
+        async function convertLeadToProject(pipelineId, nombre, empresa, email, telefono, valor, servicioData = null, driveFolder = '') {
             try {
                 console.log(`🔄 Converting lead ${pipelineId} to project...`);
 
@@ -3569,7 +3584,7 @@
                 // Get tipo proyecto from servicio categoria or default Custom
                 const tipoProyecto = servicioData ? servicioData.categoria : 'Custom';
 
-                // Create project data (19 columns A-S)
+                // Create project data (20 columns A-T)
                 const projectData = [[
                     projectId,                          // A: ID
                     pipelineId,                         // B: Pipeline ID
@@ -3588,8 +3603,9 @@
                     '10',                               // O: Progreso (10% = Discovery)
                     '',                                 // P: Repositorio
                     '',                                 // Q: Deploy URL
-                    `Proyecto creado automáticamente desde Pipeline ${pipelineId}${servicioData ? ` - Servicio: ${servicioData.nombre}` : ''}`, // R: Notas
-                    new Date().toISOString().slice(0, 19).replace('T', ' ') // S: Fecha Actualización
+                    driveFolder || '',                  // R: Drive Folder (from Pipeline)
+                    `Proyecto creado automáticamente desde Pipeline ${pipelineId}${servicioData ? ` - Servicio: ${servicioData.nombre}` : ''}`, // S: Notas
+                    new Date().toISOString().slice(0, 19).replace('T', ' ') // T: Fecha Actualización
                 ]];
 
                 // Save project to Google Sheets
@@ -3869,6 +3885,9 @@
             submitBtn.setAttribute('data-edit-row', rowNumber);
             submitBtn.setAttribute('data-edit-id', id);
 
+            // Show cancel button
+            document.getElementById('btn-cancel-pipeline').classList.remove('hidden');
+
             // Store original data for change detection in historial
             const originalData = {
                 etapa: etapa || '',
@@ -3881,6 +3900,28 @@
                 notas: notas || ''
             };
             submitBtn.setAttribute('data-original', JSON.stringify(originalData));
+        }
+
+        /**
+         * Cancel Pipeline edit and reset form
+         */
+        function cancelPipelineEdit() {
+            const form = document.getElementById('form-pipeline');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            form.reset();
+            submitBtn.textContent = 'Guardar Lead';
+            submitBtn.removeAttribute('data-edit-row');
+            submitBtn.removeAttribute('data-edit-id');
+            submitBtn.removeAttribute('data-original');
+
+            // Hide cancel button
+            document.getElementById('btn-cancel-pipeline').classList.add('hidden');
+
+            // Hide promotor field
+            document.getElementById('promotor-field').classList.add('hidden');
+
+            showToast('Edición cancelada', 'info');
         }
 
         /**
@@ -4344,6 +4385,9 @@
                 submitBtn.removeAttribute('data-edit-id');
                 submitBtn.removeAttribute('data-original');
 
+                // Hide cancel button
+                document.getElementById('btn-cancel-proyecto').classList.add('hidden');
+
                 // Reload table
                 await loadProyectosView();
 
@@ -4409,6 +4453,28 @@
                 notas: notas || ''
             };
             submitBtn.setAttribute('data-original', JSON.stringify(originalData));
+
+            // Show cancel button
+            document.getElementById('btn-cancel-proyecto').classList.remove('hidden');
+        }
+
+        /**
+         * Cancel Proyecto edit and reset form
+         */
+        function cancelProyectoEdit() {
+            const form = document.getElementById('form-proyectos');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            form.reset();
+            submitBtn.textContent = 'Guardar Proyecto';
+            submitBtn.removeAttribute('data-edit-row');
+            submitBtn.removeAttribute('data-edit-id');
+            submitBtn.removeAttribute('data-original');
+
+            // Hide cancel button
+            document.getElementById('btn-cancel-proyecto').classList.add('hidden');
+
+            showToast('Edición cancelada', 'info');
         }
 
         /**
@@ -4702,6 +4768,9 @@
                 submitBtn.removeAttribute('data-edit-id');
                 submitBtn.removeAttribute('data-original');
 
+                // Hide cancel button
+                document.getElementById('btn-cancel-factura').classList.add('hidden');
+
                 // Reload table
                 await loadFacturacionView();
 
@@ -4751,6 +4820,29 @@
                 metodoPago: metodoPago || ''
             };
             submitBtn.setAttribute('data-original', JSON.stringify(originalData));
+
+            // Show cancel button
+            document.getElementById('btn-cancel-factura').classList.remove('hidden');
+        }
+
+        /**
+         * Cancel Factura edit and reset form
+         */
+        function cancelFacturaEdit() {
+            const form = document.getElementById('form-facturacion');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            form.reset();
+            document.getElementById('input-factura-total').value = '';
+            submitBtn.textContent = 'Guardar Factura';
+            submitBtn.removeAttribute('data-edit-row');
+            submitBtn.removeAttribute('data-edit-id');
+            submitBtn.removeAttribute('data-original');
+
+            // Hide cancel button
+            document.getElementById('btn-cancel-factura').classList.add('hidden');
+
+            showToast('Edición cancelada', 'info');
         }
 
         /**
@@ -6157,6 +6249,9 @@
                 submitBtn.removeAttribute('data-fecha-creacion');
                 submitBtn.removeAttribute('data-original');
 
+                // Hide cancel button
+                document.getElementById('btn-cancel-gasto').classList.add('hidden');
+
                 // Reload table
                 await loadGastosView();
 
@@ -6204,6 +6299,29 @@
                 categoria: categoria || ''
             };
             submitBtn.setAttribute('data-original', JSON.stringify(originalData));
+
+            // Show cancel button
+            document.getElementById('btn-cancel-gasto').classList.remove('hidden');
+        }
+
+        /**
+         * Cancel Gasto edit and reset form
+         */
+        function cancelGastoEdit() {
+            const form = document.getElementById('form-gastos');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            form.reset();
+            submitBtn.textContent = 'Guardar Gasto';
+            submitBtn.removeAttribute('data-edit-row');
+            submitBtn.removeAttribute('data-edit-id');
+            submitBtn.removeAttribute('data-fecha-creacion');
+            submitBtn.removeAttribute('data-original');
+
+            // Hide cancel button
+            document.getElementById('btn-cancel-gasto').classList.add('hidden');
+
+            showToast('Edición cancelada', 'info');
         }
 
         /**
