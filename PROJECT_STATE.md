@@ -1,8 +1,8 @@
 # PROJECT STATE - Sistema MéTRIK
 
 **Proyecto:** Sistema de Gestión MéTRIK - Dashboard + CRM Interno
-**Estado:** 🟢 En progreso - Fase 8 (Deploy & Docs)
-**Última actualización:** 3 Diciembre 2025 (madrugada - Fase 7 completada)
+**Estado:** 🟢 En producción - Mejoras continuas
+**Última actualización:** 14 Diciembre 2025 (Mejoras UX y Sistema Historial)
 
 ---
 
@@ -17,7 +17,8 @@
 | **Deploy Target** | GitHub Pages → metrik.com.co |
 | **Fecha Inicio** | 2 Diciembre 2025 |
 | **Fecha Entrega Estimada** | 9 Diciembre 2025 (7 días) |
-| **Progreso General** | 90% (Fases 1-7 completadas) |
+| **En Producción desde** | 3 Diciembre 2025 |
+| **Progreso General** | 100% (En producción con mejoras continuas) |
 
 ---
 
@@ -386,6 +387,106 @@
 
 ## 📝 LOG DE CAMBIOS
 
+### 14 Diciembre 2025 - Mejoras UX y Sistema Historial
+
+**Actividad:** Múltiples mejoras de UX, prevención de duplicados y sistema de auditoría
+
+**Cambios realizados:**
+
+#### 1. Sistema de Historial (Auditoría/Timeline) - NUEVO
+- **Hoja nueva:** `Historial` en Google Sheets para almacenar todos los eventos
+- **Estructura:** ID, Entidad, EntidadID, ProyectoRef, Tipo, Campo, ValorAnterior, ValorNuevo, Descripcion, Monto, Usuario, Fecha
+- **Tipos de eventos:** creacion, cambio, nota, factura, gasto
+- **Funciones implementadas:**
+  - `generateHistorialId()` - Genera IDs únicos HIS-YYYY-####
+  - `addHistorialEntry()` - Registra entradas en el historial
+  - `detectChanges()` - Compara datos originales vs nuevos para detectar cambios
+  - `getHistorialEntries()` - Obtiene historial filtrado por entidad
+  - `showHistorialModal()` - Muestra modal con timeline visual
+  - `addHistorialNote()` - Permite agregar notas manuales
+- **Integración:** Pipeline, Proyectos, Facturación, Gastos
+- **Vinculación:** Historial de Pipeline se vincula automáticamente al Proyecto cuando se convierte
+
+#### 2. Corrección de Fechas en Formularios de Edición
+- **Problema:** Las fechas no se cargaban correctamente al editar registros
+- **Solución:** Nueva función `formatDateForInput()` que maneja:
+  - Formato YYYY-MM-DD (ya válido)
+  - Formato MM/DD/YYYY (de Google Sheets)
+  - Números seriales de fecha (de Google Sheets)
+- **Aplicado a:** Pipeline, Proyectos, Facturación, Gastos
+
+#### 3. Preservación de DriveFolder en Conversión Pipeline → Proyecto
+- **Problema:** El link a Google Drive se perdía al convertir lead a proyecto
+- **Solución:** Parámetro `driveFolder` añadido a `convertLeadToProject()`
+- **Resultado:** El enlace a la carpeta de Drive se mantiene en el proyecto
+
+#### 4. Botones de Cancelar en Todos los Formularios
+- **Agregado:** Botón "Cancelar" en formularios de edición
+- **Funciones:** `cancelPipelineEdit()`, `cancelProyectoEdit()`, `cancelFacturaEdit()`, `cancelGastoEdit()`
+- **Comportamiento:** Resetea formulario, restaura texto del botón, oculta botón cancelar
+- **Vistas:** Pipeline, Proyectos, Facturación, Gastos
+
+#### 5. Corrección de Servicio en Pipeline
+- **Problema:** El servicio se eliminaba al editar un lead
+- **Solución:**
+  - Mejor manejo de JSON parsing en `editPipelineLead()`
+  - Atributo `data-pending-servicio` para servicios no encontrados en dropdown
+  - `handlePipelineSubmit()` ahora usa el servicio pendiente si el dropdown está vacío
+
+#### 6. Cambio de "Tipo Proyecto" a "Servicio" en Proyectos
+- **Cambio:** Campo "Tipo de Proyecto" reemplazado por "Servicio"
+- **Comportamiento:** Servicio se hereda del Pipeline y es de solo lectura
+- **UI:** Campo con fondo gris, texto explicativo, no editable
+- **Consistencia:** El servicio fluye desde Pipeline → Proyecto sin modificación
+
+#### 7. Protección contra Doble-Click y Registros Duplicados
+- **Funciones utilitarias:**
+  - `disableSubmitButton(btn, loadingText)` - Deshabilita botón con texto de carga
+  - `enableSubmitButton(btn, originalText)` - Re-habilita botón
+- **Aplicado a 8 formularios:** Pipeline, Proyectos, Facturación, Contactos, Promotores, Servicios, Usuarios, Gastos
+- **Comportamiento:**
+  - Botón se deshabilita inmediatamente al click
+  - Muestra texto "Guardando..." o "Actualizando..."
+  - Se re-habilita al completar (éxito o error)
+
+#### 8. Overlay de Carga (Congelamiento de Aplicación)
+- **Nuevo elemento:** `#loading-overlay` con spinner y mensaje
+- **Funciones:** `showLoadingOverlay(message)`, `hideLoadingOverlay()`
+- **Comportamiento:**
+  - Overlay semi-transparente oscuro cubre toda la pantalla
+  - Spinner animado con mensaje "Sincronizando..."
+  - Bloquea toda interacción durante operaciones de guardado
+- **Integración:** Se activa automáticamente con `disableSubmitButton()`
+
+#### 9. Bloqueo de Edición para Leads Ganados
+- **Cambio:** Leads con estado "Ganado" no se pueden editar en Pipeline
+- **UI:** Ícono de editar en gris con tooltip "Lead ganado - editar en Proyectos"
+- **Razón:** Los leads ganados deben editarse como Proyectos
+
+#### 10. Corrección de Usuario en Historial
+- **Problema:** El historial mostraba "Sistema" en lugar del nombre del usuario
+- **Causa:** Lectura incorrecta de localStorage (`metrik_user` vs `metrik_session`)
+- **Solución:** Cambio a `localStorage.getItem('metrik_session')` con acceso a `session.user.nombre`
+
+**Commits relacionados:**
+- `bf50a83` - Fix user name in historial entries
+- `c7a116e` - Protect servicio field and add loading overlay
+- `7229af3` - Add debug logging for servicio selection in Pipeline
+- `73e73a0` - Disable edit button for won leads in Pipeline
+- `f5012d7` - Fix servicio persistence in Pipeline and replace TipoProyecto with Servicio
+- `295ea0a` - Pass DriveFolder from Pipeline to Proyecto and add Cancel buttons
+- `d44c70d` - Fix date fields not loading correctly when editing records
+- `ebcc797` - Add comprehensive Historial (audit/timeline) system
+
+**Estado del proyecto:**
+- ✅ Sistema en producción funcionando
+- ✅ Sistema de auditoría completo
+- ✅ UX mejorada significativamente
+- ✅ Protección contra errores de usuario
+- ✅ Flujo Pipeline → Proyecto optimizado
+
+---
+
 ### 3 Diciembre 2025 - 02:00
 
 **Actividad:** Fase 7 completada 100% - Búsqueda en todas las tablas
@@ -672,40 +773,45 @@
 
 ---
 
-## 🎯 PRÓXIMA SESIÓN
+## 🎯 ESTADO ACTUAL Y FUNCIONALIDADES
 
-**Fecha:** 3 Diciembre 2025
+**Estado:** 🟢 En producción - Sistema completamente funcional
 
-**Objetivo:** Implementar integraciones entre vistas y funcionalidades avanzadas
+**URL Producción:** https://metrik360.github.io/metrik-sistema-dashboard/
 
-**Agenda:**
-1. **Integraciones entre vistas:**
-   - Dropdown "Cliente" en Proyectos → Trae de Contactos
-   - Dropdown "Proyecto" en Facturación → Trae de Proyectos
-   - Dropdown "Promotor" en Proyectos → Trae de Promotores
-   - Dropdown "Proyecto" en Gastos → Trae de Proyectos
-   - Autocompletar emails existentes en formularios
+### Funcionalidades Implementadas
 
-2. **Funcionalidades avanzadas (opcional):**
-   - Búsqueda/filtrado en tablas
-   - Ordenamiento por columnas
-   - Paginación para tablas grandes
+#### Core
+- ✅ Dashboard con KPIs en tiempo real
+- ✅ 6 vistas CRUD completas (Pipeline, Proyectos, Facturación, Contactos, Promotores, Gastos)
+- ✅ Vista de Servicios para catálogo
+- ✅ Vista de Usuarios para gestión de accesos
+- ✅ Sistema OAuth 2.0 con Google
+- ✅ Google Sheets como base de datos
 
-3. **Automatizaciones:**
-   - Lead "Ganado" → Crear proyecto automático
-   - Proyecto completado → Actualizar métricas Promotor
-   - Calcular comisiones de Promotores automáticamente
+#### Integraciones
+- ✅ Dropdowns dinámicos entre vistas
+- ✅ Auto-completado de campos relacionados
+- ✅ Conversión automática Lead → Proyecto (estado "Ganado")
+- ✅ Vinculación de historial Pipeline → Proyecto
 
-**Prioridad:**
-- Integraciones son críticas para flujo de trabajo completo
-- Funcionalidades avanzadas mejoran UX
+#### UX y Seguridad
+- ✅ Sistema de Historial/Auditoría completo
+- ✅ Protección contra doble-click
+- ✅ Overlay de carga durante sincronización
+- ✅ Bloqueo de edición para leads ganados
+- ✅ Campo Servicio protegido en Proyectos
+- ✅ Botones de cancelar en formularios
+- ✅ Búsqueda en tiempo real en todas las tablas
+- ✅ Toast notifications
+- ✅ Responsive design
 
-**Estado actual:**
-- ✅ Dashboard funcionando 100%
-- ✅ 6/6 vistas CRUD funcionando 100%
-- ✅ Sistema OAuth y Google Sheets API funcionando
-- ⏳ Integraciones pendientes
-- ⏳ Testing y deploy pendientes
+#### Pendientes (Mejoras futuras)
+- ⏳ Paginación para tablas grandes
+- ⏳ Ordenamiento por columnas
+- ⏳ Cálculo automático de comisiones de promotores
+- ⏳ Export de datos a Excel/PDF
+- ⏳ Gráficas adicionales en Dashboard
 
 ---
 
@@ -717,10 +823,10 @@
 
 ---
 
-**Estado actual:** 🟢 Muy adelantado - 90% completado (7/8 fases)
-**Próximo hito:** Deploy a producción y documentación
-**ETA Entrega:** 9 Diciembre 2025 (muy adelantado del cronograma)
+**Estado actual:** 🟢 En producción - Sistema completamente funcional
+**URL:** https://metrik360.github.io/metrik-sistema-dashboard/
+**Última mejora:** 14 Diciembre 2025 - Sistema de auditoría y mejoras UX
 
 ---
 
-_Este documento se actualiza diariamente al final de cada sesión de trabajo._
+_Este documento se actualiza con cada sesión de mejoras al sistema._
