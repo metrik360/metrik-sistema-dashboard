@@ -3094,6 +3094,11 @@
                     `<button onclick="deletePipelineLead(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : '';
                 const historialBtn = `<button onclick="showHistorialModal('Pipeline', '${id}', '${lead} - ${empresa}')" class="text-purple-600 hover:text-purple-800 inline-flex" title="Ver historial">${getIcon('history')}</button>`;
 
+                // Hide edit button if lead is "Ganado" (won leads should be edited in Proyectos)
+                const editBtn = estado !== 'Ganado'
+                    ? `<button onclick='editPipelineLead(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>`
+                    : `<span class="text-gray-300 inline-flex cursor-not-allowed" title="Lead ganado - editar en Proyectos">${getIcon('edit')}</span>`;
+
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${lead || '-'}</td>
@@ -3107,7 +3112,7 @@
                         <td class="px-4 py-3 text-sm text-right space-x-2 flex items-center justify-end">
                             ${historialBtn}
                             ${driveFolderBtn}
-                            <button onclick='editPipelineLead(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>
+                            ${editBtn}
                             ${deleteBtn}
                         </td>
                     </tr>
