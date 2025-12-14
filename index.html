@@ -3282,8 +3282,8 @@
          */
         async function addHistorialEntry(entidad, entidadId, proyectoRef, tipo, campo, valorAnterior, valorNuevo, descripcion, monto = null) {
             try {
-                const user = JSON.parse(localStorage.getItem('metrik_user'));
-                const usuario = user ? user.nombre : 'Sistema';
+                const session = JSON.parse(localStorage.getItem('metrik_session'));
+                const usuario = session && session.user ? session.user.nombre : 'Sistema';
                 const fecha = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 const id = generateHistorialId();
 
