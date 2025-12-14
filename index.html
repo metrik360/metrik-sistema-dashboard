@@ -903,14 +903,12 @@
                                 <input type="tel" id="input-proyecto-telefono" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
-                            <!-- Tipo Proyecto -->
+                            <!-- Servicio -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Proyecto *</label>
-                                <select id="input-proyecto-tipo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="Dashboard">Dashboard</option>
-                                    <option value="CRM">CRM</option>
-                                    <option value="Landing">Landing</option>
-                                    <option value="Custom">Custom</option>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Servicio *</label>
+                                <select id="input-proyecto-servicio" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar servicio...</option>
+                                    <!-- Options populated dynamically from Servicios sheet -->
                                 </select>
                             </div>
 
@@ -1031,7 +1029,7 @@
                                         <tr>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proyecto</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Servicio</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fase</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
@@ -2688,6 +2686,31 @@
         // ====================
 
         /**
+         * Disable submit button to prevent double-click and show loading state
+         * @param {HTMLButtonElement} btn - The submit button
+         * @param {string} loadingText - Text to show while loading
+         * @returns {string} Original button text to restore later
+         */
+        function disableSubmitButton(btn, loadingText = 'Guardando...') {
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = loadingText;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            return originalText;
+        }
+
+        /**
+         * Re-enable submit button after operation completes
+         * @param {HTMLButtonElement} btn - The submit button
+         * @param {string} originalText - Original button text to restore
+         */
+        function enableSubmitButton(btn, originalText) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        /**
          * Format number as currency (COP)
          */
         /**
@@ -3416,20 +3439,27 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
 
+            // Validate contacto selection before disabling button
+            const contactoSelect = document.getElementById('input-contacto').value;
+            if (!contactoSelect) {
+                showToast('Debes seleccionar un contacto', 'error');
+                return;
+            }
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditing ? 'Actualizando...' : 'Guardando...');
+
             try {
                 // Get form values
                 const id = isEditing ? editId : generatePipelineId();
-                const contactoSelect = document.getElementById('input-contacto').value;
-
-                // Validate contacto selection
-                if (!contactoSelect) {
-                    showToast('Debes seleccionar un contacto', 'error');
-                    return;
-                }
 
                 const contactoData = JSON.parse(contactoSelect);
                 const contactoId = contactoData.id;
@@ -3446,8 +3476,26 @@
                 const estado = document.getElementById('input-estado').value;
                 const fuente = document.getElementById('input-fuente').value;
                 const notas = document.getElementById('input-notas').value;
-                const servicioSelect = document.getElementById('input-servicio').value;
-                const servicio = servicioSelect ? JSON.parse(servicioSelect).nombre : '';
+                const servicioDropdown = document.getElementById('input-servicio');
+                const servicioSelect = servicioDropdown.value;
+                // Check for pending servicio (when editing and servicio wasn't in dropdown)
+                const pendingServicio = servicioDropdown.getAttribute('data-pending-servicio');
+                let servicio = '';
+                let servicioData = null;
+                if (servicioSelect) {
+                    try {
+                        servicioData = JSON.parse(servicioSelect);
+                        servicio = servicioData.nombre;
+                    } catch (e) {
+                        servicio = servicioSelect;
+                    }
+                } else if (pendingServicio) {
+                    servicio = pendingServicio;
+                    // Create minimal servicioData for pending servicio
+                    servicioData = { nombre: pendingServicio, categoria: 'Custom', duracion: 30 };
+                }
+                // Clear pending servicio after use
+                servicioDropdown.removeAttribute('data-pending-servicio');
                 const promotor = fuente === 'Referido' ? document.getElementById('input-promotor').value : '';
                 const driveFolder = document.getElementById('input-drive-pipeline').value;
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -3512,7 +3560,6 @@
 
                     // Check if estado changed to "Ganado" → Create project automatically
                     if (estado === 'Ganado') {
-                        const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
                         const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
                             await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData, driveFolder);
@@ -3534,7 +3581,6 @@
 
                     // Check if new lead is already "Ganado" → Create project automatically
                     if (estado === 'Ganado') {
-                        const servicioData = servicioSelect ? JSON.parse(servicioSelect) : null;
                         const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
                             await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData, driveFolder);
@@ -3561,6 +3607,9 @@
             } catch (error) {
                 console.error('❌ Error saving lead:', error);
                 showToast('Error al guardar lead', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, isEditing ? 'Actualizar Lead' : 'Guardar Lead');
             }
         }
 
@@ -3581,8 +3630,8 @@
                 estimatedDelivery.setDate(estimatedDelivery.getDate() + duracionDias);
                 const fechaEntregaEst = estimatedDelivery.toISOString().slice(0, 10);
 
-                // Get tipo proyecto from servicio categoria or default Custom
-                const tipoProyecto = servicioData ? servicioData.categoria : 'Custom';
+                // Get servicio name (column H now stores service name, not categoria)
+                const servicioNombre = servicioData ? servicioData.nombre : '';
 
                 // Create project data (20 columns A-T)
                 const projectData = [[
@@ -3593,7 +3642,7 @@
                     empresa,                            // E: Empresa
                     email,                              // F: Email Cliente
                     telefono,                           // G: Teléfono Cliente
-                    tipoProyecto,                       // H: Tipo Proyecto (from Servicio)
+                    servicioNombre,                     // H: Servicio (from Pipeline)
                     'Activo',                           // I: Estado
                     'Discovery',                        // J: Fase
                     today,                              // K: Fecha Inicio
@@ -3871,11 +3920,24 @@
             // Pre-select servicio if exists
             if (servicio) {
                 const servicioDropdown = document.getElementById('input-servicio');
+                let found = false;
                 for (let option of servicioDropdown.options) {
-                    if (option.value && JSON.parse(option.value).nombre === servicio) {
-                        servicioDropdown.value = option.value;
-                        break;
+                    if (option.value) {
+                        try {
+                            const optionData = JSON.parse(option.value);
+                            if (optionData.nombre === servicio) {
+                                servicioDropdown.value = option.value;
+                                found = true;
+                                break;
+                            }
+                        } catch (e) {
+                            // Skip invalid JSON
+                        }
                     }
+                }
+                // If not found, store servicio name to preserve it
+                if (!found) {
+                    servicioDropdown.setAttribute('data-pending-servicio', servicio);
                 }
             }
 
@@ -4107,6 +4169,7 @@
 
                 // Populate dropdowns
                 await populatePipelineDropdownProyectos();
+                await populateServicioDropdownProyectos();
 
                 console.log('✅ Proyectos view loaded');
             } catch (error) {
@@ -4153,8 +4216,8 @@
                 const row = item.data;
                 const rowNumber = item.rowNumber;
 
-                // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas, FechaActualización
-                const [id, pipelineId, nombre, cliente, empresa, email, telefono, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = row;
+                // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, Servicio, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas, FechaActualización
+                const [id, pipelineId, nombre, cliente, empresa, email, telefono, servicio, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = row;
 
                 // Generate badge colors
                 const estadoBadge = getBadge(estado, getProyectoEstadoColor(estado));
@@ -4173,7 +4236,7 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${nombre || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${empresa || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${tipoProyecto || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${servicio || '-'}</td>
                         <td class="px-4 py-3 text-sm">${estadoBadge}</td>
                         <td class="px-4 py-3 text-sm">${faseBadge}</td>
                         <td class="px-4 py-3 text-sm text-gray-900 font-medium">${formatCurrency(parseFloat(valor) || 0)}</td>
@@ -4258,6 +4321,36 @@
         }
 
         /**
+         * Populate Servicio dropdown in Proyectos form
+         */
+        async function populateServicioDropdownProyectos() {
+            try {
+                const serviciosData = await sheetsAPI.readSheet(CONFIG.SHEETS.SERVICIOS);
+                const dropdown = document.getElementById('input-proyecto-servicio');
+
+                // Clear existing options (except first)
+                dropdown.innerHTML = '<option value="">Seleccionar servicio...</option>';
+
+                // Add servicios
+                serviciosData.forEach(row => {
+                    // Structure: ID, Nombre, Descripción, Categoria, Precio, Duración, Estado
+                    const [id, nombre, descripcion, categoria, precio, duracion, estado] = row;
+
+                    if (estado === 'Activo') {
+                        const option = document.createElement('option');
+                        option.value = nombre; // Store just the service name
+                        option.textContent = `${nombre} (${categoria})`;
+                        dropdown.appendChild(option);
+                    }
+                });
+
+                console.log('✅ Servicio dropdown populated in Proyectos');
+            } catch (error) {
+                console.error('❌ Error populating servicio dropdown:', error);
+            }
+        }
+
+        /**
          * Generate Proyecto ID
          */
         function generateProyectoId() {
@@ -4273,20 +4366,27 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
 
+            // Validate pipeline selection before disabling button
+            const pipelineSelect = document.getElementById('input-proyecto-pipeline').value;
+            if (!pipelineSelect) {
+                showToast('Debes seleccionar un lead del Pipeline', 'error');
+                return;
+            }
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditing ? 'Actualizando...' : 'Guardando...');
+
             try {
                 // Get form values
                 const id = isEditing ? editId : generateProyectoId();
-                const pipelineSelect = document.getElementById('input-proyecto-pipeline').value;
-
-                // Validate pipeline selection
-                if (!pipelineSelect) {
-                    showToast('Debes seleccionar un lead del Pipeline', 'error');
-                    return;
-                }
 
                 const pipelineData = JSON.parse(pipelineSelect);
                 const pipelineId = pipelineData.id;
@@ -4296,7 +4396,7 @@
                 const empresa = document.getElementById('input-proyecto-empresa').value;
                 const emailCliente = document.getElementById('input-proyecto-email').value;
                 const telefonoCliente = document.getElementById('input-proyecto-telefono').value;
-                const tipoProyecto = document.getElementById('input-proyecto-tipo').value;
+                const servicio = document.getElementById('input-proyecto-servicio').value;
                 const estado = document.getElementById('input-proyecto-estado').value;
                 const fase = document.getElementById('input-proyecto-fase').value;
                 const fechaInicio = document.getElementById('input-proyecto-fecha-inicio').value;
@@ -4319,7 +4419,7 @@
                     empresa,               // E: Empresa
                     emailCliente,          // F: Email Cliente
                     telefonoCliente,       // G: Teléfono Cliente
-                    tipoProyecto,          // H: Tipo Proyecto
+                    servicio,              // H: Servicio
                     estado,                // I: Estado
                     fase,                  // J: Fase
                     fechaInicio,           // K: Fecha Inicio
@@ -4339,9 +4439,9 @@
                     const originalDataStr = submitBtn.getAttribute('data-original');
                     if (originalDataStr) {
                         const originalData = JSON.parse(originalDataStr);
-                        const newData = [estado, fase, progreso, tipoProyecto];
-                        const fieldNames = ['Estado', 'Fase', 'Progreso', 'Tipo Proyecto'];
-                        const originalCompare = [originalData.estado, originalData.fase, originalData.progreso, originalData.tipoProyecto];
+                        const newData = [estado, fase, progreso, servicio];
+                        const fieldNames = ['Estado', 'Fase', 'Progreso', 'Servicio'];
+                        const originalCompare = [originalData.estado, originalData.fase, originalData.progreso, originalData.servicio];
 
                         const changes = detectChanges(originalCompare, newData, fieldNames);
 
@@ -4397,6 +4497,9 @@
             } catch (error) {
                 console.error('❌ Error saving proyecto:', error);
                 showToast('Error al guardar proyecto', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, isEditing ? 'Actualizar Proyecto' : 'Guardar Proyecto');
             }
         }
 
@@ -4404,8 +4507,8 @@
          * Edit Proyecto
          */
         function editProyecto(rowNumber, rowData) {
-            // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, TipoProyecto, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas
-            const [id, pipelineId, nombre, cliente, empresa, emailCliente, telefonoCliente, tipoProyecto, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = rowData;
+            // Updated structure: ID, PipelineID, Nombre, Cliente, Empresa, Email, Teléfono, Servicio, Estado, Fase, FechaInicio, FechaEntregaEst, FechaEntregaReal, Valor, Progreso, Repositorio, DeployURL, DriveFolder, Notas
+            const [id, pipelineId, nombre, cliente, empresa, emailCliente, telefonoCliente, servicio, estado, fase, fechaInicio, fechaEntregaEst, fechaEntregaReal, valor, progreso, repositorio, deployURL, driveFolder, notas] = rowData;
 
             // Scroll to form
             document.getElementById('form-proyectos').scrollIntoView({ behavior: 'smooth' });
@@ -4426,7 +4529,26 @@
 
             // Pre-fill other form fields
             document.getElementById('input-proyecto-nombre').value = nombre || '';
-            document.getElementById('input-proyecto-tipo').value = tipoProyecto || '';
+
+            // Pre-select servicio (stored in column H)
+            const servicioDropdown = document.getElementById('input-proyecto-servicio');
+            // Try to match by value (service name)
+            let servicioFound = false;
+            for (let option of servicioDropdown.options) {
+                if (option.value === servicio) {
+                    servicioDropdown.value = option.value;
+                    servicioFound = true;
+                    break;
+                }
+            }
+            // If not found in dropdown, add it as option to preserve data
+            if (!servicioFound && servicio) {
+                const option = document.createElement('option');
+                option.value = servicio;
+                option.textContent = servicio;
+                servicioDropdown.appendChild(option);
+                servicioDropdown.value = servicio;
+            }
             document.getElementById('input-proyecto-estado').value = estado || '';
             document.getElementById('input-proyecto-fase').value = fase || '';
             document.getElementById('input-proyecto-fecha-inicio').value = formatDateForInput(fechaInicio);
@@ -4449,7 +4571,7 @@
                 estado: estado || '',
                 fase: fase || '',
                 progreso: progreso || '',
-                tipoProyecto: tipoProyecto || '',
+                servicio: servicio || '',
                 notas: notas || ''
             };
             submitBtn.setAttribute('data-original', JSON.stringify(originalData));
@@ -4650,9 +4772,16 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditing ? 'Actualizando...' : 'Guardando...');
 
             try {
                 // Get form values
@@ -4780,6 +4909,9 @@
             } catch (error) {
                 console.error('❌ Error saving factura:', error);
                 showToast('Error al guardar factura', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, isEditing ? 'Actualizar Factura' : 'Guardar Factura');
             }
         }
 
@@ -4973,9 +5105,16 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditing ? 'Actualizando...' : 'Guardando...');
 
             try {
                 // Get form values
@@ -5042,6 +5181,9 @@
             } catch (error) {
                 console.error('❌ Error saving contacto:', error);
                 showToast('Error al guardar contacto', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, isEditing ? 'Actualizar Contacto' : 'Guardar Contacto');
             }
         }
 
@@ -5331,6 +5473,10 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
 
@@ -5339,6 +5485,9 @@
                 showToast('Error: No hay promotor seleccionado para editar', 'error');
                 return;
             }
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, 'Actualizando...');
 
             try {
                 // Get form values - read-only fields (from Contactos)
@@ -5397,6 +5546,9 @@
             } catch (error) {
                 console.error('❌ Error saving promotor:', error);
                 showToast('Error al guardar promotor', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, 'Actualizar Promotor');
             }
         }
 
@@ -5587,9 +5739,16 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditing ? 'Actualizando...' : 'Guardando...');
 
             try {
                 // Get form values
@@ -5656,6 +5815,9 @@
             } catch (error) {
                 console.error('❌ Error saving servicio:', error);
                 showToast('Error al guardar servicio', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, isEditing ? 'Actualizar Servicio' : 'Guardar Servicio');
             }
         }
 
@@ -5867,6 +6029,11 @@
         async function handleUsuarioSubmit(event) {
             event.preventDefault();
 
+            const submitBtn = document.getElementById('btn-submit-usuario');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const session = sessionManager.getSession();
             if (!session) {
                 showToast('Sesión expirada', 'error');
@@ -5906,6 +6073,9 @@
 
             const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditingUsuario ? 'Actualizando...' : 'Creando...');
+
             if (isEditingUsuario) {
                 // Update existing usuario
                 const rowData = [[
@@ -5937,6 +6107,7 @@
                 } catch (error) {
                     console.error('❌ Error updating usuario:', error);
                     showToast('Error al actualizar usuario', 'error');
+                    enableSubmitButton(submitBtn, 'Actualizar Usuario');
                 }
             } else {
                 // Create new usuario
@@ -5944,6 +6115,7 @@
                 const existingUser = allUsuariosData.find(row => row[2] === email);
                 if (existingUser) {
                     showToast('El email ya está registrado', 'error');
+                    enableSubmitButton(submitBtn, 'Crear Usuario');
                     return;
                 }
 
@@ -5970,6 +6142,7 @@
                 } catch (error) {
                     console.error('❌ Error creating usuario:', error);
                     showToast('Error al crear usuario', 'error');
+                    enableSubmitButton(submitBtn, 'Crear Usuario');
                 }
             }
         }
@@ -6160,9 +6333,16 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Prevent double-click
+            if (submitBtn.disabled) return;
+
             const isEditing = submitBtn.hasAttribute('data-edit-row');
             const editRow = submitBtn.getAttribute('data-edit-row');
             const editId = submitBtn.getAttribute('data-edit-id');
+
+            // Disable button to prevent double submission
+            const originalBtnText = disableSubmitButton(submitBtn, isEditing ? 'Actualizando...' : 'Guardando...');
 
             try {
                 // Get form values
@@ -6261,6 +6441,9 @@
             } catch (error) {
                 console.error('❌ Error saving gasto:', error);
                 showToast('Error al guardar gasto', 'error');
+            } finally {
+                // Re-enable button
+                enableSubmitButton(submitBtn, isEditing ? 'Actualizar Gasto' : 'Guardar Gasto');
             }
         }
 
