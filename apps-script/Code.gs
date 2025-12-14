@@ -22,7 +22,8 @@ const CONFIG = {
     PROMOTORES: 'Promotores',
     SERVICIOS: 'Servicios',
     GASTOS: 'Gastos',
-    USUARIOS: 'Usuarios'
+    USUARIOS: 'Usuarios',
+    HISTORIAL: 'Historial'
   },
   ALLOWED_ORIGINS: [
     'https://system.metrik.com.co',
