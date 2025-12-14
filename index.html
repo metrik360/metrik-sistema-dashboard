@@ -3926,13 +3926,16 @@
             if (servicio) {
                 const servicioDropdown = document.getElementById('input-servicio');
                 let found = false;
+                console.log('🔍 Looking for servicio:', servicio);
                 for (let option of servicioDropdown.options) {
                     if (option.value) {
                         try {
                             const optionData = JSON.parse(option.value);
+                            console.log('🔍 Comparing with:', optionData.nombre);
                             if (optionData.nombre === servicio) {
                                 servicioDropdown.value = option.value;
                                 found = true;
+                                console.log('✅ Found and selected:', optionData.nombre);
                                 break;
                             }
                         } catch (e) {
@@ -3942,6 +3945,7 @@
                 }
                 // If not found, store servicio name to preserve it
                 if (!found) {
+                    console.log('⚠️ Servicio not found in dropdown, using pending:', servicio);
                     servicioDropdown.setAttribute('data-pending-servicio', servicio);
                 }
             }
