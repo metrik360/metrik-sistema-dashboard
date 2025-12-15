@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Gestión MéTRIK - Dashboard + CRM Interno
 **Estado:** 🟢 En producción - Mejoras continuas
-**Última actualización:** 14 Diciembre 2025 (Mejoras UX y Sistema Historial)
+**Última actualización:** 14 Diciembre 2025 (Tools: MD a PDF Converter)
 
 ---
 
@@ -386,6 +386,78 @@
 ---
 
 ## 📝 LOG DE CAMBIOS
+
+### 14 Diciembre 2025 (Tarde) - Nueva Sección Tools + Conversor MD a PDF
+
+**Actividad:** Implementación de nueva sección "Tools" con herramienta de conversión Markdown a PDF
+
+**Cambios realizados:**
+
+#### 1. Nueva Pestaña "Tools" en Sidebar
+- **Ubicación:** Después de Usuarios, con separador visual
+- **Icono:** Lucide `wrench`
+- **Vista:** Grid de tarjetas para herramientas disponibles
+- **Placeholder:** Espacio "Próximamente" para futuras herramientas
+
+#### 2. Conversor Markdown a PDF - NUEVA HERRAMIENTA
+- **Funcionalidad completa:**
+  - Drag & drop para cargar archivos `.md`
+  - Editor de texto Markdown con textarea
+  - Vista previa en tiempo real (live preview)
+  - Generación de PDF con un click
+  - Descarga automática del archivo generado
+
+- **Características del PDF generado:**
+  - Branding corporativo MéTRIK
+  - Logo MéTRIK en el encabezado
+  - Isotipo en el pie de página
+  - Tipografía Montserrat
+  - Colores de marca (#10B981 verde, #1A1A1A negro)
+  - Fecha de generación automática
+  - Formato A4 optimizado
+
+- **Soporte de Markdown:**
+  - Encabezados (H1-H6)
+  - Párrafos y texto
+  - Listas ordenadas y no ordenadas
+  - Negrita y cursiva
+  - Enlaces
+  - Bloques de código y código inline
+  - Tablas
+  - Blockquotes
+  - Imágenes
+  - Líneas horizontales
+
+- **Librerías integradas:**
+  - `marked.js` - Parseo de Markdown a HTML
+  - `html2pdf.js` - Generación de PDF desde HTML
+
+#### 3. Funciones JavaScript Implementadas
+- `initMdToPdfTool()` - Inicializa event listeners
+- `handleMdFile(file)` - Procesa archivos MD cargados
+- `updateMdPreview()` - Actualiza vista previa en tiempo real
+- `openMdToPdfTool()` - Navega a la herramienta
+- `backToTools()` - Regresa al menú de Tools
+- `clearMdContent()` - Limpia el contenido
+- `convertMdToPdf()` - Genera y descarga el PDF
+
+#### 4. UI/UX de la Herramienta
+- **Panel izquierdo:** Editor con nombre de archivo, zona de drop, textarea
+- **Panel derecho:** Vista previa con estilos prose
+- **Panel inferior:** Información sobre características del PDF
+- **Botones:** Generar PDF (gradiente indigo-purple), Limpiar (icono basura)
+- **Feedback:** Spinner durante generación, toast de éxito/error
+
+**Commits relacionados:**
+- `fe40163` - Add Tools tab with MD to PDF converter
+
+**Estado del proyecto:**
+- ✅ Nueva sección Tools implementada
+- ✅ Conversor MD a PDF 100% funcional
+- ✅ Funciona 100% en el cliente (sin backend adicional)
+- ✅ Integración perfecta con el sistema existente
+
+---
 
 ### 14 Diciembre 2025 - Mejoras UX y Sistema Historial
 
@@ -786,8 +858,17 @@
 - ✅ 6 vistas CRUD completas (Pipeline, Proyectos, Facturación, Contactos, Promotores, Gastos)
 - ✅ Vista de Servicios para catálogo
 - ✅ Vista de Usuarios para gestión de accesos
+- ✅ **Vista Tools con herramientas utilitarias**
 - ✅ Sistema OAuth 2.0 con Google
 - ✅ Google Sheets como base de datos
+
+#### Tools (Herramientas)
+- ✅ **Conversor MD a PDF** - Convierte Markdown a PDF con branding MéTRIK
+  - Drag & drop de archivos
+  - Vista previa en tiempo real
+  - PDF con logo, tipografía y colores corporativos
+  - Soporte completo de Markdown (tablas, código, listas, etc.)
+- ⏳ Más herramientas próximamente
 
 #### Integraciones
 - ✅ Dropdowns dinámicos entre vistas
@@ -825,7 +906,7 @@
 
 **Estado actual:** 🟢 En producción - Sistema completamente funcional
 **URL:** https://metrik360.github.io/metrik-sistema-dashboard/
-**Última mejora:** 14 Diciembre 2025 - Sistema de auditoría y mejoras UX
+**Última mejora:** 14 Diciembre 2025 - Nueva sección Tools con Conversor MD a PDF
 
 ---
 
