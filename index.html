@@ -1951,7 +1951,7 @@
                                 </div>
                                 <p class="text-gray-600 text-sm mb-4">
                                     Convierte archivos Markdown (.md) a PDF con el diseño corporativo de MéTRIK. Incluye logos, tipografía y colores de marca.
-                                    <span class="text-xs text-gray-400 block mt-1">v1.2.0</span>
+                                    <span class="text-xs text-gray-400 block mt-1">v1.3.0</span>
                                 </p>
                                 <div class="flex items-center gap-2 text-indigo-600 font-medium text-sm">
                                     <span>Abrir herramienta</span>
@@ -7233,10 +7233,7 @@ código
         }
 
         /**
-         * Convert Markdown to PDF with MéTRIK branding
-         * - Letter size (8.5" x 11")
-         * - Avoid page breaks inside elements using CSS
-         * - Logo header on first page, small header on subsequent pages
+         * Convert Markdown to PDF with MéTRIK branding - v1.3.0
          */
         async function convertMdToPdf() {
             const content = document.getElementById('md-content').value;
@@ -7253,89 +7250,39 @@ código
             btn.innerHTML = '<div class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div> Generando...';
 
             try {
-                // Generate HTML with MéTRIK branding
                 const htmlContent = marked.parse(content);
-                const currentDate = new Date().toLocaleDateString('es-MX', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                // Extract title from first H1 or use filename
+                const currentDate = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
                 const titleMatch = content.match(/^#\s+(.+)$/m);
                 const title = titleMatch ? titleMatch[1] : filename;
 
                 const styledHtml = `
-                    <div class="pdf-document" style="font-family: 'Montserrat', 'Inter', 'Helvetica Neue', sans-serif; font-size: 11pt; line-height: 1.6; color: #1A1A1A; padding: 20px; background: white;">
-                        <style>
-                            @media print {
-                                .pdf-document { padding: 0; }
-                            }
-                            /* Prevent page breaks inside elements */
-                            .pdf-document h1, .pdf-document h2, .pdf-document h3,
-                            .pdf-document h4, .pdf-document h5, .pdf-document h6 {
-                                page-break-after: avoid !important;
-                                break-after: avoid !important;
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-                            .pdf-document p {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                                orphans: 4;
-                                widows: 4;
-                            }
-                            .pdf-document li {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-                            .pdf-document pre, .pdf-document blockquote,
-                            .pdf-document table, .pdf-document img {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-                            .pdf-document ul, .pdf-document ol {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-
-                            /* Content styles */
-                            .md-content h1 { font-size: 18pt; font-weight: 700; color: #1A1A1A; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #10B981; margin-top: 0; }
-                            .md-content h2 { font-size: 15pt; font-weight: 600; color: #1A1A1A; margin-top: 20px; margin-bottom: 10px; }
-                            .md-content h3 { font-size: 13pt; font-weight: 500; color: #6B7280; margin-top: 16px; margin-bottom: 8px; }
-                            .md-content h4, .md-content h5, .md-content h6 { font-size: 11pt; font-weight: 600; margin-top: 12px; margin-bottom: 6px; }
-                            .md-content p { color: #4B5563; margin-bottom: 10px; text-align: justify; }
-                            .md-content a { color: #10B981; text-decoration: none; font-weight: 500; }
-                            .md-content ul, .md-content ol { margin-bottom: 10px; padding-left: 20px; color: #4B5563; }
-                            .md-content li { margin-bottom: 4px; }
-                            .md-content code { font-family: 'Courier New', monospace; font-size: 9pt; background: #F3F4F6; padding: 2px 5px; border-radius: 3px; color: #1A1A1A; }
-                            .md-content pre { background: #1F2937; color: #F9FAFB; padding: 12px; border-radius: 5px; margin-bottom: 12px; border-left: 3px solid #10B981; overflow-x: auto; font-size: 9pt; }
-                            .md-content pre code { background: transparent; color: inherit; padding: 0; }
-                            .md-content table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9pt; }
-                            .md-content th { background: #1F2937; color: white; font-weight: 600; padding: 10px; text-align: left; }
-                            .md-content td { padding: 8px 10px; border-bottom: 1px solid #E5E7EB; color: #4B5563; }
-                            .md-content tr:nth-child(even) { background: #F9FAFB; }
-                            .md-content blockquote { border-left: 3px solid #10B981; background: #F9FAFB; padding: 10px 16px; margin: 12px 0; font-style: italic; color: #6B7280; }
-                            .md-content hr { border: none; height: 1px; background: #E5E7EB; margin: 20px 0; }
-                            .md-content img { max-width: 100%; height: auto; border-radius: 5px; margin: 10px 0; }
-                            .md-content strong, .md-content b { font-weight: 700; color: #1A1A1A; }
-                        </style>
-
-                        <!-- Header -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 2px solid #10B981; margin-bottom: 16px;">
-                            <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" style="height: 36px;" crossorigin="anonymous" />
-                            <span style="font-size: 9pt; color: #6B7280;">${title}</span>
+                    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.6; color: #1A1A1A; padding: 20px; background: #fff;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 15px; border-bottom: 2px solid #10B981; margin-bottom: 20px;">
+                            <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" style="height: 40px;" />
+                            <span style="font-size: 10pt; color: #6B7280;">${title}</span>
                         </div>
-
-                        <!-- Content -->
                         <div class="md-content">
+                            <style>
+                                .md-content h1 { font-size: 20pt; font-weight: bold; color: #1A1A1A; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #10B981; }
+                                .md-content h2 { font-size: 16pt; font-weight: bold; color: #1A1A1A; margin-top: 24px; margin-bottom: 12px; }
+                                .md-content h3 { font-size: 14pt; font-weight: bold; color: #6B7280; margin-top: 20px; margin-bottom: 10px; }
+                                .md-content p { color: #6B7280; margin-bottom: 12px; }
+                                .md-content ul, .md-content ol { margin-bottom: 12px; padding-left: 24px; color: #6B7280; }
+                                .md-content li { margin-bottom: 6px; }
+                                .md-content code { font-family: monospace; font-size: 10pt; background: #F3F4F6; padding: 2px 6px; }
+                                .md-content pre { background: #1F2937; color: #F9FAFB; padding: 16px; margin-bottom: 16px; }
+                                .md-content pre code { background: none; color: inherit; padding: 0; }
+                                .md-content table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+                                .md-content th { background: #1F2937; color: white; padding: 12px; text-align: left; }
+                                .md-content td { padding: 10px 12px; border-bottom: 1px solid #E5E7EB; }
+                                .md-content blockquote { border-left: 3px solid #10B981; background: #F9FAFB; padding: 12px 20px; margin: 16px 0; }
+                                .md-content strong { font-weight: bold; color: #1A1A1A; }
+                            </style>
                             ${htmlContent}
                         </div>
-
-                        <!-- Footer -->
-                        <div style="margin-top: 30px; padding-top: 12px; border-top: 2px solid #10B981; display: flex; align-items: center; justify-content: space-between; font-size: 8pt; color: #6B7280;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 14px;" crossorigin="anonymous" />
+                        <div style="margin-top: 40px; padding-top: 15px; border-top: 2px solid #10B981; display: flex; align-items: center; justify-content: space-between; font-size: 9pt; color: #6B7280;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 16px;" />
                                 <span>MéTRIK - Soluciones Digitales</span>
                             </div>
                             <span>${currentDate}</span>
@@ -7343,57 +7290,20 @@ código
                     </div>
                 `;
 
-                // Create temporary element - must be visible for html2canvas
                 const element = document.createElement('div');
                 element.innerHTML = styledHtml;
-                element.style.cssText = 'width: 816px; position: fixed; top: 0; left: 0; z-index: -1; background: white; opacity: 0.01;';
                 document.body.appendChild(element);
 
-                // Wait for images to load
-                const images = element.querySelectorAll('img');
-                await Promise.all(Array.from(images).map(img => {
-                    if (img.complete) return Promise.resolve();
-                    return new Promise(resolve => {
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                        setTimeout(resolve, 2000); // Timeout fallback
-                    });
-                }));
+                await html2pdf().set({
+                    margin: 10,
+                    filename: filename + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                }).from(element).save();
 
-                // Additional wait for rendering
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // PDF options - Letter size (8.5" x 11")
-                const opt = {
-                    margin: [15, 12, 15, 12], // mm: top, right, bottom, left
-                    filename: `${filename}.pdf`,
-                    image: { type: 'jpeg', quality: 0.95 },
-                    html2canvas: {
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: false,
-                        logging: false,
-                        width: 816,
-                        windowWidth: 816
-                    },
-                    jsPDF: {
-                        unit: 'mm',
-                        format: 'letter',
-                        orientation: 'portrait'
-                    },
-                    pagebreak: {
-                        mode: ['avoid-all', 'css', 'legacy'],
-                        avoid: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'pre', 'blockquote', 'table', 'img', 'ul', 'ol']
-                    }
-                };
-
-                // Generate PDF
-                await html2pdf().set(opt).from(element).save();
-
-                // Remove temporary element
                 document.body.removeChild(element);
-
-                showToast(`PDF "${filename}.pdf" generado exitosamente`, 'success');
+                showToast('PDF "' + filename + '.pdf" generado exitosamente', 'success');
             } catch (error) {
                 console.error('Error generating PDF:', error);
                 showToast('Error al generar el PDF', 'error');
