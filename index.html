@@ -1951,6 +1951,7 @@
                                 </div>
                                 <p class="text-gray-600 text-sm mb-4">
                                     Convierte archivos Markdown (.md) a PDF con el diseño corporativo de MéTRIK. Incluye logos, tipografía y colores de marca.
+                                    <span class="text-xs text-gray-400 block mt-1">v1.2.0</span>
                                 </p>
                                 <div class="flex items-center gap-2 text-indigo-600 font-medium text-sm">
                                     <span>Abrir herramienta</span>
@@ -7342,13 +7343,10 @@ código
                     </div>
                 `;
 
-                // Create temporary element
+                // Create temporary element - must be visible for html2canvas
                 const element = document.createElement('div');
                 element.innerHTML = styledHtml;
-                element.style.width = '8.5in';
-                element.style.position = 'absolute';
-                element.style.left = '-9999px';
-                element.style.background = 'white';
+                element.style.cssText = 'width: 816px; position: fixed; top: 0; left: 0; z-index: -1; background: white; opacity: 0.01;';
                 document.body.appendChild(element);
 
                 // Wait for images to load
@@ -7358,34 +7356,34 @@ código
                     return new Promise(resolve => {
                         img.onload = resolve;
                         img.onerror = resolve;
+                        setTimeout(resolve, 2000); // Timeout fallback
                     });
                 }));
 
-                // Additional wait for fonts
-                await new Promise(resolve => setTimeout(resolve, 300));
+                // Additional wait for rendering
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-                // PDF options - Letter size
+                // PDF options - Letter size (8.5" x 11")
                 const opt = {
-                    margin: [0.75, 0.6, 0.75, 0.6], // inches: top, right, bottom, left
+                    margin: [15, 12, 15, 12], // mm: top, right, bottom, left
                     filename: `${filename}.pdf`,
                     image: { type: 'jpeg', quality: 0.95 },
                     html2canvas: {
                         scale: 2,
                         useCORS: true,
-                        letterRendering: true,
+                        allowTaint: false,
                         logging: false,
-                        allowTaint: true
+                        width: 816,
+                        windowWidth: 816
                     },
                     jsPDF: {
-                        unit: 'in',
+                        unit: 'mm',
                         format: 'letter',
                         orientation: 'portrait'
                     },
                     pagebreak: {
                         mode: ['avoid-all', 'css', 'legacy'],
-                        before: '.page-break-before',
-                        after: '.page-break-after',
-                        avoid: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'pre', 'blockquote', 'table', 'tr', 'img', 'ul', 'ol']
+                        avoid: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'pre', 'blockquote', 'table', 'img', 'ul', 'ol']
                     }
                 };
 
