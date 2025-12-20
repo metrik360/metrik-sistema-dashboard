@@ -7234,7 +7234,7 @@ código
         /**
          * Convert Markdown to PDF with MéTRIK branding
          * - Letter size (8.5" x 11")
-         * - Smart page breaks that don't cut elements
+         * - Avoid page breaks inside elements using CSS
          * - Logo header on first page, small header on subsequent pages
          */
         async function convertMdToPdf() {
@@ -7264,242 +7264,141 @@ código
                 const titleMatch = content.match(/^#\s+(.+)$/m);
                 const title = titleMatch ? titleMatch[1] : filename;
 
-                // CSS styles for the PDF
-                const pdfStyles = `
-                    .pdf-page {
-                        font-family: 'Montserrat', 'Inter', 'Helvetica Neue', sans-serif;
-                        font-size: 11pt;
-                        line-height: 1.5;
-                        color: #1A1A1A;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }
-                    .pdf-header {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        padding-bottom: 10px;
-                        border-bottom: 2px solid #10B981;
-                        margin-bottom: 15px;
-                    }
-                    .pdf-header-small {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        padding-bottom: 8px;
-                        border-bottom: 1px solid #10B981;
-                        margin-bottom: 12px;
-                        font-size: 8pt;
-                        color: #6B7280;
-                    }
-                    .pdf-footer {
-                        margin-top: auto;
-                        padding-top: 10px;
-                        border-top: 1px solid #10B981;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        font-size: 8pt;
-                        color: #6B7280;
-                    }
-                    .md-content h1 { font-size: 17pt; font-weight: 700; color: #1A1A1A; margin: 0 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #10B981; }
-                    .md-content h2 { font-size: 14pt; font-weight: 600; color: #1A1A1A; margin: 16px 0 8px 0; }
-                    .md-content h3 { font-size: 12pt; font-weight: 500; color: #6B7280; margin: 12px 0 6px 0; }
-                    .md-content h4, .md-content h5, .md-content h6 { font-size: 11pt; font-weight: 600; color: #1A1A1A; margin: 10px 0 5px 0; }
-                    .md-content p { color: #4B5563; margin: 0 0 8px 0; text-align: justify; }
-                    .md-content a { color: #10B981; text-decoration: none; font-weight: 500; }
-                    .md-content ul, .md-content ol { margin: 0 0 8px 0; padding-left: 18px; color: #4B5563; }
-                    .md-content li { margin-bottom: 3px; }
-                    .md-content code { font-family: 'Courier New', monospace; font-size: 9pt; background: #F3F4F6; padding: 1px 4px; border-radius: 3px; color: #1A1A1A; }
-                    .md-content pre { background: #1F2937; color: #F9FAFB; padding: 10px; border-radius: 4px; margin: 0 0 10px 0; border-left: 3px solid #10B981; overflow-x: auto; font-size: 9pt; }
-                    .md-content pre code { background: transparent; color: inherit; padding: 0; }
-                    .md-content table { width: 100%; border-collapse: collapse; margin: 0 0 10px 0; font-size: 9pt; }
-                    .md-content th { background: #1F2937; color: white; font-weight: 600; padding: 8px; text-align: left; }
-                    .md-content td { padding: 6px 8px; border-bottom: 1px solid #E5E7EB; color: #4B5563; }
-                    .md-content tr:nth-child(even) { background: #F9FAFB; }
-                    .md-content blockquote { border-left: 3px solid #10B981; background: #F9FAFB; padding: 8px 12px; margin: 0 0 10px 0; font-style: italic; color: #6B7280; }
-                    .md-content hr { border: none; height: 1px; background: #E5E7EB; margin: 15px 0; }
-                    .md-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 8px 0; }
-                    .md-content strong, .md-content b { font-weight: 700; color: #1A1A1A; }
+                const styledHtml = `
+                    <div class="pdf-document" style="font-family: 'Montserrat', 'Inter', 'Helvetica Neue', sans-serif; font-size: 11pt; line-height: 1.6; color: #1A1A1A; padding: 20px; background: white;">
+                        <style>
+                            @media print {
+                                .pdf-document { padding: 0; }
+                            }
+                            /* Prevent page breaks inside elements */
+                            .pdf-document h1, .pdf-document h2, .pdf-document h3,
+                            .pdf-document h4, .pdf-document h5, .pdf-document h6 {
+                                page-break-after: avoid !important;
+                                break-after: avoid !important;
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
+                            .pdf-document p {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                                orphans: 4;
+                                widows: 4;
+                            }
+                            .pdf-document li {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
+                            .pdf-document pre, .pdf-document blockquote,
+                            .pdf-document table, .pdf-document img {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
+                            .pdf-document ul, .pdf-document ol {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
+
+                            /* Content styles */
+                            .md-content h1 { font-size: 18pt; font-weight: 700; color: #1A1A1A; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #10B981; margin-top: 0; }
+                            .md-content h2 { font-size: 15pt; font-weight: 600; color: #1A1A1A; margin-top: 20px; margin-bottom: 10px; }
+                            .md-content h3 { font-size: 13pt; font-weight: 500; color: #6B7280; margin-top: 16px; margin-bottom: 8px; }
+                            .md-content h4, .md-content h5, .md-content h6 { font-size: 11pt; font-weight: 600; margin-top: 12px; margin-bottom: 6px; }
+                            .md-content p { color: #4B5563; margin-bottom: 10px; text-align: justify; }
+                            .md-content a { color: #10B981; text-decoration: none; font-weight: 500; }
+                            .md-content ul, .md-content ol { margin-bottom: 10px; padding-left: 20px; color: #4B5563; }
+                            .md-content li { margin-bottom: 4px; }
+                            .md-content code { font-family: 'Courier New', monospace; font-size: 9pt; background: #F3F4F6; padding: 2px 5px; border-radius: 3px; color: #1A1A1A; }
+                            .md-content pre { background: #1F2937; color: #F9FAFB; padding: 12px; border-radius: 5px; margin-bottom: 12px; border-left: 3px solid #10B981; overflow-x: auto; font-size: 9pt; }
+                            .md-content pre code { background: transparent; color: inherit; padding: 0; }
+                            .md-content table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9pt; }
+                            .md-content th { background: #1F2937; color: white; font-weight: 600; padding: 10px; text-align: left; }
+                            .md-content td { padding: 8px 10px; border-bottom: 1px solid #E5E7EB; color: #4B5563; }
+                            .md-content tr:nth-child(even) { background: #F9FAFB; }
+                            .md-content blockquote { border-left: 3px solid #10B981; background: #F9FAFB; padding: 10px 16px; margin: 12px 0; font-style: italic; color: #6B7280; }
+                            .md-content hr { border: none; height: 1px; background: #E5E7EB; margin: 20px 0; }
+                            .md-content img { max-width: 100%; height: auto; border-radius: 5px; margin: 10px 0; }
+                            .md-content strong, .md-content b { font-weight: 700; color: #1A1A1A; }
+                        </style>
+
+                        <!-- Header -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 2px solid #10B981; margin-bottom: 16px;">
+                            <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" style="height: 36px;" crossorigin="anonymous" />
+                            <span style="font-size: 9pt; color: #6B7280;">${title}</span>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="md-content">
+                            ${htmlContent}
+                        </div>
+
+                        <!-- Footer -->
+                        <div style="margin-top: 30px; padding-top: 12px; border-top: 2px solid #10B981; display: flex; align-items: center; justify-content: space-between; font-size: 8pt; color: #6B7280;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 14px;" crossorigin="anonymous" />
+                                <span>MéTRIK - Soluciones Digitales</span>
+                            </div>
+                            <span>${currentDate}</span>
+                        </div>
+                    </div>
                 `;
 
-                // Create a temporary container to measure elements
-                const measureContainer = document.createElement('div');
-                measureContainer.style.cssText = 'position: absolute; left: -9999px; width: 650px; font-family: Montserrat, Inter, sans-serif; font-size: 11pt; line-height: 1.5;';
-                measureContainer.innerHTML = `<style>${pdfStyles}</style><div class="md-content">${htmlContent}</div>`;
-                document.body.appendChild(measureContainer);
-
-                // Wait for fonts and images to load
-                await new Promise(resolve => setTimeout(resolve, 100));
-
-                // Letter size in points: 612 x 792 (8.5" x 11" at 72 DPI)
-                // Usable content area considering margins
-                const pageHeightPx = 920; // Approximate usable height in pixels
-                const firstPageHeaderHeight = 60;
-                const subsequentHeaderHeight = 35;
-                const footerHeight = 30;
-
-                // Get all block-level elements
-                const contentDiv = measureContainer.querySelector('.md-content');
-                const elements = Array.from(contentDiv.children);
-
-                // Paginate content
-                const pages = [];
-                let currentPage = [];
-                let currentHeight = firstPageHeaderHeight; // First page has bigger header
-                let isFirstPage = true;
-
-                for (let i = 0; i < elements.length; i++) {
-                    const el = elements[i];
-                    const elHeight = el.offsetHeight + 10; // Add some margin
-                    const maxHeight = pageHeightPx - (isFirstPage ? firstPageHeaderHeight : subsequentHeaderHeight) - footerHeight;
-
-                    // Check if element fits in current page
-                    if (currentHeight + elHeight > maxHeight && currentPage.length > 0) {
-                        // Start new page
-                        pages.push({ elements: currentPage, isFirst: isFirstPage });
-                        currentPage = [];
-                        currentHeight = subsequentHeaderHeight;
-                        isFirstPage = false;
-                    }
-
-                    // Check if this is a header and next element should stay with it
-                    const isHeader = /^H[1-6]$/.test(el.tagName);
-                    const nextEl = elements[i + 1];
-
-                    if (isHeader && nextEl) {
-                        const nextHeight = nextEl.offsetHeight + 10;
-                        const combinedHeight = elHeight + nextHeight;
-                        const remainingSpace = maxHeight - currentHeight;
-
-                        // If header + next element don't fit, move header to next page
-                        if (combinedHeight > remainingSpace && currentPage.length > 0) {
-                            pages.push({ elements: currentPage, isFirst: isFirstPage });
-                            currentPage = [];
-                            currentHeight = subsequentHeaderHeight;
-                            isFirstPage = false;
-                        }
-                    }
-
-                    currentPage.push(el.outerHTML);
-                    currentHeight += elHeight;
-                }
-
-                // Add last page
-                if (currentPage.length > 0) {
-                    pages.push({ elements: currentPage, isFirst: isFirstPage });
-                }
-
-                // Clean up measure container
-                document.body.removeChild(measureContainer);
-
-                // Create PDF using jsPDF directly for better control
-                const { jsPDF } = window.jspdf || {};
-
-                // If jsPDF not available directly, use html2pdf's approach
-                const pdfContainer = document.createElement('div');
-                pdfContainer.style.cssText = 'position: absolute; left: -9999px;';
-
-                // Build pages with proper structure
-                pages.forEach((page, pageIndex) => {
-                    const pageDiv = document.createElement('div');
-                    pageDiv.className = 'pdf-page';
-                    pageDiv.style.cssText = `
-                        width: 650px;
-                        min-height: 900px;
-                        padding: 20px 25px;
-                        box-sizing: border-box;
-                        background: white;
-                        display: flex;
-                        flex-direction: column;
-                    `;
-
-                    // Header
-                    if (page.isFirst) {
-                        pageDiv.innerHTML = `
-                            <style>${pdfStyles}</style>
-                            <div class="pdf-header">
-                                <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" style="height: 32px;" crossorigin="anonymous" />
-                                <span style="font-size: 9pt; color: #6B7280;">${title}</span>
-                            </div>
-                            <div class="md-content" style="flex: 1;">${page.elements.join('')}</div>
-                            <div class="pdf-footer">
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 12px;" crossorigin="anonymous" />
-                                    <span>MéTRIK</span>
-                                </div>
-                                <span>Página ${pageIndex + 1} de ${pages.length}</span>
-                                <span>${currentDate}</span>
-                            </div>
-                        `;
-                    } else {
-                        pageDiv.innerHTML = `
-                            <style>${pdfStyles}</style>
-                            <div class="pdf-header-small">
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 14px;" crossorigin="anonymous" />
-                                    <span style="font-weight: 500;">MéTRIK</span>
-                                </div>
-                                <span>${title}</span>
-                            </div>
-                            <div class="md-content" style="flex: 1;">${page.elements.join('')}</div>
-                            <div class="pdf-footer">
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 12px;" crossorigin="anonymous" />
-                                    <span>MéTRIK</span>
-                                </div>
-                                <span>Página ${pageIndex + 1} de ${pages.length}</span>
-                                <span>${currentDate}</span>
-                            </div>
-                        `;
-                    }
-
-                    // Add page break marker except for last page
-                    if (pageIndex < pages.length - 1) {
-                        pageDiv.style.pageBreakAfter = 'always';
-                        pageDiv.classList.add('html2pdf__page-break');
-                    }
-
-                    pdfContainer.appendChild(pageDiv);
-                });
-
-                document.body.appendChild(pdfContainer);
+                // Create temporary element
+                const element = document.createElement('div');
+                element.innerHTML = styledHtml;
+                element.style.width = '8.5in';
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.background = 'white';
+                document.body.appendChild(element);
 
                 // Wait for images to load
-                await new Promise(resolve => setTimeout(resolve, 200));
+                const images = element.querySelectorAll('img');
+                await Promise.all(Array.from(images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }));
 
-                // Generate PDF
+                // Additional wait for fonts
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                // PDF options - Letter size
                 const opt = {
-                    margin: 0,
+                    margin: [0.75, 0.6, 0.75, 0.6], // inches: top, right, bottom, left
                     filename: `${filename}.pdf`,
                     image: { type: 'jpeg', quality: 0.95 },
                     html2canvas: {
                         scale: 2,
                         useCORS: true,
                         letterRendering: true,
-                        logging: false
+                        logging: false,
+                        allowTaint: true
                     },
                     jsPDF: {
-                        unit: 'px',
-                        format: [650, 900],
-                        orientation: 'portrait',
-                        hotfixes: ['px_scaling']
+                        unit: 'in',
+                        format: 'letter',
+                        orientation: 'portrait'
                     },
                     pagebreak: {
-                        mode: ['css'],
-                        after: '.html2pdf__page-break'
+                        mode: ['avoid-all', 'css', 'legacy'],
+                        before: '.page-break-before',
+                        after: '.page-break-after',
+                        avoid: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'pre', 'blockquote', 'table', 'tr', 'img', 'ul', 'ol']
                     }
                 };
 
-                await html2pdf().set(opt).from(pdfContainer).save();
+                // Generate PDF
+                await html2pdf().set(opt).from(element).save();
 
-                // Clean up
-                document.body.removeChild(pdfContainer);
+                // Remove temporary element
+                document.body.removeChild(element);
 
                 showToast(`PDF "${filename}.pdf" generado exitosamente`, 'success');
             } catch (error) {
                 console.error('Error generating PDF:', error);
-                showToast('Error al generar el PDF: ' + error.message, 'error');
+                showToast('Error al generar el PDF', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
