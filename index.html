@@ -7234,7 +7234,7 @@ código
         /**
          * Convert Markdown to PDF with MéTRIK branding
          * - Letter size (8.5" x 11")
-         * - Avoid page breaks inside elements
+         * - Smart page breaks that don't cut elements
          * - Logo header on first page, small header on subsequent pages
          */
         async function convertMdToPdf() {
@@ -7264,88 +7264,215 @@ código
                 const titleMatch = content.match(/^#\s+(.+)$/m);
                 const title = titleMatch ? titleMatch[1] : filename;
 
-                const styledHtml = `
-                    <div class="pdf-document" style="font-family: 'Montserrat', 'Inter', 'Helvetica Neue', sans-serif; font-size: 11pt; line-height: 1.6; color: #1A1A1A; padding: 15px;">
-                        <style>
-                            /* Page break control - avoid breaking inside elements */
-                            .pdf-document h1, .pdf-document h2, .pdf-document h3, .pdf-document h4, .pdf-document h5, .pdf-document h6 {
-                                page-break-after: avoid;
-                                break-after: avoid;
-                            }
-                            .pdf-document p, .pdf-document li, .pdf-document blockquote {
-                                page-break-inside: avoid;
-                                break-inside: avoid;
-                                orphans: 3;
-                                widows: 3;
-                            }
-                            .pdf-document pre, .pdf-document table, .pdf-document img {
-                                page-break-inside: avoid;
-                                break-inside: avoid;
-                            }
-                            .pdf-document ul, .pdf-document ol {
-                                page-break-inside: avoid;
-                                break-inside: avoid;
-                            }
-                            /* Keep headers with their content */
-                            .pdf-document h1 + *, .pdf-document h2 + *, .pdf-document h3 + * {
-                                page-break-before: avoid;
-                                break-before: avoid;
-                            }
-
-                            /* Content styles */
-                            .md-content h1 { font-size: 18pt; font-weight: 700; color: #1A1A1A; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #10B981; page-break-after: avoid; }
-                            .md-content h2 { font-size: 15pt; font-weight: 600; color: #1A1A1A; margin-top: 20px; margin-bottom: 10px; page-break-after: avoid; }
-                            .md-content h3 { font-size: 13pt; font-weight: 500; color: #6B7280; margin-top: 16px; margin-bottom: 8px; page-break-after: avoid; }
-                            .md-content p { color: #6B7280; margin-bottom: 10px; text-align: justify; page-break-inside: avoid; orphans: 3; widows: 3; }
-                            .md-content a { color: #10B981; text-decoration: none; font-weight: 500; }
-                            .md-content ul, .md-content ol { margin-bottom: 10px; padding-left: 20px; color: #6B7280; }
-                            .md-content li { margin-bottom: 4px; page-break-inside: avoid; }
-                            .md-content code { font-family: 'JetBrains Mono', monospace; font-size: 9pt; background: #F9FAFB; padding: 2px 5px; border-radius: 3px; color: #1A1A1A; border: 1px solid #E5E7EB; }
-                            .md-content pre { background: #1A1A1A; color: #f8f8f2; padding: 12px; border-radius: 5px; margin-bottom: 12px; border-left: 3px solid #10B981; overflow-x: auto; page-break-inside: avoid; }
-                            .md-content pre code { background: transparent; color: inherit; padding: 0; border: none; }
-                            .md-content table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9pt; page-break-inside: avoid; }
-                            .md-content th { background: #1A1A1A; color: white; font-weight: 600; padding: 10px; text-align: left; }
-                            .md-content td { padding: 8px 10px; border-bottom: 1px solid #E5E7EB; color: #6B7280; }
-                            .md-content tr:nth-child(even) { background: #F9FAFB; }
-                            .md-content blockquote { border-left: 3px solid #10B981; background: #F9FAFB; padding: 10px 16px; margin: 12px 0; font-style: italic; color: #6B7280; page-break-inside: avoid; }
-                            .md-content hr { border: none; height: 1px; background: #E5E7EB; margin: 20px 0; }
-                            .md-content img { max-width: 100%; height: auto; border-radius: 5px; margin: 10px 0; page-break-inside: avoid; }
-                            .md-content strong, .md-content b { font-weight: 700; color: #1A1A1A; }
-                        </style>
-
-                        <!-- First Page Header (Large Logo) -->
-                        <div class="first-page-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 2px solid #10B981; margin-bottom: 16px;">
-                            <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" style="height: 36px;" crossorigin="anonymous" />
-                            <span style="font-size: 9pt; color: #6B7280;">${title}</span>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="md-content">
-                            ${htmlContent}
-                        </div>
-
-                        <!-- Footer -->
-                        <div style="margin-top: 30px; padding-top: 12px; border-top: 2px solid #10B981; display: flex; align-items: center; justify-content: space-between; font-size: 8pt; color: #6B7280;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 14px;" crossorigin="anonymous" />
-                                <span>MéTRIK - Soluciones Digitales</span>
-                            </div>
-                            <span>${currentDate}</span>
-                        </div>
-                    </div>
+                // CSS styles for the PDF
+                const pdfStyles = `
+                    .pdf-page {
+                        font-family: 'Montserrat', 'Inter', 'Helvetica Neue', sans-serif;
+                        font-size: 11pt;
+                        line-height: 1.5;
+                        color: #1A1A1A;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    .pdf-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding-bottom: 10px;
+                        border-bottom: 2px solid #10B981;
+                        margin-bottom: 15px;
+                    }
+                    .pdf-header-small {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding-bottom: 8px;
+                        border-bottom: 1px solid #10B981;
+                        margin-bottom: 12px;
+                        font-size: 8pt;
+                        color: #6B7280;
+                    }
+                    .pdf-footer {
+                        margin-top: auto;
+                        padding-top: 10px;
+                        border-top: 1px solid #10B981;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        font-size: 8pt;
+                        color: #6B7280;
+                    }
+                    .md-content h1 { font-size: 17pt; font-weight: 700; color: #1A1A1A; margin: 0 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #10B981; }
+                    .md-content h2 { font-size: 14pt; font-weight: 600; color: #1A1A1A; margin: 16px 0 8px 0; }
+                    .md-content h3 { font-size: 12pt; font-weight: 500; color: #6B7280; margin: 12px 0 6px 0; }
+                    .md-content h4, .md-content h5, .md-content h6 { font-size: 11pt; font-weight: 600; color: #1A1A1A; margin: 10px 0 5px 0; }
+                    .md-content p { color: #4B5563; margin: 0 0 8px 0; text-align: justify; }
+                    .md-content a { color: #10B981; text-decoration: none; font-weight: 500; }
+                    .md-content ul, .md-content ol { margin: 0 0 8px 0; padding-left: 18px; color: #4B5563; }
+                    .md-content li { margin-bottom: 3px; }
+                    .md-content code { font-family: 'Courier New', monospace; font-size: 9pt; background: #F3F4F6; padding: 1px 4px; border-radius: 3px; color: #1A1A1A; }
+                    .md-content pre { background: #1F2937; color: #F9FAFB; padding: 10px; border-radius: 4px; margin: 0 0 10px 0; border-left: 3px solid #10B981; overflow-x: auto; font-size: 9pt; }
+                    .md-content pre code { background: transparent; color: inherit; padding: 0; }
+                    .md-content table { width: 100%; border-collapse: collapse; margin: 0 0 10px 0; font-size: 9pt; }
+                    .md-content th { background: #1F2937; color: white; font-weight: 600; padding: 8px; text-align: left; }
+                    .md-content td { padding: 6px 8px; border-bottom: 1px solid #E5E7EB; color: #4B5563; }
+                    .md-content tr:nth-child(even) { background: #F9FAFB; }
+                    .md-content blockquote { border-left: 3px solid #10B981; background: #F9FAFB; padding: 8px 12px; margin: 0 0 10px 0; font-style: italic; color: #6B7280; }
+                    .md-content hr { border: none; height: 1px; background: #E5E7EB; margin: 15px 0; }
+                    .md-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 8px 0; }
+                    .md-content strong, .md-content b { font-weight: 700; color: #1A1A1A; }
                 `;
 
-                // Create temporary element
-                const element = document.createElement('div');
-                element.innerHTML = styledHtml;
-                element.style.width = '816px'; // Letter width in pixels at 96 DPI (8.5 inches)
-                document.body.appendChild(element);
+                // Create a temporary container to measure elements
+                const measureContainer = document.createElement('div');
+                measureContainer.style.cssText = 'position: absolute; left: -9999px; width: 650px; font-family: Montserrat, Inter, sans-serif; font-size: 11pt; line-height: 1.5;';
+                measureContainer.innerHTML = `<style>${pdfStyles}</style><div class="md-content">${htmlContent}</div>`;
+                document.body.appendChild(measureContainer);
 
-                // PDF options - Letter size (8.5" x 11")
+                // Wait for fonts and images to load
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                // Letter size in points: 612 x 792 (8.5" x 11" at 72 DPI)
+                // Usable content area considering margins
+                const pageHeightPx = 920; // Approximate usable height in pixels
+                const firstPageHeaderHeight = 60;
+                const subsequentHeaderHeight = 35;
+                const footerHeight = 30;
+
+                // Get all block-level elements
+                const contentDiv = measureContainer.querySelector('.md-content');
+                const elements = Array.from(contentDiv.children);
+
+                // Paginate content
+                const pages = [];
+                let currentPage = [];
+                let currentHeight = firstPageHeaderHeight; // First page has bigger header
+                let isFirstPage = true;
+
+                for (let i = 0; i < elements.length; i++) {
+                    const el = elements[i];
+                    const elHeight = el.offsetHeight + 10; // Add some margin
+                    const maxHeight = pageHeightPx - (isFirstPage ? firstPageHeaderHeight : subsequentHeaderHeight) - footerHeight;
+
+                    // Check if element fits in current page
+                    if (currentHeight + elHeight > maxHeight && currentPage.length > 0) {
+                        // Start new page
+                        pages.push({ elements: currentPage, isFirst: isFirstPage });
+                        currentPage = [];
+                        currentHeight = subsequentHeaderHeight;
+                        isFirstPage = false;
+                    }
+
+                    // Check if this is a header and next element should stay with it
+                    const isHeader = /^H[1-6]$/.test(el.tagName);
+                    const nextEl = elements[i + 1];
+
+                    if (isHeader && nextEl) {
+                        const nextHeight = nextEl.offsetHeight + 10;
+                        const combinedHeight = elHeight + nextHeight;
+                        const remainingSpace = maxHeight - currentHeight;
+
+                        // If header + next element don't fit, move header to next page
+                        if (combinedHeight > remainingSpace && currentPage.length > 0) {
+                            pages.push({ elements: currentPage, isFirst: isFirstPage });
+                            currentPage = [];
+                            currentHeight = subsequentHeaderHeight;
+                            isFirstPage = false;
+                        }
+                    }
+
+                    currentPage.push(el.outerHTML);
+                    currentHeight += elHeight;
+                }
+
+                // Add last page
+                if (currentPage.length > 0) {
+                    pages.push({ elements: currentPage, isFirst: isFirstPage });
+                }
+
+                // Clean up measure container
+                document.body.removeChild(measureContainer);
+
+                // Create PDF using jsPDF directly for better control
+                const { jsPDF } = window.jspdf || {};
+
+                // If jsPDF not available directly, use html2pdf's approach
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.cssText = 'position: absolute; left: -9999px;';
+
+                // Build pages with proper structure
+                pages.forEach((page, pageIndex) => {
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'pdf-page';
+                    pageDiv.style.cssText = `
+                        width: 650px;
+                        min-height: 900px;
+                        padding: 20px 25px;
+                        box-sizing: border-box;
+                        background: white;
+                        display: flex;
+                        flex-direction: column;
+                    `;
+
+                    // Header
+                    if (page.isFirst) {
+                        pageDiv.innerHTML = `
+                            <style>${pdfStyles}</style>
+                            <div class="pdf-header">
+                                <img src="https://i.ibb.co/sdb3Bpq5/M-trik-logo-iso.png" style="height: 32px;" crossorigin="anonymous" />
+                                <span style="font-size: 9pt; color: #6B7280;">${title}</span>
+                            </div>
+                            <div class="md-content" style="flex: 1;">${page.elements.join('')}</div>
+                            <div class="pdf-footer">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 12px;" crossorigin="anonymous" />
+                                    <span>MéTRIK</span>
+                                </div>
+                                <span>Página ${pageIndex + 1} de ${pages.length}</span>
+                                <span>${currentDate}</span>
+                            </div>
+                        `;
+                    } else {
+                        pageDiv.innerHTML = `
+                            <style>${pdfStyles}</style>
+                            <div class="pdf-header-small">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 14px;" crossorigin="anonymous" />
+                                    <span style="font-weight: 500;">MéTRIK</span>
+                                </div>
+                                <span>${title}</span>
+                            </div>
+                            <div class="md-content" style="flex: 1;">${page.elements.join('')}</div>
+                            <div class="pdf-footer">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <img src="https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png" style="height: 12px;" crossorigin="anonymous" />
+                                    <span>MéTRIK</span>
+                                </div>
+                                <span>Página ${pageIndex + 1} de ${pages.length}</span>
+                                <span>${currentDate}</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add page break marker except for last page
+                    if (pageIndex < pages.length - 1) {
+                        pageDiv.style.pageBreakAfter = 'always';
+                        pageDiv.classList.add('html2pdf__page-break');
+                    }
+
+                    pdfContainer.appendChild(pageDiv);
+                });
+
+                document.body.appendChild(pdfContainer);
+
+                // Wait for images to load
+                await new Promise(resolve => setTimeout(resolve, 200));
+
+                // Generate PDF
                 const opt = {
-                    margin: [20, 15, 20, 15], // top, right, bottom, left in mm
+                    margin: 0,
                     filename: `${filename}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
+                    image: { type: 'jpeg', quality: 0.95 },
                     html2canvas: {
                         scale: 2,
                         useCORS: true,
@@ -7353,72 +7480,26 @@ código
                         logging: false
                     },
                     jsPDF: {
-                        unit: 'mm',
-                        format: 'letter', // 8.5" x 11" (215.9mm x 279.4mm)
-                        orientation: 'portrait'
+                        unit: 'px',
+                        format: [650, 900],
+                        orientation: 'portrait',
+                        hotfixes: ['px_scaling']
                     },
                     pagebreak: {
-                        mode: ['avoid-all', 'css', 'legacy'],
-                        before: '.page-break-before',
-                        after: '.page-break-after',
-                        avoid: ['p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'blockquote', 'table', 'tr', 'img']
+                        mode: ['css'],
+                        after: '.html2pdf__page-break'
                     }
                 };
 
-                // Generate PDF with header/footer handling
-                const pdf = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+                await html2pdf().set(opt).from(pdfContainer).save();
 
-                // Add small logo header to pages 2+
-                const totalPages = pdf.internal.getNumberOfPages();
-                const pageWidth = pdf.internal.pageSize.getWidth();
-
-                if (totalPages > 1) {
-                    // Load the isotipo image for subsequent pages
-                    const logoImg = new Image();
-                    logoImg.crossOrigin = 'anonymous';
-                    logoImg.src = 'https://i.ibb.co/7dS6NXjR/Metrik-Isotipo.png';
-
-                    await new Promise((resolve) => {
-                        logoImg.onload = resolve;
-                        logoImg.onerror = resolve;
-                    });
-
-                    // Add header to pages 2+
-                    for (let i = 2; i <= totalPages; i++) {
-                        pdf.setPage(i);
-
-                        // Draw small header line
-                        pdf.setDrawColor(16, 185, 129); // Verde MéTRIK
-                        pdf.setLineWidth(0.5);
-                        pdf.line(15, 12, pageWidth - 15, 12);
-
-                        // Add isotipo to header
-                        try {
-                            pdf.addImage(logoImg, 'PNG', 15, 5, 8, 6);
-                        } catch (e) {
-                            // If image fails, add text instead
-                            pdf.setFontSize(8);
-                            pdf.setTextColor(107, 114, 128);
-                            pdf.text('MéTRIK', 15, 9);
-                        }
-
-                        // Add page number
-                        pdf.setFontSize(8);
-                        pdf.setTextColor(107, 114, 128);
-                        pdf.text(`${i} / ${totalPages}`, pageWidth - 25, 9);
-                    }
-                }
-
-                // Save the PDF
-                pdf.save(`${filename}.pdf`);
-
-                // Remove temporary element
-                document.body.removeChild(element);
+                // Clean up
+                document.body.removeChild(pdfContainer);
 
                 showToast(`PDF "${filename}.pdf" generado exitosamente`, 'success');
             } catch (error) {
                 console.error('Error generating PDF:', error);
-                showToast('Error al generar el PDF', 'error');
+                showToast('Error al generar el PDF: ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
