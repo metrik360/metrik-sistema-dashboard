@@ -1951,7 +1951,7 @@
                                 </div>
                                 <p class="text-gray-600 text-sm mb-4">
                                     Convierte archivos Markdown (.md) a PDF con el diseño corporativo de MéTRIK. Incluye logos, tipografía y colores de marca.
-                                    <span class="text-xs text-gray-400 block mt-1">v1.3.0</span>
+                                    <span class="text-xs text-gray-400 block mt-1">v1.4.0</span>
                                 </p>
                                 <div class="flex items-center gap-2 text-indigo-600 font-medium text-sm">
                                     <span>Abrir herramienta</span>
@@ -7233,7 +7233,7 @@ código
         }
 
         /**
-         * Convert Markdown to PDF with MéTRIK branding - v1.3.0
+         * Convert Markdown to PDF with MéTRIK branding - v1.4.0
          */
         async function convertMdToPdf() {
             const content = document.getElementById('md-content').value;
@@ -7263,6 +7263,8 @@ código
                         </div>
                         <div class="md-content">
                             <style>
+                                .md-content h1, .md-content h2, .md-content h3, .md-content h4 { page-break-after: avoid; break-after: avoid; }
+                                .md-content p, .md-content li, .md-content blockquote, .md-content pre, .md-content table { page-break-inside: avoid; break-inside: avoid; }
                                 .md-content h1 { font-size: 20pt; font-weight: bold; color: #1A1A1A; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #10B981; }
                                 .md-content h2 { font-size: 16pt; font-weight: bold; color: #1A1A1A; margin-top: 24px; margin-bottom: 12px; }
                                 .md-content h3 { font-size: 14pt; font-weight: bold; color: #6B7280; margin-top: 20px; margin-bottom: 10px; }
@@ -7294,14 +7296,39 @@ código
                 element.innerHTML = styledHtml;
                 document.body.appendChild(element);
 
-                await html2pdf().set({
-                    margin: 10,
+                // Generate PDF and get the jsPDF instance
+                const pdfWorker = html2pdf().set({
+                    margin: [15, 10, 15, 10],
                     filename: filename + '.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                }).from(element).save();
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'], avoid: ['h1','h2','h3','h4','p','li','pre','blockquote','table'] }
+                });
 
+                const pdf = await pdfWorker.from(element).toPdf().get('pdf');
+
+                // Add header to pages 2+
+                const totalPages = pdf.internal.getNumberOfPages();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+
+                if (totalPages > 1) {
+                    for (let i = 2; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        // Draw header line
+                        pdf.setDrawColor(16, 185, 129);
+                        pdf.setLineWidth(0.5);
+                        pdf.line(10, 10, pageWidth - 10, 10);
+                        // Add text
+                        pdf.setFontSize(8);
+                        pdf.setTextColor(107, 114, 128);
+                        pdf.text('MéTRIK', 10, 7);
+                        pdf.text(title.substring(0, 50), pageWidth / 2, 7, { align: 'center' });
+                        pdf.text(i + ' / ' + totalPages, pageWidth - 10, 7, { align: 'right' });
+                    }
+                }
+
+                pdf.save(filename + '.pdf');
                 document.body.removeChild(element);
                 showToast('PDF "' + filename + '.pdf" generado exitosamente', 'success');
             } catch (error) {
