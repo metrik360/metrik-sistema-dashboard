@@ -513,9 +513,14 @@
             <!-- Sidebar -->
             <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto transition-all duration-300">
                 <nav class="p-4 sidebar-nav">
+                    <!-- Flujo Principal del Proyecto -->
                     <a href="#" data-view="dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 active">
                         <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                         <span>Dashboard</span>
+                    </a>
+                    <a href="#" data-view="contactos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>Contactos</span>
                     </a>
                     <a href="#" data-view="pipeline" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
                         <i data-lucide="target" class="w-5 h-5"></i>
@@ -529,28 +534,29 @@
                         <i data-lucide="receipt" class="w-5 h-5"></i>
                         <span>Facturación</span>
                     </a>
-                    <a href="#" data-view="contactos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                        <span>Contactos</span>
+                    <a href="#" data-view="gastos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
+                        <i data-lucide="wallet" class="w-5 h-5"></i>
+                        <span>Gastos</span>
                     </a>
-                    <a href="#" data-view="promotores" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <i data-lucide="handshake" class="w-5 h-5"></i>
-                        <span>Promotores</span>
-                    </a>
+
+                    <!-- Separator: Configuración -->
+                    <div class="border-t border-gray-200 my-4"></div>
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Configuración</p>
+
                     <a href="#" data-view="servicios" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
                         <i data-lucide="package" class="w-5 h-5"></i>
                         <span>Servicios</span>
                     </a>
-                    <a href="#" data-view="gastos" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
-                        <i data-lucide="wallet" class="w-5 h-5"></i>
-                        <span>Gastos</span>
+                    <a href="#" data-view="promotores" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
+                        <i data-lucide="handshake" class="w-5 h-5"></i>
+                        <span>Promotores</span>
                     </a>
                     <a href="#" data-view="usuarios" id="nav-usuarios" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 hidden">
                         <i data-lucide="shield-check" class="w-5 h-5"></i>
                         <span>Usuarios</span>
                     </a>
 
-                    <!-- Separator -->
+                    <!-- Separator: Herramientas -->
                     <div class="border-t border-gray-200 my-4"></div>
 
                     <a href="#" data-view="tools" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2">
