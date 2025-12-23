@@ -1129,14 +1129,15 @@
                                 <input type="date" id="input-fecha-cierre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
 
-                            <!-- Estado -->
+                            <!-- Estado (calculado automáticamente) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
-                                <select id="input-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" onchange="toggleRazonPerdida()">
-                                    <option value="Abierta">Abierta</option>
-                                    <option value="Ganada">Ganada</option>
-                                    <option value="Perdida">Perdida</option>
-                                </select>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                                <div class="relative">
+                                    <input type="text" id="input-estado-display" readonly class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed" value="Abierta">
+                                    <input type="hidden" id="input-estado" value="Abierta">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Auto</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Calculado según la etapa</p>
                             </div>
 
                             <!-- Razón de Pérdida (Conditional) -->
@@ -3839,60 +3840,90 @@ código
         // ====================
 
         /**
-         * Update probability based on selected stage
+         * Update probability and estado based on selected stage
+         * Also handles showing/hiding conditional fields
          */
         function actualizarProbabilidadPorEtapa() {
             const etapaSelect = document.getElementById('input-etapa');
             const probabilidadInput = document.getElementById('input-probabilidad');
+            const estadoHidden = document.getElementById('input-estado');
+            const estadoDisplay = document.getElementById('input-estado-display');
+
+            // Get probability from data attribute
             const selectedOption = etapaSelect.options[etapaSelect.selectedIndex];
             const prob = selectedOption.getAttribute('data-prob');
             if (prob !== null) {
                 probabilidadInput.value = prob;
             }
-            // Also update Estado based on Etapa
-            const estadoSelect = document.getElementById('input-estado');
+
+            // Calculate Estado based on Etapa
+            let nuevoEstado = 'Abierta';
             if (etapaSelect.value === 'Ganado') {
-                estadoSelect.value = 'Ganada';
-                toggleRazonPerdida();
+                nuevoEstado = 'Ganada';
             } else if (etapaSelect.value === 'Perdido') {
-                estadoSelect.value = 'Perdida';
-                toggleRazonPerdida();
+                nuevoEstado = 'Perdida';
+            }
+
+            // Update both hidden and display fields
+            estadoHidden.value = nuevoEstado;
+            if (estadoDisplay) {
+                estadoDisplay.value = nuevoEstado;
+            }
+
+            // Toggle conditional fields
+            toggleRazonPerdida();
+            toggleFechaCierreReal();
+        }
+
+        /**
+         * Toggle Fecha Cierre Real field visibility
+         */
+        function toggleFechaCierreReal() {
+            const estado = document.getElementById('input-estado').value;
+            const fechaCierreRealField = document.getElementById('fecha-cierre-real-field');
+            const fechaCierreRealInput = document.getElementById('input-fecha-cierre-real');
+
+            if (estado === 'Ganada' || estado === 'Perdida') {
+                if (fechaCierreRealField) {
+                    fechaCierreRealField.classList.remove('hidden');
+                    // Set default fecha cierre real to today if empty
+                    if (fechaCierreRealInput && !fechaCierreRealInput.value) {
+                        fechaCierreRealInput.value = new Date().toISOString().split('T')[0];
+                    }
+                }
+            } else {
+                if (fechaCierreRealField) {
+                    fechaCierreRealField.classList.add('hidden');
+                }
+                if (fechaCierreRealInput) {
+                    fechaCierreRealInput.value = '';
+                }
             }
         }
 
         /**
-         * Toggle Razón de Pérdida and Fecha Cierre Real fields based on Estado
+         * Toggle Razón de Pérdida field based on Estado
          */
         function toggleRazonPerdida() {
-            const estadoSelect = document.getElementById('input-estado');
+            const estado = document.getElementById('input-estado').value;
             const razonPerdidaField = document.getElementById('razon-perdida-field');
             const razonPerdidaInput = document.getElementById('input-razon-perdida');
-            const fechaCierreRealField = document.getElementById('fecha-cierre-real-field');
-            const fechaCierreRealInput = document.getElementById('input-fecha-cierre-real');
 
-            if (estadoSelect.value === 'Perdida') {
-                razonPerdidaField.classList.remove('hidden');
-                razonPerdidaInput.setAttribute('required', 'required');
-                fechaCierreRealField.classList.remove('hidden');
-                // Set default fecha cierre real to today
-                if (!fechaCierreRealInput.value) {
-                    fechaCierreRealInput.value = new Date().toISOString().split('T')[0];
+            if (estado === 'Perdida') {
+                if (razonPerdidaField) {
+                    razonPerdidaField.classList.remove('hidden');
                 }
-            } else if (estadoSelect.value === 'Ganada') {
-                razonPerdidaField.classList.add('hidden');
-                razonPerdidaInput.removeAttribute('required');
-                razonPerdidaInput.value = '';
-                fechaCierreRealField.classList.remove('hidden');
-                // Set default fecha cierre real to today
-                if (!fechaCierreRealInput.value) {
-                    fechaCierreRealInput.value = new Date().toISOString().split('T')[0];
+                if (razonPerdidaInput) {
+                    razonPerdidaInput.setAttribute('required', 'required');
                 }
             } else {
-                razonPerdidaField.classList.add('hidden');
-                razonPerdidaInput.removeAttribute('required');
-                razonPerdidaInput.value = '';
-                fechaCierreRealField.classList.add('hidden');
-                fechaCierreRealInput.value = '';
+                if (razonPerdidaField) {
+                    razonPerdidaField.classList.add('hidden');
+                }
+                if (razonPerdidaInput) {
+                    razonPerdidaInput.removeAttribute('required');
+                    razonPerdidaInput.value = '';
+                }
             }
         }
 
@@ -5008,18 +5039,16 @@ código
             // Pre-fill other form fields
             document.getElementById('input-etapa').value = etapa || 'Lead';
             document.getElementById('input-valor').value = valor || '';
-            document.getElementById('input-probabilidad').value = probabilidad || '';
             document.getElementById('input-fecha-contacto').value = formatDateForInput(fechaCreacion);
             document.getElementById('input-fecha-cierre').value = formatDateForInput(fechaCierreEsperada);
             document.getElementById('input-fecha-cierre-real').value = formatDateForInput(fechaCierreReal);
-            document.getElementById('input-estado').value = estado || 'Abierta';
             document.getElementById('input-razon-perdida').value = razonPerdida || '';
             document.getElementById('input-fuente').value = fuente || '';
             document.getElementById('input-drive-pipeline').value = driveFolder || '';
             document.getElementById('input-notas').value = notas || '';
 
-            // Show/hide conditional fields
-            toggleRazonPerdida();
+            // Update probability and estado based on etapa (auto-calculated)
+            actualizarProbabilidadPorEtapa();
 
             // Show/hide and pre-select Promotor field if Fuente includes Referido
             const promotorField = document.getElementById('promotor-field');
