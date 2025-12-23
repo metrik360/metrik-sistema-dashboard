@@ -3160,15 +3160,19 @@ código
                 ]);
 
                 // Load Caja and Parametros separately with error handling
+                // Use fallback sheet names in case CONFIG hasn't updated in browser cache
+                const SHEET_CAJA = CONFIG.SHEETS.CAJA || 'Caja';
+                const SHEET_PARAMETROS = CONFIG.SHEETS.PARAMETROS || 'Parametros';
+
                 let cajaData = [];
                 let parametrosData = [];
                 try {
-                    cajaData = await sheetsAPI.readSheet(CONFIG.SHEETS.CAJA) || [];
+                    cajaData = await sheetsAPI.readSheet(SHEET_CAJA) || [];
                 } catch (e) {
                     console.warn('⚠️ No se pudo cargar Caja:', e.message);
                 }
                 try {
-                    parametrosData = await sheetsAPI.readSheet(CONFIG.SHEETS.PARAMETROS) || [];
+                    parametrosData = await sheetsAPI.readSheet(SHEET_PARAMETROS) || [];
                 } catch (e) {
                     console.warn('⚠️ No se pudo cargar Parametros:', e.message);
                 }
@@ -4370,11 +4374,12 @@ código
             try {
                 const fecha = new Date().toLocaleDateString('es-CO');
                 const usuario = sessionManager.getSession()?.nombre || 'Sistema';
+                const SHEET_CAJA = CONFIG.SHEETS.CAJA || 'Caja';
 
                 // CAJA STRUCTURE: Fecha, Saldo, Motivo, Usuario
                 const values = [[fecha, saldo, motivo, usuario]];
 
-                await sheetsAPI.writeSheet(CONFIG.SHEETS.CAJA, values);
+                await sheetsAPI.writeSheet(SHEET_CAJA, values);
 
                 showToast('Caja actualizada correctamente', 'success');
                 closeCajaModal();
@@ -4440,6 +4445,7 @@ código
             try {
                 const fecha = new Date().toLocaleDateString('es-CO');
                 const usuario = sessionManager.getSession()?.nombre || 'Sistema';
+                const SHEET_PARAMETROS = CONFIG.SHEETS.PARAMETROS || 'Parametros';
 
                 // First, clear existing parametros and write new ones
                 // PARAMETROS STRUCTURE: Parametro, Valor, Descripcion, UltimaActualizacion, Usuario
@@ -4469,10 +4475,10 @@ código
                     if (paramRowMap[paramName]) {
                         // Update existing row
                         const rowNum = paramRowMap[paramName];
-                        await sheetsAPI.updateSheet(CONFIG.SHEETS.PARAMETROS, `A${rowNum}:E${rowNum}`, [paramRow]);
+                        await sheetsAPI.updateSheet(SHEET_PARAMETROS, `A${rowNum}:E${rowNum}`, [paramRow]);
                     } else {
                         // Append new row
-                        await sheetsAPI.writeSheet(CONFIG.SHEETS.PARAMETROS, [paramRow]);
+                        await sheetsAPI.writeSheet(SHEET_PARAMETROS, [paramRow]);
                     }
                 }
 
