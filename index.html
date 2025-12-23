@@ -578,148 +578,365 @@
                 <div id="view-dashboard" class="view-content">
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">Dashboard</h2>
 
-                    <!-- KPIs Grid - Main -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <!-- KPI Card 1 -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                                    <i data-lucide="target" class="w-6 h-6"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm text-gray-600">Leads Activos</p>
-                                    <h3 class="text-3xl font-bold text-gray-900" id="kpi-leads">-</h3>
-                                    <p class="text-xs text-green-600 mt-1">+12% vs mes anterior</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- KPI Card 2 -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
-                                    <i data-lucide="trending-up" class="w-6 h-6"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm text-gray-600">Pipeline Value</p>
-                                    <h3 class="text-3xl font-bold text-gray-900" id="kpi-pipeline">-</h3>
-                                    <p class="text-xs text-green-600 mt-1">+8% vs mes anterior</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- KPI Card 3 -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
-                                    <i data-lucide="folder-kanban" class="w-6 h-6"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm text-gray-600">Proyectos Activos</p>
-                                    <h3 class="text-3xl font-bold text-gray-900" id="kpi-proyectos">-</h3>
-                                    <p class="text-xs text-gray-600 mt-1">En ejecución</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- KPI Card 4 -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
-                                    <i data-lucide="banknote" class="w-6 h-6"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm text-gray-600">Facturación Mes</p>
-                                    <h3 class="text-3xl font-bold text-gray-900" id="kpi-facturacion">-</h3>
-                                    <p class="text-xs text-green-600 mt-1">Mes actual</p>
-                                </div>
-                            </div>
+                    <!-- Dashboard Tabs -->
+                    <div class="mb-6">
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                <button onclick="switchDashboardTab('financiero')" id="tab-financiero" class="dashboard-tab border-green-500 text-green-600 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                                    <i data-lucide="wallet" class="w-4 h-4 inline-block mr-2"></i>
+                                    Financiero
+                                </button>
+                                <button onclick="switchDashboardTab('comercial')" id="tab-comercial" class="dashboard-tab border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                                    <i data-lucide="target" class="w-4 h-4 inline-block mr-2"></i>
+                                    Comercial
+                                </button>
+                                <button onclick="switchDashboardTab('operaciones')" id="tab-operaciones" class="dashboard-tab border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                                    <i data-lucide="folder-kanban" class="w-4 h-4 inline-block mr-2"></i>
+                                    Operaciones
+                                </button>
+                            </nav>
                         </div>
                     </div>
 
-                    <!-- KPIs Grid - Flujo de Caja -->
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <i data-lucide="wallet" class="w-5 h-5 text-gray-700"></i>
-                            Flujo de Caja
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <!-- Facturado Este Mes -->
-                            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-6">
+                    <!-- Tab Content: Financiero -->
+                    <div id="dashboard-financiero" class="dashboard-tab-content">
+                        <!-- KPIs Financieros Principales -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <!-- Caja Disponible -->
+                            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-6 hover:shadow-md transition-all">
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 bg-green-200 rounded-xl flex items-center justify-center text-green-700">
-                                        <i data-lucide="circle-check" class="w-6 h-6"></i>
+                                        <i data-lucide="wallet" class="w-6 h-6"></i>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm text-gray-600">Facturado Este Mes</p>
-                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-facturado-mes">-</h3>
-                                        <p class="text-xs text-green-600 mt-1">Facturas pagadas</p>
+                                        <p class="text-sm text-gray-600">Caja Disponible</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-caja-disponible">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Efectivo actual</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Por Cobrar -->
-                            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl shadow-sm border border-yellow-200 p-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-yellow-200 rounded-xl flex items-center justify-center text-yellow-700">
-                                        <i data-lucide="clock" class="w-6 h-6"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-600">Por Cobrar</p>
-                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-por-cobrar">-</h3>
-                                        <p class="text-xs text-yellow-600 mt-1">Facturas pendientes</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Proyectado 30 Días -->
-                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-6">
+                            <!-- Runway -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-6 hover:shadow-md transition-all">
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center text-blue-700">
-                                        <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                                        <i data-lucide="calendar-clock" class="w-6 h-6"></i>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm text-gray-600">Proyectado 30 Días</p>
-                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-proyectado-30">-</h3>
-                                        <p class="text-xs text-blue-600 mt-1">Vencimientos próximos</p>
+                                        <p class="text-sm text-gray-600">Runway</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-runway">- meses</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Sin nuevos ingresos</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Anticipos sin Saldo -->
-                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-200 p-6">
+                            <!-- Punto de Equilibrio -->
+                            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-sm border border-amber-200 p-6 hover:shadow-md transition-all">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center text-purple-700">
-                                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                                    <div class="w-12 h-12 bg-amber-200 rounded-xl flex items-center justify-center text-amber-700">
+                                        <i data-lucide="scale" class="w-6 h-6"></i>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm text-gray-600">Anticipos sin Saldo</p>
-                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-anticipos-sin-saldo">-</h3>
-                                        <p class="text-xs text-purple-600 mt-1">Proyectos incompletos</p>
+                                        <p class="text-sm text-gray-600">Punto Equilibrio</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-punto-equilibrio">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Mensual requerido</p>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Costos Fijos -->
+                            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-sm border border-red-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-red-200 rounded-xl flex items-center justify-center text-red-700">
+                                        <i data-lucide="trending-down" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Costos Fijos/Mes</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-costos-fijos">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Gastos mensuales</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KPIs Flujo de Caja -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <i data-lucide="banknote" class="w-5 h-5 text-gray-700"></i>
+                                Flujo de Caja
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <!-- Facturado Este Mes -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+                                            <i data-lucide="circle-check" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm text-gray-600">Facturado Mes</p>
+                                            <h3 class="text-2xl font-bold text-gray-900" id="kpi-facturado-mes">-</h3>
+                                            <p class="text-xs text-green-600 mt-1">Pagado</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Por Cobrar -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center text-yellow-600">
+                                            <i data-lucide="clock" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm text-gray-600">Por Cobrar</p>
+                                            <h3 class="text-2xl font-bold text-gray-900" id="kpi-por-cobrar">-</h3>
+                                            <p class="text-xs text-yellow-600 mt-1">Pendiente</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Proyectado 30 Días -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                                            <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm text-gray-600">Proyectado 30d</p>
+                                            <h3 class="text-2xl font-bold text-gray-900" id="kpi-proyectado-30">-</h3>
+                                            <p class="text-xs text-blue-600 mt-1">Próximos</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Anticipos sin Saldo -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                                            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm text-gray-600">Sin Saldo</p>
+                                            <h3 class="text-2xl font-bold text-gray-900" id="kpi-anticipos-sin-saldo">-</h3>
+                                            <p class="text-xs text-purple-600 mt-1">Anticipos</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart: Facturación últimos 12 meses -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Facturación Últimos 12 Meses</h3>
+                            <canvas id="chart-facturacion"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Comercial -->
+                    <div id="dashboard-comercial" class="dashboard-tab-content hidden">
+                        <!-- KPIs Comerciales -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <!-- Pipeline Total -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                                        <i data-lucide="target" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Pipeline Total</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-pipeline-total">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Valor máximo potencial</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pipeline Ponderado -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+                                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Pipeline Ponderado</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-pipeline-ponderado">-</h3>
+                                        <p class="text-xs text-green-600 mt-1">Ingreso proyectado</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tasa de Conversión -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                                        <i data-lucide="percent" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Tasa Conversión</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-tasa-conversion">-%</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Lead → Ganado</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ticket Promedio -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                                        <i data-lucide="receipt" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Ticket Promedio</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-ticket-promedio">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Por proyecto</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Segunda fila de KPIs -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <!-- Leads Activos -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                                        <i data-lucide="users" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Leads Activos</p>
+                                        <h3 class="text-xl font-bold text-gray-900" id="kpi-leads">-</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ciclo de Venta -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600">
+                                        <i data-lucide="clock" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Ciclo de Venta</p>
+                                        <h3 class="text-xl font-bold text-gray-900" id="kpi-ciclo-venta">- días</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Valor Perdido -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-600">
+                                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Valor Perdido</p>
+                                        <h3 class="text-xl font-bold text-gray-900" id="kpi-valor-perdido">-</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conexión Financiera -->
+                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 mb-8 text-white">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <i data-lucide="link" class="w-5 h-5"></i>
+                                Comercial → Estado de Resultados
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Pipeline Ponderado</p>
+                                    <p class="text-2xl font-bold" id="conexion-pipeline">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm">× Margen (85%)</p>
+                                    <p class="text-2xl font-bold" id="conexion-contribucion">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm">Cobertura PE</p>
+                                    <p class="text-2xl font-bold" id="conexion-cobertura">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Comerciales -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Chart: Embudo Pipeline -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Embudo de Conversión</h3>
+                                <canvas id="chart-pipeline"></canvas>
+                            </div>
+
+                            <!-- Chart: Pipeline por Mes -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Pipeline por Mes de Cierre</h3>
+                                <canvas id="chart-pipeline-mes"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Charts Grid -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Chart 1: Pipeline por Etapa -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Pipeline por Etapa</h3>
-                            <canvas id="chart-pipeline"></canvas>
+                    <!-- Tab Content: Operaciones -->
+                    <div id="dashboard-operaciones" class="dashboard-tab-content hidden">
+                        <!-- KPIs Operaciones -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <!-- Proyectos Activos -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                                        <i data-lucide="folder-kanban" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Proyectos Activos</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-proyectos">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">En ejecución</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Proyectos Completados -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+                                        <i data-lucide="check-circle" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Completados</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-proyectos-completados">-</h3>
+                                        <p class="text-xs text-green-600 mt-1">Este mes</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Valor en Ejecución -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                                        <i data-lucide="banknote" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Valor en Ejecución</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-valor-ejecucion">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Proyectos activos</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Facturación Mes -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                                        <i data-lucide="receipt" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600">Facturación Mes</p>
+                                        <h3 class="text-2xl font-bold text-gray-900" id="kpi-facturacion">-</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Ingresos</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Chart 2: Proyectos por Estado -->
+                        <!-- Chart: Proyectos por Estado -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Proyectos por Estado</h3>
                             <canvas id="chart-proyectos"></canvas>
-                        </div>
-
-                        <!-- Chart 3: Facturación últimos 12 meses -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Facturación Últimos 12 Meses</h3>
-                            <canvas id="chart-facturacion"></canvas>
                         </div>
                     </div>
                 </div>
@@ -2771,36 +2988,79 @@ código
                 ]);
 
                 // ====================
-                // KPI 1: Leads Activos
+                // PIPELINE STRUCTURE (22 cols):
+                // ID(0), ContactoID(1), Nombre(2), Empresa(3), Email(4), Teléfono(5), NombreOportunidad(6),
+                // Etapa(7), Responsable(8), Valor(9), Probabilidad(10), FechaCreacion(11), FechaCierreEsperada(12),
+                // FechaCierreReal(13), Estado(14), RazonPerdida(15), Fuente(16), Servicio(17), Notas(18),
+                // Promotor(19), DriveFolder(20), FechaActualizacion(21)
                 // ====================
-                // Count leads with estado != "Perdido" and != "Ganado"
-                // Structure: ID(0), ContactoID(1), Nombre(2), Empresa(3), Email(4), Teléfono(5), Etapa(6), Valor(7), Probabilidad(8), FechaContacto(9), FechaCierre(10), Estado(11)
+
+                // KPI 1: Leads Activos (estado = Abierta)
                 const leadsActivos = pipelineData.filter(row => {
-                    const estado = row[11]; // Column L: Estado
-                    return estado && estado !== 'Perdido' && estado !== 'Ganado';
+                    const estado = row[14]; // Column O: Estado
+                    return estado === 'Abierta';
                 }).length;
 
                 document.getElementById('kpi-leads').textContent = leadsActivos;
 
                 // ====================
-                // KPI 2: Pipeline Value
+                // COMMERCIAL KPIs
                 // ====================
-                // Sum of "Pipeline Value" for active leads
-                // Formula: Valor × (Probabilidad / 100)
-                // Structure: ID(0), ContactoID(1), Nombre(2), Empresa(3), Email(4), Teléfono(5), Etapa(6), Valor(7), Probabilidad(8), FechaContacto(9), FechaCierre(10), Estado(11)
-                const pipelineValue = pipelineData
-                    .filter(row => {
-                        const estado = row[11]; // Column L: Estado
-                        return estado && estado !== 'Perdido' && estado !== 'Ganado';
-                    })
+
+                // Pipeline Total (sum of valor for Abierta leads)
+                const pipelineTotal = pipelineData
+                    .filter(row => row[14] === 'Abierta')
+                    .reduce((sum, row) => sum + (parseFloat(row[9]) || 0), 0);
+
+                // Pipeline Ponderado (valor × probabilidad / 100)
+                const pipelinePonderado = pipelineData
+                    .filter(row => row[14] === 'Abierta')
                     .reduce((sum, row) => {
-                        const valor = parseFloat(row[7]) || 0; // Column H: Valor
-                        const probabilidad = parseFloat(row[8]) || 0; // Column I: Probabilidad
-                        const pipelineVal = valor * (probabilidad / 100);
-                        return sum + pipelineVal;
+                        const valor = parseFloat(row[9]) || 0;
+                        const probabilidad = parseFloat(row[10]) || 0;
+                        return sum + (valor * probabilidad / 100);
                     }, 0);
 
-                document.getElementById('kpi-pipeline').textContent = formatCurrency(pipelineValue);
+                // Leads Ganados y Perdidos (para tasa de conversión)
+                const leadsGanados = pipelineData.filter(row => row[14] === 'Ganada').length;
+                const leadsPerdidos = pipelineData.filter(row => row[14] === 'Perdida').length;
+                const totalCerrados = leadsGanados + leadsPerdidos;
+                const tasaConversion = totalCerrados > 0 ? (leadsGanados / totalCerrados * 100).toFixed(1) : 0;
+
+                // Valor Perdido
+                const valorPerdido = pipelineData
+                    .filter(row => row[14] === 'Perdida')
+                    .reduce((sum, row) => sum + (parseFloat(row[9]) || 0), 0);
+
+                // Ticket Promedio (de leads ganados)
+                const ticketPromedio = leadsGanados > 0
+                    ? pipelineData
+                        .filter(row => row[14] === 'Ganada')
+                        .reduce((sum, row) => sum + (parseFloat(row[9]) || 0), 0) / leadsGanados
+                    : 0;
+
+                // Update Commercial KPIs
+                const kpiPipelineTotal = document.getElementById('kpi-pipeline-total');
+                const kpiPipelinePonderado = document.getElementById('kpi-pipeline-ponderado');
+                const kpiTasaConversion = document.getElementById('kpi-tasa-conversion');
+                const kpiTicketPromedio = document.getElementById('kpi-ticket-promedio');
+                const kpiValorPerdido = document.getElementById('kpi-valor-perdido');
+
+                if (kpiPipelineTotal) kpiPipelineTotal.textContent = formatCurrency(pipelineTotal);
+                if (kpiPipelinePonderado) kpiPipelinePonderado.textContent = formatCurrency(pipelinePonderado);
+                if (kpiTasaConversion) kpiTasaConversion.textContent = tasaConversion + '%';
+                if (kpiTicketPromedio) kpiTicketPromedio.textContent = formatCurrency(ticketPromedio);
+                if (kpiValorPerdido) kpiValorPerdido.textContent = formatCurrency(valorPerdido);
+
+                // Conexión Comercial → Financiero (margen 85%)
+                const margenContribucion = 0.85;
+                const contribucionPotencial = pipelinePonderado * margenContribucion;
+
+                const conexionPipeline = document.getElementById('conexion-pipeline');
+                const conexionContribucion = document.getElementById('conexion-contribucion');
+
+                if (conexionPipeline) conexionPipeline.textContent = formatCurrency(pipelinePonderado);
+                if (conexionContribucion) conexionContribucion.textContent = formatCurrency(contribucionPotencial);
 
                 // ====================
                 // KPI 3: Proyectos Activos
@@ -3112,12 +3372,13 @@ código
 
             // ====================
             // Chart 1: Pipeline por Etapa (Embudo Comercial)
+            // New structure: Etapa(7), Estado(14)
             // ====================
             const etapas = ['Lead', 'Contactado', 'Calificado', 'Propuesta Enviada', 'Negociación', 'Cierre Verbal', 'Contrato Firmado'];
             const pipelineByEtapa = etapas.map(etapa => {
                 return pipelineData.filter(row => {
-                    const etapaRow = row[6]; // Column G: Etapa (adjusted for new structure)
-                    const estado = row[11]; // Column L: Estado
+                    const etapaRow = row[7]; // Column H: Etapa
+                    const estado = row[14]; // Column O: Estado
                     return etapaRow === etapa && estado === 'Abierta';
                 }).length;
             });
@@ -7106,6 +7367,41 @@ código
             const cliente = selectedOption.getAttribute('data-cliente') || '';
 
             clienteInput.value = cliente;
+        }
+
+        // ====================
+        // DASHBOARD TAB SWITCHING
+        // ====================
+
+        /**
+         * Switch between dashboard tabs (Financiero, Comercial, Operaciones)
+         */
+        function switchDashboardTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.dashboard-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Show selected tab content
+            const selectedContent = document.getElementById(`dashboard-${tabName}`);
+            if (selectedContent) {
+                selectedContent.classList.remove('hidden');
+            }
+
+            // Update tab button styles
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.remove('border-green-500', 'text-green-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            const selectedTab = document.getElementById(`tab-${tabName}`);
+            if (selectedTab) {
+                selectedTab.classList.remove('border-transparent', 'text-gray-500');
+                selectedTab.classList.add('border-green-500', 'text-green-600');
+            }
+
+            // Re-initialize Lucide icons for the new tab
+            lucide.createIcons();
         }
 
         // Initialize navigation
