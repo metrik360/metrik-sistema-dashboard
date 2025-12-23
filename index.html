@@ -739,6 +739,69 @@
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Facturación Últimos 12 Meses</h3>
                             <canvas id="chart-facturacion"></canvas>
                         </div>
+
+                        <!-- Gestión: Caja y Parámetros -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                            <!-- Panel de Caja -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                        <i data-lucide="wallet" class="w-5 h-5 text-green-600"></i>
+                                        Caja
+                                    </h3>
+                                    <button onclick="openCajaModal()" class="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        Actualizar
+                                    </button>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                                        <p class="text-sm text-gray-600 mb-1">Saldo Actual</p>
+                                        <p class="text-3xl font-bold text-green-700" id="caja-saldo-actual">$0</p>
+                                        <p class="text-xs text-gray-500 mt-2" id="caja-ultima-actualizacion">Última actualización: -</p>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <p class="flex items-center gap-2">
+                                            <i data-lucide="info" class="w-4 h-4"></i>
+                                            El saldo de caja se actualiza manualmente cuando hay movimientos significativos.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel de Parámetros -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                        <i data-lucide="settings-2" class="w-5 h-5 text-blue-600"></i>
+                                        Parámetros Financieros
+                                    </h3>
+                                    <button onclick="openParametrosModal()" class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        Editar
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <p class="text-xs text-gray-500">Costos Fijos/Mes</p>
+                                        <p class="text-lg font-semibold text-gray-900" id="param-costos-fijos">$0</p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <p class="text-xs text-gray-500">Margen Contribución</p>
+                                        <p class="text-lg font-semibold text-gray-900" id="param-margen-contribucion">0%</p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <p class="text-xs text-gray-500">Meta Mensual</p>
+                                        <p class="text-lg font-semibold text-gray-900" id="param-meta-mensual">$0</p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <p class="text-xs text-gray-500">Reserva Mínima</p>
+                                        <p class="text-lg font-semibold text-gray-900" id="param-reserva-minima">$0</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-3" id="param-ultima-actualizacion">Última actualización: -</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Tab Content: Comercial -->
@@ -2397,6 +2460,104 @@ código
         </div>
     </div>
 
+    <!-- Modal Caja -->
+    <div id="caja-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="wallet" class="w-5 h-5 text-green-600"></i>
+                    Actualizar Caja
+                </h3>
+                <button onclick="closeCajaModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- Form -->
+            <form id="caja-form" onsubmit="saveCaja(event)" class="p-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nuevo Saldo ($)</label>
+                    <input type="number" id="caja-nuevo-saldo" name="saldo" step="0.01" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                           placeholder="Ej: 5000000">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Motivo (opcional)</label>
+                    <input type="text" id="caja-motivo" name="motivo"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                           placeholder="Ej: Cierre mensual, Pago recibido...">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeCajaModal()"
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Parámetros -->
+    <div id="parametros-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="settings-2" class="w-5 h-5 text-blue-600"></i>
+                    Editar Parámetros Financieros
+                </h3>
+                <button onclick="closeParametrosModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- Form -->
+            <form id="parametros-form" onsubmit="saveParametros(event)" class="p-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Costos Fijos Mensuales ($)</label>
+                    <input type="number" id="param-input-costos-fijos" name="costos_fijos" step="0.01" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Ej: 3000000">
+                    <p class="text-xs text-gray-500 mt-1">Salarios, arriendo, servicios, etc.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Margen de Contribución (%)</label>
+                    <input type="number" id="param-input-margen" name="margen_contribucion" step="0.1" min="0" max="100" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Ej: 60">
+                    <p class="text-xs text-gray-500 mt-1">% de ingreso que queda después de costos variables</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Meta Mensual ($)</label>
+                    <input type="number" id="param-input-meta" name="meta_mensual" step="0.01" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Ej: 10000000">
+                    <p class="text-xs text-gray-500 mt-1">Objetivo de facturación mensual</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reserva Mínima ($)</label>
+                    <input type="number" id="param-input-reserva" name="reserva_minima" step="0.01" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Ej: 5000000">
+                    <p class="text-xs text-gray-500 mt-1">Colchón mínimo de seguridad</p>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeParametrosModal()"
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-100 py-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -2991,11 +3152,26 @@ código
                 console.log('📊 Loading dashboard data...');
 
                 // Read data from all sheets in parallel
+                // Use Promise.allSettled for Caja and Parametros to handle empty/missing sheets
                 const [pipelineData, proyectosData, facturacionData] = await Promise.all([
                     sheetsAPI.readSheet(CONFIG.SHEETS.PIPELINE),
                     sheetsAPI.readSheet(CONFIG.SHEETS.PROYECTOS),
                     sheetsAPI.readSheet(CONFIG.SHEETS.FACTURACION)
                 ]);
+
+                // Load Caja and Parametros separately with error handling
+                let cajaData = [];
+                let parametrosData = [];
+                try {
+                    cajaData = await sheetsAPI.readSheet(CONFIG.SHEETS.CAJA) || [];
+                } catch (e) {
+                    console.warn('⚠️ No se pudo cargar Caja:', e.message);
+                }
+                try {
+                    parametrosData = await sheetsAPI.readSheet(CONFIG.SHEETS.PARAMETROS) || [];
+                } catch (e) {
+                    console.warn('⚠️ No se pudo cargar Parametros:', e.message);
+                }
 
                 // ====================
                 // PIPELINE STRUCTURE (22 cols):
@@ -3192,6 +3368,88 @@ código
                 });
 
                 document.getElementById('kpi-anticipos-sin-saldo').textContent = anticiposSinSaldo;
+
+                // ====================
+                // CAJA & PARAMETROS
+                // ====================
+
+                // CAJA STRUCTURE (4 cols): Fecha(0), Saldo(1), Motivo(2), Usuario(3)
+                // Get most recent caja entry (last row)
+                let saldoCaja = 0;
+                let ultimaActualizacionCaja = '-';
+
+                if (cajaData && cajaData.length > 0) {
+                    const ultimaCaja = cajaData[cajaData.length - 1];
+                    saldoCaja = parseFloat(ultimaCaja[1]) || 0;
+                    ultimaActualizacionCaja = ultimaCaja[0] || '-';
+                }
+
+                // Update Caja panel
+                const cajaSaldoEl = document.getElementById('caja-saldo-actual');
+                const cajaFechaEl = document.getElementById('caja-ultima-actualizacion');
+                if (cajaSaldoEl) cajaSaldoEl.textContent = formatCurrency(saldoCaja);
+                if (cajaFechaEl) cajaFechaEl.textContent = `Última actualización: ${ultimaActualizacionCaja}`;
+
+                // Update Caja KPI in main dashboard
+                const kpiCajaDisponible = document.getElementById('kpi-caja-disponible');
+                if (kpiCajaDisponible) kpiCajaDisponible.textContent = formatCurrency(saldoCaja);
+
+                // PARAMETROS STRUCTURE (5 cols): Parametro(0), Valor(1), Descripcion(2), UltimaActualizacion(3), Usuario(4)
+                // Parse parametros into an object
+                const parametros = {};
+                let ultimaActualizacionParam = '-';
+
+                if (parametrosData && parametrosData.length > 0) {
+                    parametrosData.forEach(row => {
+                        const key = row[0];
+                        const valor = parseFloat(row[1]) || 0;
+                        if (key) {
+                            parametros[key] = valor;
+                        }
+                        // Track most recent update
+                        if (row[3] && row[3] > ultimaActualizacionParam) {
+                            ultimaActualizacionParam = row[3];
+                        }
+                    });
+                }
+
+                // Default values if not set
+                const costosFijos = parametros['costos_fijos_mes'] || 0;
+                const margenContribucionParam = parametros['margen_contribucion'] || 60;
+                const metaMensual = parametros['meta_mensual'] || 0;
+                const reservaMinima = parametros['reserva_minima'] || 0;
+
+                // Update Parametros panel
+                const paramCostosFijosEl = document.getElementById('param-costos-fijos');
+                const paramMargenEl = document.getElementById('param-margen-contribucion');
+                const paramMetaEl = document.getElementById('param-meta-mensual');
+                const paramReservaEl = document.getElementById('param-reserva-minima');
+                const paramFechaEl = document.getElementById('param-ultima-actualizacion');
+
+                if (paramCostosFijosEl) paramCostosFijosEl.textContent = formatCurrency(costosFijos);
+                if (paramMargenEl) paramMargenEl.textContent = margenContribucionParam + '%';
+                if (paramMetaEl) paramMetaEl.textContent = formatCurrency(metaMensual);
+                if (paramReservaEl) paramReservaEl.textContent = formatCurrency(reservaMinima);
+                if (paramFechaEl) paramFechaEl.textContent = `Última actualización: ${ultimaActualizacionParam}`;
+
+                // Update Costos Fijos KPI
+                const kpiCostosFijos = document.getElementById('kpi-costos-fijos');
+                if (kpiCostosFijos) kpiCostosFijos.textContent = formatCurrency(costosFijos);
+
+                // Calculate and update RUNWAY (Caja / Costos Fijos = meses)
+                const runway = costosFijos > 0 ? (saldoCaja / costosFijos) : 0;
+                const kpiRunway = document.getElementById('kpi-runway');
+                if (kpiRunway) kpiRunway.textContent = runway.toFixed(1) + ' meses';
+
+                // Calculate and update PUNTO DE EQUILIBRIO (Costos Fijos / Margen Contribución)
+                const puntoEquilibrio = margenContribucionParam > 0 ? (costosFijos / (margenContribucionParam / 100)) : 0;
+                const kpiPuntoEquilibrio = document.getElementById('kpi-punto-equilibrio');
+                if (kpiPuntoEquilibrio) kpiPuntoEquilibrio.textContent = formatCurrency(puntoEquilibrio);
+
+                // Store data globally for modals
+                window.currentCajaData = cajaData;
+                window.currentParametrosData = parametrosData;
+                window.currentParametros = parametros;
 
                 // Initialize charts with real data
                 initCharts(pipelineData, proyectosData, facturacionData);
@@ -4062,6 +4320,174 @@ código
             const modal = document.getElementById('historial-modal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+        }
+
+        // ====================
+        // CAJA MODAL FUNCTIONS
+        // ====================
+
+        /**
+         * Open Caja Modal
+         */
+        function openCajaModal() {
+            const modal = document.getElementById('caja-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Pre-fill with current value if available
+            const currentSaldo = window.currentCajaData && window.currentCajaData.length > 0
+                ? parseFloat(window.currentCajaData[window.currentCajaData.length - 1][1]) || 0
+                : 0;
+            document.getElementById('caja-nuevo-saldo').value = currentSaldo;
+            document.getElementById('caja-motivo').value = '';
+
+            lucide.createIcons();
+        }
+
+        /**
+         * Close Caja Modal
+         */
+        function closeCajaModal() {
+            const modal = document.getElementById('caja-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        /**
+         * Save Caja entry
+         */
+        async function saveCaja(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) return;
+
+            const saldo = parseFloat(document.getElementById('caja-nuevo-saldo').value) || 0;
+            const motivo = document.getElementById('caja-motivo').value.trim() || 'Actualización manual';
+
+            const originalText = disableSubmitButton(submitBtn, 'Guardando...');
+
+            try {
+                const fecha = new Date().toLocaleDateString('es-CO');
+                const usuario = sessionManager.getUser()?.nombre || 'Sistema';
+
+                // CAJA STRUCTURE: Fecha, Saldo, Motivo, Usuario
+                const values = [[fecha, saldo, motivo, usuario]];
+
+                await sheetsAPI.writeSheet(CONFIG.SHEETS.CAJA, values);
+
+                showToast('Caja actualizada correctamente', 'success');
+                closeCajaModal();
+
+                // Reload dashboard data to update KPIs
+                await loadDashboardData();
+
+            } catch (error) {
+                console.error('Error saving caja:', error);
+                showToast('Error al actualizar caja: ' + error.message, 'error');
+            } finally {
+                enableSubmitButton(submitBtn, originalText);
+            }
+        }
+
+        // ====================
+        // PARAMETROS MODAL FUNCTIONS
+        // ====================
+
+        /**
+         * Open Parametros Modal
+         */
+        function openParametrosModal() {
+            const modal = document.getElementById('parametros-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Pre-fill with current values
+            const params = window.currentParametros || {};
+            document.getElementById('param-input-costos-fijos').value = params['costos_fijos_mes'] || 0;
+            document.getElementById('param-input-margen').value = params['margen_contribucion'] || 60;
+            document.getElementById('param-input-meta').value = params['meta_mensual'] || 0;
+            document.getElementById('param-input-reserva').value = params['reserva_minima'] || 0;
+
+            lucide.createIcons();
+        }
+
+        /**
+         * Close Parametros Modal
+         */
+        function closeParametrosModal() {
+            const modal = document.getElementById('parametros-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        /**
+         * Save Parametros
+         */
+        async function saveParametros(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) return;
+
+            const costosFijos = parseFloat(document.getElementById('param-input-costos-fijos').value) || 0;
+            const margen = parseFloat(document.getElementById('param-input-margen').value) || 60;
+            const meta = parseFloat(document.getElementById('param-input-meta').value) || 0;
+            const reserva = parseFloat(document.getElementById('param-input-reserva').value) || 0;
+
+            const originalText = disableSubmitButton(submitBtn, 'Guardando...');
+
+            try {
+                const fecha = new Date().toLocaleDateString('es-CO');
+                const usuario = sessionManager.getUser()?.nombre || 'Sistema';
+
+                // First, clear existing parametros and write new ones
+                // PARAMETROS STRUCTURE: Parametro, Valor, Descripcion, UltimaActualizacion, Usuario
+                const parametrosRows = [
+                    ['costos_fijos_mes', costosFijos, 'Costos fijos mensuales (salarios, arriendo, servicios)', fecha, usuario],
+                    ['margen_contribucion', margen, 'Porcentaje de margen de contribución', fecha, usuario],
+                    ['meta_mensual', meta, 'Meta de facturación mensual', fecha, usuario],
+                    ['reserva_minima', reserva, 'Reserva mínima de seguridad', fecha, usuario]
+                ];
+
+                // Delete existing rows (starting from row 2) and write new ones
+                // We need to update each row based on the parameter name
+                // For simplicity, we'll update specific ranges
+
+                // Get current data to find row numbers
+                const currentData = window.currentParametrosData || [];
+                const paramRowMap = {};
+                currentData.forEach((row, index) => {
+                    if (row[0]) {
+                        paramRowMap[row[0]] = index + 2; // +2 for header and 0-index
+                    }
+                });
+
+                // Update or append each parameter
+                for (const paramRow of parametrosRows) {
+                    const paramName = paramRow[0];
+                    if (paramRowMap[paramName]) {
+                        // Update existing row
+                        const rowNum = paramRowMap[paramName];
+                        await sheetsAPI.updateSheet(CONFIG.SHEETS.PARAMETROS, `A${rowNum}:E${rowNum}`, [paramRow]);
+                    } else {
+                        // Append new row
+                        await sheetsAPI.writeSheet(CONFIG.SHEETS.PARAMETROS, [paramRow]);
+                    }
+                }
+
+                showToast('Parámetros actualizados correctamente', 'success');
+                closeParametrosModal();
+
+                // Reload dashboard data to update KPIs
+                await loadDashboardData();
+
+            } catch (error) {
+                console.error('Error saving parametros:', error);
+                showToast('Error al actualizar parámetros: ' + error.message, 'error');
+            } finally {
+                enableSubmitButton(submitBtn, originalText);
+            }
         }
 
         /**
