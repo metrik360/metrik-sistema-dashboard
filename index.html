@@ -4369,7 +4369,7 @@ código
 
             try {
                 const fecha = new Date().toLocaleDateString('es-CO');
-                const usuario = sessionManager.getUser()?.nombre || 'Sistema';
+                const usuario = sessionManager.getSession()?.nombre || 'Sistema';
 
                 // CAJA STRUCTURE: Fecha, Saldo, Motivo, Usuario
                 const values = [[fecha, saldo, motivo, usuario]];
@@ -4439,7 +4439,7 @@ código
 
             try {
                 const fecha = new Date().toLocaleDateString('es-CO');
-                const usuario = sessionManager.getUser()?.nombre || 'Sistema';
+                const usuario = sessionManager.getSession()?.nombre || 'Sistema';
 
                 // First, clear existing parametros and write new ones
                 // PARAMETROS STRUCTURE: Parametro, Valor, Descripcion, UltimaActualizacion, Usuario
