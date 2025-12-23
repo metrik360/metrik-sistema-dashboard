@@ -25,7 +25,8 @@ const CONFIG = {
     USUARIOS: 'Usuarios',
     HISTORIAL: 'Historial',
     CAJA: 'Caja',
-    PARAMETROS: 'Parametros'
+    PARAMETROS: 'Parametros',
+    PRESUPUESTOS: 'Presupuestos'
   },
   ALLOWED_ORIGINS: [
     'https://system.metrik.com.co',

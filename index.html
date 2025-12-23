@@ -46,7 +46,10 @@
                 SERVICIOS: 'Servicios',
                 GASTOS: 'Gastos',
                 USUARIOS: 'Usuarios',
-                HISTORIAL: 'Historial'
+                HISTORIAL: 'Historial',
+                CAJA: 'Caja',
+                PARAMETROS: 'Parametros',
+                PRESUPUESTOS: 'Presupuestos'
             },
 
             // Cache Configuration (in milliseconds)
@@ -734,10 +737,55 @@
                             </div>
                         </div>
 
-                        <!-- Chart: Facturación últimos 12 meses -->
+                        <!-- Chart: Facturación vs Presupuesto últimos 12 meses -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Facturación Últimos 12 Meses</h3>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Facturación vs Presupuesto</h3>
+                                <div class="flex items-center gap-4 text-xs">
+                                    <span class="flex items-center gap-1">
+                                        <span class="w-3 h-3 bg-green-500 rounded"></span>
+                                        Facturado
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <span class="w-3 h-3 bg-amber-500 rounded"></span>
+                                        Presupuesto
+                                    </span>
+                                </div>
+                            </div>
                             <canvas id="chart-facturacion"></canvas>
+                        </div>
+
+                        <!-- Chart: Flujo de Caja Proyectado -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Flujo de Caja Proyectado</h3>
+                                <div class="flex items-center gap-4">
+                                    <select id="horizonte-flujo-caja" onchange="updateFlujoCajaChart()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500">
+                                        <option value="3">Próximos 3 meses</option>
+                                        <option value="6">Próximos 6 meses</option>
+                                        <option value="12">Próximos 12 meses</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs mb-4">
+                                <span class="flex items-center gap-1">
+                                    <span class="w-3 h-3 bg-red-400 rounded"></span>
+                                    Cartera vencida
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="w-3 h-3 bg-yellow-400 rounded"></span>
+                                    Por cobrar (mes)
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="w-3 h-3 bg-blue-400 rounded"></span>
+                                    Recaudo proyectado
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="w-6 h-0.5 bg-red-600"></span>
+                                    Costos fijos
+                                </span>
+                            </div>
+                            <canvas id="chart-flujo-caja"></canvas>
                         </div>
 
                         <!-- Gestión: Caja y Parámetros -->
@@ -783,8 +831,9 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                        <p class="text-xs text-gray-500">Costos Fijos/Mes</p>
+                                        <p class="text-xs text-gray-500">Costos Fijos/Mes (base)</p>
                                         <p class="text-lg font-semibold text-gray-900" id="param-costos-fijos">$0</p>
+                                        <p class="text-[10px] text-blue-500 mt-1">Flujo de caja usa valores de Presupuestos</p>
                                     </div>
                                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                                         <p class="text-xs text-gray-500">Margen Contribución</p>
@@ -2580,6 +2629,12 @@ código
         let chartPipeline = null;
         let chartProyectos = null;
         let chartFacturacion = null;
+        let chartFlujoCaja = null;
+
+        // Global data for charts (used by updateFlujoCajaChart)
+        let globalPresupuestosData = [];
+        let globalFacturacionData = [];
+        let globalPipelineData = [];
 
         // ====================
         // AUTHENTICATION & SESSION MANAGEMENT
@@ -3183,6 +3238,15 @@ código
                     console.warn('⚠️ No se pudo cargar Parametros:', e.message);
                 }
 
+                // Load Presupuestos
+                const SHEET_PRESUPUESTOS = CONFIG.SHEETS.PRESUPUESTOS || 'Presupuestos';
+                let presupuestosData = [];
+                try {
+                    presupuestosData = await sheetsAPI.readSheet(SHEET_PRESUPUESTOS) || [];
+                } catch (e) {
+                    console.warn('⚠️ No se pudo cargar Presupuestos:', e.message);
+                }
+
                 // ====================
                 // PIPELINE STRUCTURE (22 cols):
                 // ID(0), ContactoID(1), Nombre(2), Empresa(3), Email(4), Teléfono(5), NombreOportunidad(6),
@@ -3460,9 +3524,10 @@ código
                 window.currentCajaData = cajaData;
                 window.currentParametrosData = parametrosData;
                 window.currentParametros = parametros;
+                window.currentPresupuestosData = presupuestosData;
 
                 // Initialize charts with real data
-                initCharts(pipelineData, proyectosData, facturacionData);
+                initCharts(pipelineData, proyectosData, facturacionData, presupuestosData);
 
                 console.log('✅ Dashboard data loaded successfully');
             } catch (error) {
@@ -3659,7 +3724,12 @@ código
         }
 
         // Initialize charts with real data
-        function initCharts(pipelineData = [], proyectosData = [], facturacionData = []) {
+        function initCharts(pipelineData = [], proyectosData = [], facturacionData = [], presupuestosData = []) {
+            // Store data globally for updateFlujoCajaChart
+            globalPipelineData = pipelineData;
+            globalFacturacionData = facturacionData;
+            globalPresupuestosData = presupuestosData;
+
             // Destroy existing charts if they exist
             if (chartPipeline) {
                 chartPipeline.destroy();
@@ -3672,6 +3742,10 @@ código
             if (chartFacturacion) {
                 chartFacturacion.destroy();
                 chartFacturacion = null;
+            }
+            if (chartFlujoCaja) {
+                chartFlujoCaja.destroy();
+                chartFlujoCaja = null;
             }
 
             // ====================
@@ -3744,11 +3818,23 @@ código
             });
 
             // ====================
-            // Chart 3: Facturación últimos 12 meses
+            // Chart 3: Facturación vs Presupuesto últimos 12 meses
             // ====================
             const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
             const currentDate = new Date();
             const currentYear = currentDate.getFullYear();
+
+            // Build presupuestos lookup (key: YYYY-MM, value: {presupuesto, costosFijos})
+            const presupuestosLookup = {};
+            presupuestosData.forEach(row => {
+                const mes = row[0]; // Column A: Mes (YYYY-MM format)
+                if (mes) {
+                    presupuestosLookup[mes] = {
+                        presupuesto: parseFloat(row[1]) || 0,
+                        costosFijos: parseFloat(row[2]) || 0
+                    };
+                }
+            });
 
             // Calculate last 12 months data
             const last12Months = [];
@@ -3756,6 +3842,7 @@ código
                 const date = new Date(currentYear, currentDate.getMonth() - i, 1);
                 const month = date.getMonth() + 1; // 1-12
                 const year = date.getFullYear();
+                const mesKey = `${year}-${String(month).padStart(2, '0')}`;
 
                 const monthTotal = facturacionData
                     .filter(row => {
@@ -3772,25 +3859,43 @@ código
                         return sum + monto;
                     }, 0);
 
+                const presupuestoMes = presupuestosLookup[mesKey]?.presupuesto || 0;
+
                 last12Months.push({
                     label: monthNames[date.getMonth()],
-                    value: monthTotal / 1000000 // Convert to millions
+                    mesKey: mesKey,
+                    facturacion: monthTotal / 1000000, // Convert to millions
+                    presupuesto: presupuestoMes / 1000000
                 });
             }
 
             const ctx3 = document.getElementById('chart-facturacion').getContext('2d');
             chartFacturacion = new Chart(ctx3, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: last12Months.map(m => m.label),
-                    datasets: [{
-                        label: 'Facturación (Millones COP)',
-                        data: last12Months.map(m => m.value),
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
+                    datasets: [
+                        {
+                            label: 'Facturado',
+                            data: last12Months.map(m => m.facturacion),
+                            backgroundColor: '#10B981',
+                            borderRadius: 4,
+                            order: 2
+                        },
+                        {
+                            label: 'Presupuesto',
+                            data: last12Months.map(m => m.presupuesto),
+                            type: 'line',
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: '#F59E0B',
+                            pointRadius: 4,
+                            tension: 0.1,
+                            order: 1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -3801,7 +3906,7 @@ código
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `$${context.parsed.y.toFixed(1)}M COP`;
+                                    return `${context.dataset.label}: $${context.parsed.y.toFixed(1)}M COP`;
                                 }
                             }
                         }
@@ -3818,6 +3923,220 @@ código
                     }
                 }
             });
+
+            // ====================
+            // Chart 4: Flujo de Caja Proyectado
+            // ====================
+            initFlujoCajaChart(facturacionData, pipelineData, presupuestosData);
+        }
+
+        /**
+         * Initialize Flujo de Caja Chart
+         */
+        function initFlujoCajaChart(facturacionData, pipelineData, presupuestosData) {
+            const horizonte = parseInt(document.getElementById('horizonte-flujo-caja')?.value || 3);
+            const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const currentDate = new Date();
+            const hoy = new Date();
+
+            // Build presupuestos lookup
+            const presupuestosLookup = {};
+            presupuestosData.forEach(row => {
+                const mes = row[0];
+                if (mes) {
+                    presupuestosLookup[mes] = {
+                        presupuesto: parseFloat(row[1]) || 0,
+                        costosFijos: parseFloat(row[2]) || 0
+                    };
+                }
+            });
+
+            // Default costos fijos from Parametros if not in Presupuestos
+            const defaultCostosFijos = window.currentParametros?.costos_fijos_mes || 0;
+
+            // Calculate cartera vencida (facturas pendientes con fecha vencimiento < hoy)
+            const carteraVencida = facturacionData
+                .filter(row => {
+                    const estado = row[9]; // Column J: Estado
+                    const fechaVencimiento = row[7]; // Column H: Fecha Vencimiento
+                    if (estado !== 'Pendiente' || !fechaVencimiento) return false;
+                    const date = parseDate(fechaVencimiento);
+                    return date && date < hoy;
+                })
+                .reduce((sum, row) => sum + (parseFloat(row[5]) || 0), 0); // Column F: Monto Total
+
+            // Build data for each month
+            const flujoCajaData = [];
+            for (let i = 0; i < horizonte; i++) {
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+                const mesKey = `${year}-${String(month).padStart(2, '0')}`;
+                const mesCierreAnterior = `${i === 0 ? (month === 1 ? year - 1 : year) : year}-${String(i === 0 ? (month === 1 ? 12 : month - 1) : month - 1).padStart(2, '0')}`;
+
+                // Por cobrar del mes (facturas pendientes con vencimiento en este mes)
+                const porCobrarMes = facturacionData
+                    .filter(row => {
+                        const estado = row[9];
+                        const fechaVencimiento = row[7];
+                        if (estado !== 'Pendiente' || !fechaVencimiento) return false;
+                        const vencDate = parseDate(fechaVencimiento);
+                        if (!vencDate) return false;
+                        return vencDate.getMonth() + 1 === month && vencDate.getFullYear() === year && vencDate >= hoy;
+                    })
+                    .reduce((sum, row) => sum + (parseFloat(row[5]) || 0), 0);
+
+                // Recaudo proyectado del Pipeline
+                // Leads con mes estimado cierre = mes anterior → recaudo en este mes
+                // Ajustado por probabilidad
+                const mesCierreKey = i === 0
+                    ? `${month === 1 ? year - 1 : year}-${String(month === 1 ? 12 : month - 1).padStart(2, '0')}`
+                    : `${year}-${String(month - 1).padStart(2, '0')}`;
+
+                // For first month, check previous month's closings
+                // For subsequent months, leads closing in previous month = collection in current month
+                let recaudoProyectado = 0;
+
+                for (let j = 0; j <= i; j++) {
+                    const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + j, 1);
+                    const checkMonth = checkDate.getMonth() + 1;
+                    const checkYear = checkDate.getFullYear();
+                    const cierreKey = `${checkYear}-${String(checkMonth).padStart(2, '0')}`;
+
+                    // If lead closes in month j, collection happens in month j+1
+                    if (j + 1 === i + 1) {
+                        // This means leads closing in month (i) would be collected in month (i+1)
+                        // But we want leads closing in month (i-1) collected in month (i)
+                    }
+                }
+
+                // Simpler logic: leads with FechaCierreEsperada = previous month → collect in current month
+                const prevMonth = i === 0 ? currentDate.getMonth() : currentDate.getMonth() + i - 1;
+                const prevYear = i === 0 && currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
+                const prevMonthNum = (prevMonth % 12) + 1;
+                const prevMonthKey = `${i === 0 && currentDate.getMonth() === 0 ? prevYear : (prevMonth < 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear())}-${String(prevMonthNum).padStart(2, '0')}`;
+
+                recaudoProyectado = pipelineData
+                    .filter(row => {
+                        const estado = row[14]; // Estado
+                        const fechaCierreEsperada = row[12]; // FechaCierreEsperada (YYYY-MM format)
+                        if (estado !== 'Abierta' || !fechaCierreEsperada) return false;
+
+                        // Get the month key from fechaCierreEsperada
+                        const cierreMonth = formatMonthForInput(fechaCierreEsperada);
+
+                        // Calculate which month this should be collected
+                        // If closing in month X, collected in month X+1
+                        if (!cierreMonth) return false;
+                        const [cierreYear, cierreMonthNum] = cierreMonth.split('-').map(Number);
+                        const collectionDate = new Date(cierreYear, cierreMonthNum, 1); // Month after closing
+
+                        return collectionDate.getMonth() + 1 === month && collectionDate.getFullYear() === year;
+                    })
+                    .reduce((sum, row) => {
+                        const valor = parseFloat(row[9]) || 0;
+                        const probabilidad = parseFloat(row[10]) || 0;
+                        return sum + (valor * probabilidad / 100);
+                    }, 0);
+
+                // Costos fijos for this month
+                const costosFijos = presupuestosLookup[mesKey]?.costosFijos || defaultCostosFijos;
+
+                flujoCajaData.push({
+                    label: `${monthNames[date.getMonth()]} ${year}`,
+                    mesKey: mesKey,
+                    carteraVencida: i === 0 ? carteraVencida / 1000000 : 0, // Only show in first month
+                    porCobrar: porCobrarMes / 1000000,
+                    recaudoProyectado: recaudoProyectado / 1000000,
+                    costosFijos: costosFijos / 1000000
+                });
+            }
+
+            // Create chart
+            const ctx4 = document.getElementById('chart-flujo-caja');
+            if (!ctx4) return;
+
+            if (chartFlujoCaja) {
+                chartFlujoCaja.destroy();
+            }
+
+            chartFlujoCaja = new Chart(ctx4.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: flujoCajaData.map(m => m.label),
+                    datasets: [
+                        {
+                            label: 'Cartera vencida',
+                            data: flujoCajaData.map(m => m.carteraVencida),
+                            backgroundColor: '#F87171',
+                            stack: 'stack1',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Por cobrar (mes)',
+                            data: flujoCajaData.map(m => m.porCobrar),
+                            backgroundColor: '#FBBF24',
+                            stack: 'stack1',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Recaudo proyectado',
+                            data: flujoCajaData.map(m => m.recaudoProyectado),
+                            backgroundColor: '#60A5FA',
+                            stack: 'stack1',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Costos fijos',
+                            data: flujoCajaData.map(m => m.costosFijos),
+                            type: 'line',
+                            borderColor: '#DC2626',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#DC2626',
+                            pointRadius: 4,
+                            tension: 0,
+                            order: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: $${context.parsed.y.toFixed(1)}M COP`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return `$${value}M`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Update Flujo de Caja Chart when horizon changes
+         */
+        function updateFlujoCajaChart() {
+            initFlujoCajaChart(globalFacturacionData, globalPipelineData, globalPresupuestosData);
         }
 
         // ====================

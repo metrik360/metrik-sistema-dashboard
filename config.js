@@ -19,7 +19,8 @@ const CONFIG = {
         GASTOS: 'Gastos',
         USUARIOS: 'Usuarios',
         CAJA: 'Caja',
-        PARAMETROS: 'Parametros'
+        PARAMETROS: 'Parametros',
+        PRESUPUESTOS: 'Presupuestos'
     },
 
     // Cache Configuration (in milliseconds)
