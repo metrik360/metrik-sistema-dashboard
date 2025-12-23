@@ -17,7 +17,9 @@ const CONFIG = {
         PROMOTORES: 'Promotores',
         SERVICIOS: 'Servicios',
         GASTOS: 'Gastos',
-        USUARIOS: 'Usuarios'
+        USUARIOS: 'Usuarios',
+        CAJA: 'Caja',
+        PARAMETROS: 'Parametros'
     },
 
     // Cache Configuration (in milliseconds)

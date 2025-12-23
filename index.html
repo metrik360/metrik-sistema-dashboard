@@ -771,14 +771,34 @@
                                 <input type="tel" id="input-telefono" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600" placeholder="Auto-completado">
                             </div>
 
+                            <!-- Nombre Oportunidad -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Oportunidad *</label>
+                                <input type="text" id="input-nombre-oportunidad" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Ej: SOENA - Transformación Digital">
+                            </div>
+
                             <!-- Etapa -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Etapa *</label>
-                                <select id="input-etapa" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="Contacto">Contacto</option>
-                                    <option value="Propuesta">Propuesta</option>
-                                    <option value="Negociación">Negociación</option>
-                                    <option value="Cierre">Cierre</option>
+                                <select id="input-etapa" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" onchange="actualizarProbabilidadPorEtapa()">
+                                    <option value="Lead" data-prob="10">Lead (10%)</option>
+                                    <option value="Contactado" data-prob="15">Contactado (15%)</option>
+                                    <option value="Calificado" data-prob="25">Calificado (25%)</option>
+                                    <option value="Propuesta Enviada" data-prob="40">Propuesta Enviada (40%)</option>
+                                    <option value="Negociación" data-prob="60">Negociación (60%)</option>
+                                    <option value="Cierre Verbal" data-prob="80">Cierre Verbal (80%)</option>
+                                    <option value="Contrato Firmado" data-prob="95">Contrato Firmado (95%)</option>
+                                    <option value="Ganado" data-prob="100">Ganado (100%)</option>
+                                    <option value="Perdido" data-prob="0">Perdido (0%)</option>
+                                </select>
+                            </div>
+
+                            <!-- Responsable -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Responsable *</label>
+                                <select id="input-responsable" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="Mauricio">Mauricio</option>
+                                    <option value="Otro">Otro</option>
                                 </select>
                             </div>
 
@@ -818,12 +838,33 @@
                             <!-- Estado -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
-                                <select id="input-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="Activo">Activo</option>
-                                    <option value="Ganado">Ganado</option>
-                                    <option value="Perdido">Perdido</option>
-                                    <option value="Pausado">Pausado</option>
+                                <select id="input-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" onchange="toggleRazonPerdida()">
+                                    <option value="Abierta">Abierta</option>
+                                    <option value="Ganada">Ganada</option>
+                                    <option value="Perdida">Perdida</option>
                                 </select>
+                            </div>
+
+                            <!-- Razón de Pérdida (Conditional) -->
+                            <div id="razon-perdida-field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Razón de Pérdida *</label>
+                                <select id="input-razon-perdida" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Precio">Precio</option>
+                                    <option value="Timing">Timing (no es el momento)</option>
+                                    <option value="Competencia">Competencia</option>
+                                    <option value="No hay presupuesto">No hay presupuesto</option>
+                                    <option value="No hay decisor">No hay decisor</option>
+                                    <option value="Ghosting">Ghosting (no responde)</option>
+                                    <option value="No cumple ICP">No cumple ICP</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <!-- Fecha Cierre Real (shown when Ganada/Perdida) -->
+                            <div id="fecha-cierre-real-field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Cierre Real</label>
+                                <input type="date" id="input-fecha-cierre-real" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
 
                             <!-- Fuente -->
@@ -831,10 +872,13 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Fuente</label>
                                 <select id="input-fuente" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                     <option value="">Seleccionar...</option>
-                                    <option value="Web">Web</option>
-                                    <option value="Referido">Referido</option>
-                                    <option value="LinkedIn">LinkedIn</option>
-                                    <option value="Evento">Evento</option>
+                                    <option value="Referido Personal">Referido Personal</option>
+                                    <option value="Referido Cliente">Referido Cliente</option>
+                                    <option value="LinkedIn Orgánico">LinkedIn Orgánico</option>
+                                    <option value="LinkedIn Pauta">LinkedIn Pauta</option>
+                                    <option value="Alianza Comercial">Alianza Comercial</option>
+                                    <option value="Evento/Webinar">Evento/Webinar</option>
+                                    <option value="Website">Website</option>
                                     <option value="Otro">Otro</option>
                                 </select>
                             </div>
@@ -3067,14 +3111,14 @@ código
             }
 
             // ====================
-            // Chart 1: Pipeline por Etapa
+            // Chart 1: Pipeline por Etapa (Embudo Comercial)
             // ====================
-            const etapas = ['Contacto', 'Propuesta', 'Negociación', 'Cierre'];
+            const etapas = ['Lead', 'Contactado', 'Calificado', 'Propuesta Enviada', 'Negociación', 'Cierre Verbal', 'Contrato Firmado'];
             const pipelineByEtapa = etapas.map(etapa => {
                 return pipelineData.filter(row => {
-                    const etapaRow = row[5]; // Column F: Etapa
-                    const estado = row[10]; // Column K: Estado
-                    return etapaRow === etapa && estado !== 'Perdido' && estado !== 'Ganado';
+                    const etapaRow = row[6]; // Column G: Etapa (adjusted for new structure)
+                    const estado = row[11]; // Column L: Estado
+                    return etapaRow === etapa && estado === 'Abierta';
                 }).length;
             });
 
@@ -3082,14 +3126,15 @@ código
             chartPipeline = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: ['Contacto', 'Propuesta', 'Negociación', 'Cierre'],
+                    labels: ['Lead', 'Contactado', 'Calificado', 'Propuesta', 'Negociación', 'Cierre V.', 'Contrato'],
                     datasets: [{
                         label: 'Cantidad de Leads',
                         data: pipelineByEtapa,
-                        backgroundColor: '#10B981',
+                        backgroundColor: ['#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#FCD34D', '#FBBF24', '#F59E0B'],
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // Horizontal bar for funnel effect
                     responsive: true,
                     plugins: {
                         legend: {
@@ -3097,7 +3142,7 @@ código
                         }
                     },
                     scales: {
-                        y: {
+                        x: {
                             beginAtZero: true,
                             ticks: {
                                 stepSize: 1
@@ -3253,6 +3298,68 @@ código
         }
 
         // ====================
+        // PIPELINE HELPER FUNCTIONS
+        // ====================
+
+        /**
+         * Update probability based on selected stage
+         */
+        function actualizarProbabilidadPorEtapa() {
+            const etapaSelect = document.getElementById('input-etapa');
+            const probabilidadInput = document.getElementById('input-probabilidad');
+            const selectedOption = etapaSelect.options[etapaSelect.selectedIndex];
+            const prob = selectedOption.getAttribute('data-prob');
+            if (prob !== null) {
+                probabilidadInput.value = prob;
+            }
+            // Also update Estado based on Etapa
+            const estadoSelect = document.getElementById('input-estado');
+            if (etapaSelect.value === 'Ganado') {
+                estadoSelect.value = 'Ganada';
+                toggleRazonPerdida();
+            } else if (etapaSelect.value === 'Perdido') {
+                estadoSelect.value = 'Perdida';
+                toggleRazonPerdida();
+            }
+        }
+
+        /**
+         * Toggle Razón de Pérdida and Fecha Cierre Real fields based on Estado
+         */
+        function toggleRazonPerdida() {
+            const estadoSelect = document.getElementById('input-estado');
+            const razonPerdidaField = document.getElementById('razon-perdida-field');
+            const razonPerdidaInput = document.getElementById('input-razon-perdida');
+            const fechaCierreRealField = document.getElementById('fecha-cierre-real-field');
+            const fechaCierreRealInput = document.getElementById('input-fecha-cierre-real');
+
+            if (estadoSelect.value === 'Perdida') {
+                razonPerdidaField.classList.remove('hidden');
+                razonPerdidaInput.setAttribute('required', 'required');
+                fechaCierreRealField.classList.remove('hidden');
+                // Set default fecha cierre real to today
+                if (!fechaCierreRealInput.value) {
+                    fechaCierreRealInput.value = new Date().toISOString().split('T')[0];
+                }
+            } else if (estadoSelect.value === 'Ganada') {
+                razonPerdidaField.classList.add('hidden');
+                razonPerdidaInput.removeAttribute('required');
+                razonPerdidaInput.value = '';
+                fechaCierreRealField.classList.remove('hidden');
+                // Set default fecha cierre real to today
+                if (!fechaCierreRealInput.value) {
+                    fechaCierreRealInput.value = new Date().toISOString().split('T')[0];
+                }
+            } else {
+                razonPerdidaField.classList.add('hidden');
+                razonPerdidaInput.removeAttribute('required');
+                razonPerdidaInput.value = '';
+                fechaCierreRealField.classList.add('hidden');
+                fechaCierreRealInput.value = '';
+            }
+        }
+
+        // ====================
         // PIPELINE VIEW FUNCTIONS
         // ====================
 
@@ -3324,11 +3431,12 @@ código
                 const row = item.data;
                 const rowNumber = item.rowNumber;
 
-                // Updated structure: ID, ContactoID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización, Promotor, DriveFolder
-                const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio, fechaActualizacion, promotor, driveFolder] = row;
+                // New structure (22 cols): ID, ContactoID, Nombre, Empresa, Email, Teléfono, NombreOportunidad, Etapa, Responsable, Valor, Probabilidad, FechaCreacion, FechaCierreEsperada, FechaCierreReal, Estado, RazonPerdida, Fuente, Servicio, Notas, Promotor, DriveFolder, FechaActualizacion
+                const [id, contactoId, lead, empresa, email, telefono, nombreOportunidad, etapa, responsable, valor, probabilidad, fechaCreacion, fechaCierreEsperada, fechaCierreReal, estado, razonPerdida, fuente, servicio, notas, promotor, driveFolder, fechaActualizacion] = row;
 
-                // Generate badge colors
-                const etapaBadge = getBadge(etapa, 'blue');
+                // Generate badge colors based on new etapas
+                const etapaColor = getEtapaColor(etapa);
+                const etapaBadge = getBadge(etapa, etapaColor);
                 const estadoBadge = getBadge(estado, getEstadoColor(estado));
                 const servicioBadge = servicio ? getBadge(servicio, 'green') : '<span class="text-gray-400 text-xs">Sin servicio</span>';
                 const driveFolderBtn = driveFolder ? `<a href="${driveFolder}" target="_blank" class="text-amber-600 hover:text-amber-800 inline-flex" title="Abrir carpeta Google Drive">${getIcon('folder')}</a>` : '';
@@ -3336,14 +3444,14 @@ código
                     `<button onclick="deletePipelineLead(${rowNumber})" class="text-red-600 hover:text-red-800 inline-flex" title="Eliminar">${getIcon('trash')}</button>` : '';
                 const historialBtn = `<button onclick="showHistorialModal('Pipeline', '${id}', '${lead} - ${empresa}')" class="text-purple-600 hover:text-purple-800 inline-flex" title="Ver historial">${getIcon('history')}</button>`;
 
-                // Hide edit button if lead is "Ganado" (won leads should be edited in Proyectos)
-                const editBtn = estado !== 'Ganado'
+                // Hide edit button if lead is "Ganada" (won leads should be edited in Proyectos)
+                const editBtn = estado !== 'Ganada'
                     ? `<button onclick='editPipelineLead(${rowNumber}, ${JSON.stringify(row)})' class="text-blue-600 hover:text-blue-800 inline-flex" title="Editar">${getIcon('edit')}</button>`
                     : `<span class="text-gray-300 inline-flex cursor-not-allowed" title="Lead ganado - editar en Proyectos">${getIcon('edit')}</span>`;
 
                 return `
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${lead || '-'}</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${nombreOportunidad || lead || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${empresa || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-600">${email || '-'}</td>
                         <td class="px-4 py-3 text-sm">${servicioBadge}</td>
@@ -3417,10 +3525,36 @@ código
          */
         function getEstadoColor(estado) {
             switch (estado) {
+                case 'Abierta': return 'blue';
+                case 'Ganada': return 'green';
+                case 'Perdida': return 'red';
+                // Legacy support
                 case 'Activo': return 'blue';
                 case 'Ganado': return 'green';
                 case 'Perdido': return 'red';
                 case 'Pausado': return 'yellow';
+                default: return 'gray';
+            }
+        }
+
+        /**
+         * Get etapa color for pipeline stages
+         */
+        function getEtapaColor(etapa) {
+            switch (etapa) {
+                case 'Lead': return 'gray';
+                case 'Contactado': return 'blue';
+                case 'Calificado': return 'blue';
+                case 'Propuesta Enviada': return 'yellow';
+                case 'Negociación': return 'yellow';
+                case 'Cierre Verbal': return 'green';
+                case 'Contrato Firmado': return 'green';
+                case 'Ganado': return 'green';
+                case 'Perdido': return 'red';
+                // Legacy support
+                case 'Contacto': return 'blue';
+                case 'Propuesta': return 'yellow';
+                case 'Cierre': return 'green';
                 default: return 'gray';
             }
         }
@@ -3715,12 +3849,16 @@ código
                 const email = contactoData.email;
                 const telefono = contactoData.telefono;
 
+                const nombreOportunidad = document.getElementById('input-nombre-oportunidad').value;
                 const etapa = document.getElementById('input-etapa').value;
+                const responsable = document.getElementById('input-responsable').value;
                 const valor = document.getElementById('input-valor').value;
                 const probabilidad = document.getElementById('input-probabilidad').value;
                 const fechaContacto = document.getElementById('input-fecha-contacto').value;
                 const fechaCierre = document.getElementById('input-fecha-cierre').value;
+                const fechaCierreReal = document.getElementById('input-fecha-cierre-real').value;
                 const estado = document.getElementById('input-estado').value;
+                const razonPerdida = estado === 'Perdida' ? document.getElementById('input-razon-perdida').value : '';
                 const fuente = document.getElementById('input-fuente').value;
                 const notas = document.getElementById('input-notas').value;
                 const servicioDropdown = document.getElementById('input-servicio');
@@ -3743,17 +3881,26 @@ código
                 }
                 // Clear pending servicio after use
                 servicioDropdown.removeAttribute('data-pending-servicio');
-                const promotor = fuente === 'Referido' ? document.getElementById('input-promotor').value : '';
+                const isReferido = fuente.includes('Referido');
+                const promotor = isReferido ? document.getElementById('input-promotor').value : '';
                 const driveFolder = document.getElementById('input-drive-pipeline').value;
                 const fechaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
                 // Validate promotor if fuente is Referido
-                if (fuente === 'Referido' && !promotor) {
+                if (isReferido && !promotor) {
                     showToast('Debes seleccionar un promotor cuando la fuente es Referido', 'error');
+                    enableSubmitButton(submitBtn, originalBtnText);
                     return;
                 }
 
-                // Create row data (18 columns A-R: ID, Contacto ID, Nombre, Empresa, Email, Teléfono, Etapa, Valor, Probabilidad, FechaContacto, FechaCierre, Estado, Fuente, Notas, Servicio, FechaActualización, Promotor, DriveFolder)
+                // Validate razon perdida if estado is Perdida
+                if (estado === 'Perdida' && !razonPerdida) {
+                    showToast('Debes seleccionar una razón de pérdida', 'error');
+                    enableSubmitButton(submitBtn, originalBtnText);
+                    return;
+                }
+
+                // Create row data (22 columns A-V: ID, ContactoID, Nombre, Empresa, Email, Teléfono, NombreOportunidad, Etapa, Responsable, Valor, Probabilidad, FechaCreacion, FechaCierreEsperada, FechaCierreReal, Estado, RazonPerdida, Fuente, Servicio, Notas, Promotor, DriveFolder, FechaActualizacion)
                 const rowData = [[
                     id,
                     contactoId,
@@ -3761,18 +3908,22 @@ código
                     empresa,
                     email,
                     telefono,
+                    nombreOportunidad,
                     etapa,
+                    responsable,
                     valor,
                     probabilidad,
                     fechaContacto,
                     fechaCierre,
+                    fechaCierreReal,
                     estado,
+                    razonPerdida,
                     fuente,
-                    notas,
                     servicio,
-                    fechaActualizacion,
+                    notas,
                     promotor,
-                    driveFolder
+                    driveFolder,
+                    fechaActualizacion
                 ]];
 
                 if (isEditing) {
@@ -3801,13 +3952,13 @@ código
                         }
                     }
 
-                    // Update existing row (18 columns A-R)
-                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:R${editRow}`, rowData);
+                    // Update existing row (22 columns A-V)
+                    await sheetsAPI.updateSheet(CONFIG.SHEETS.PIPELINE, `A${editRow}:V${editRow}`, rowData);
                     showToast('Lead actualizado exitosamente', 'success');
 
-                    // Check if estado changed to "Ganado" → Create project automatically
-                    if (estado === 'Ganado') {
-                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
+                    // Check if estado changed to "Ganada" → Create project automatically
+                    if (estado === 'Ganada') {
+                        const createProject = confirm(`🎉 Lead marcado como GANADA!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
                             await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData, driveFolder);
                         }
@@ -3826,9 +3977,9 @@ código
 
                     showToast('Lead guardado exitosamente', 'success');
 
-                    // Check if new lead is already "Ganado" → Create project automatically
-                    if (estado === 'Ganado') {
-                        const createProject = confirm(`🎉 Lead marcado como GANADO!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
+                    // Check if new lead is already "Ganada" → Create project automatically
+                    if (estado === 'Ganada') {
+                        const createProject = confirm(`🎉 Lead marcado como GANADA!\n\n¿Deseas crear el proyecto automáticamente?\n\nCliente: ${empresa}\nServicio: ${servicioData ? servicioData.nombre : 'N/A'}\nValor: ${formatCurrency(parseFloat(valor))}`);
                         if (createProject) {
                             await convertLeadToProject(id, lead, empresa, email, telefono, valor, servicioData, driveFolder);
                         }
@@ -4121,7 +4272,8 @@ código
          * Edit Pipeline lead
          */
         function editPipelineLead(rowNumber, rowData) {
-            const [id, contactoId, lead, empresa, email, telefono, etapa, valor, probabilidad, fechaContacto, fechaCierre, estado, fuente, notas, servicio, fechaActualizacion, promotor, driveFolder] = rowData;
+            // New structure (22 cols): ID, ContactoID, Nombre, Empresa, Email, Teléfono, NombreOportunidad, Etapa, Responsable, Valor, Probabilidad, FechaCreacion, FechaCierreEsperada, FechaCierreReal, Estado, RazonPerdida, Fuente, Servicio, Notas, Promotor, DriveFolder, FechaActualizacion
+            const [id, contactoId, lead, empresa, email, telefono, nombreOportunidad, etapa, responsable, valor, probabilidad, fechaCreacion, fechaCierreEsperada, fechaCierreReal, estado, razonPerdida, fuente, servicio, notas, promotor, driveFolder, fechaActualizacion] = rowData;
 
             // Scroll to form
             document.getElementById('form-pipeline').scrollIntoView({ behavior: 'smooth' });
@@ -4140,21 +4292,31 @@ código
                 }
             }
 
+            // Pre-fill new fields
+            document.getElementById('input-nombre-oportunidad').value = nombreOportunidad || '';
+            document.getElementById('input-responsable').value = responsable || 'Mauricio';
+
             // Pre-fill other form fields
-            document.getElementById('input-etapa').value = etapa || '';
+            document.getElementById('input-etapa').value = etapa || 'Lead';
             document.getElementById('input-valor').value = valor || '';
             document.getElementById('input-probabilidad').value = probabilidad || '';
-            document.getElementById('input-fecha-contacto').value = formatDateForInput(fechaContacto);
-            document.getElementById('input-fecha-cierre').value = formatDateForInput(fechaCierre);
-            document.getElementById('input-estado').value = estado || '';
+            document.getElementById('input-fecha-contacto').value = formatDateForInput(fechaCreacion);
+            document.getElementById('input-fecha-cierre').value = formatDateForInput(fechaCierreEsperada);
+            document.getElementById('input-fecha-cierre-real').value = formatDateForInput(fechaCierreReal);
+            document.getElementById('input-estado').value = estado || 'Abierta';
+            document.getElementById('input-razon-perdida').value = razonPerdida || '';
             document.getElementById('input-fuente').value = fuente || '';
             document.getElementById('input-drive-pipeline').value = driveFolder || '';
             document.getElementById('input-notas').value = notas || '';
 
-            // Show/hide and pre-select Promotor field if Fuente is Referido
+            // Show/hide conditional fields
+            toggleRazonPerdida();
+
+            // Show/hide and pre-select Promotor field if Fuente includes Referido
             const promotorField = document.getElementById('promotor-field');
             const promotorDropdown = document.getElementById('input-promotor');
-            if (fuente === 'Referido') {
+            const isReferido = fuente && fuente.includes('Referido');
+            if (isReferido) {
                 promotorField.classList.remove('hidden');
                 promotorDropdown.setAttribute('required', 'required');
                 promotorDropdown.value = promotor || '';
@@ -4376,7 +4538,8 @@ código
 
                 // Add event listener to show/hide Promotor field based on Fuente
                 fuenteSelect.addEventListener('change', (e) => {
-                    if (e.target.value === 'Referido') {
+                    const isReferido = e.target.value.includes('Referido');
+                    if (isReferido) {
                         promotorField.classList.remove('hidden');
                         dropdown.setAttribute('required', 'required');
                     } else {

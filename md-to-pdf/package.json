@@ -1,0 +1,25 @@
+{
+  "name": "metrik-md-to-pdf",
+  "version": "1.0.0",
+  "description": "Conversor de Markdown a PDF con logos de MéTRIK",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "convert": "node index.js",
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "markdown",
+    "pdf",
+    "converter",
+    "metrik"
+  ],
+  "author": "MéTRIK",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.22.1",
+    "marked": "^15.0.0",
+    "puppeteer": "^23.0.0"
+  }
+}
